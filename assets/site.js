@@ -1,6 +1,7 @@
 /* Hero House Books test site: renders the header, gift cards, product pages and book previews. Nothing here takes orders or stores anything. */
 (function(){
 const A=window.HHArt, G=window.HHGifts;
+const fill=svg=>svg.replace("<svg ","<svg preserveAspectRatio=\"xMidYMid slice\" ");
 const root=document.body.dataset.root||"";
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const logo=`<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 19 L20 6 L35 19 V35 H5Z" fill="#0f7c86"/><path d="M11 22.5 q9 -4.5 9 2 q0 -6.5 9 -2 v9.5 q-9 -4 -9 2 q0 -6 -9 -2z" fill="#fffdf7"/><circle cx="20" cy="14" r="2.6" fill="#f2a900"/></svg>`;
@@ -29,11 +30,11 @@ function book(el,sample){
   el.addEventListener("keydown",e=>{if(e.key==="ArrowRight"){i=Math.min(n-1,i+1);show();}if(e.key==="ArrowLeft"){i=Math.max(0,i-1);show();}});
   show();
 }
-function card(g){return `<a class="card" href="${root}gifts/${g.id}.html" data-tags="${g.tags.join(" ")}"><div class="art">${art(g.card)}</div><div class="body"><span class="for">${esc(g.forLine)}</span><h3>${esc(g.name)}</h3><p>${esc(g.tagline)}</p><span class="price">$${g.price}</span></div></a>`;}
+function card(g){return `<a class="card" href="${root}gifts/${g.id}.html" data-tags="${g.tags.join(" ")}"><div class="art">${fill(art(g.card))}</div><div class="body"><span class="for">${esc(g.forLine)}</span><h3>${esc(g.name)}</h3><p>${esc(g.tagline)}</p><span class="price">$${g.price}</span></div></a>`;}
 function home(){
   const grid=document.getElementById("grid");if(!grid)return;
   grid.innerHTML=G.map(card).join("");
-  const q=document.getElementById("quote-art");if(q)q.innerHTML=art("kidDad");
+  const q=document.getElementById("quote-art");if(q)q.innerHTML=fill(art("kidDad"));
   const chips=document.querySelectorAll(".chips button");
   chips.forEach(c=>c.addEventListener("click",()=>{chips.forEach(x=>x.setAttribute("aria-pressed",x===c));const t=c.dataset.tag;
     grid.querySelectorAll(".card").forEach(k=>k.hidden=!(t==="all"||k.dataset.tags.split(" ").includes(t)));}));

@@ -50,7 +50,72 @@ dialog::backdrop{background:rgba(15,10,35,.6)}
 @media (prefers-reduced-motion:reduce){.frame{transition:none}.art:hover .frame{transform:none}}
 .backbar{background:#fff3cf;color:#1c2340;font-size:13px;text-align:center;padding:7px 12px;font-family:Inter,system-ui,sans-serif}.backbar a{color:#0f7c86;font-weight:600}
 body{margin:0}
-</style></head><body>
+/* Premium display: frames, wall colors, salon hang, museum room, slideshow */
+.toolbar{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:flex-end;background:var(--frame);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.tgroup{display:flex;flex-direction:column;gap:7px;min-width:0}
+.tgroup>span{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{font:600 13.5px var(--body);color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:99px;padding:5px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.seg button.sw{width:28px;height:28px;padding:0;border:2px solid rgba(0,0,0,.15)}
+.seg button.sw[aria-pressed="true"]{outline:3px solid var(--accent);outline-offset:2px;background:var(--c)}
+.seg button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wall{--wallc:#f4f1ea;--wallink:#2b2540;--wallmuted:#6c6584;color:var(--wallink);background:radial-gradient(ellipse 70% 45% at 50% 0%,rgba(255,255,255,.5),transparent 70%),var(--wallc);border-radius:16px;padding:clamp(18px,4vw,44px);box-shadow:inset 0 -40px 50px -40px rgba(0,0,0,.25);transition:background-color .4s}
+.wall[data-wall="sage"]{--wallc:#c7d4bf}
+.wall[data-wall="blush"]{--wallc:#ecd3cb}
+.wall[data-wall="navy"]{--wallc:#26324f;--wallink:#f3f0ff;--wallmuted:#c3c9e2}
+.wall[data-wall="charcoal"]{--wallc:#2f2d33;--wallink:#f4f2f7;--wallmuted:#bdb8c8}
+.wall .label small,.wall .year h2 span{color:var(--wallmuted)}
+.wall .quote{color:var(--wallink)}
+/* frames */
+.frame{padding:var(--fp,6px);background:#fff;border-radius:2px;position:relative;transition:transform .25s,box-shadow .25s;box-shadow:0 2px 3px rgba(0,0,0,.18),0 18px 30px -14px rgba(20,15,40,.55)}
+.mat{background:#fbfaf6;padding:var(--mp,18px);box-shadow:inset 1px 1px 4px rgba(0,0,0,.18),inset 0 0 0 1px rgba(0,0,0,.05)}
+.mat .paper{background:#fffdf7}
+body[data-frame="oak"] .frame{--fp:13px;--mp:14px;background:repeating-linear-gradient(90deg,rgba(60,30,0,.07) 0 2px,transparent 2px 6px,rgba(255,240,210,.06) 6px 7px,transparent 7px 11px),linear-gradient(135deg,#d3a067,#a8743f 35%,#c99158 55%,#8c5a2c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25),inset 2px 2px 0 rgba(255,235,200,.35),inset -2px -2px 0 rgba(60,30,0,.3),0 2px 3px rgba(0,0,0,.2),0 18px 30px -14px rgba(20,15,40,.6)}
+body[data-frame="gold"] .frame{--fp:17px;--mp:16px;background:linear-gradient(135deg,#f7e48a,#c9982c 22%,#fff2b0 42%,#b5841a 64%,#f2d468 82%,#9c7012);box-shadow:inset 0 0 0 2px #7d5a10,inset 0 0 0 6px #ecc95e,inset 0 0 0 8px #6e4f0e,inset 0 0 0 11px #d9b245,0 2px 3px rgba(0,0,0,.25),0 20px 34px -14px rgba(20,15,40,.65)}
+body[data-frame="black"] .frame{--fp:7px;--mp:20px;background:linear-gradient(135deg,#2b2930,#141217);box-shadow:inset 1px 1px 0 rgba(255,255,255,.12),0 2px 3px rgba(0,0,0,.25),0 18px 30px -14px rgba(20,15,40,.6)}
+body[data-frame="float"] .frame{--fp:0;--mp:0;background:none;box-shadow:0 14px 26px -12px rgba(0,0,0,.45)}
+body[data-frame="float"] .mat{box-shadow:none}
+.art:hover .frame{transform:translateY(-3px)}
+/* salon hang */
+.salon{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:clamp(18px,3vw,34px)}
+.salon .art{width:var(--w);margin-top:var(--mt)}
+.salon .label{align-items:center;text-align:center}
+.salon .label .quote,.salon .label small{display:none}
+.salon .label strong{font-size:13px;font-family:var(--body);font-weight:600;color:var(--wallmuted)}
+@media (max-width:600px){.salon .art{width:calc(var(--w)*.62)}}
+/* museum room */
+.roomwrap{display:flex;flex-direction:column;gap:12px}
+.room{position:relative;height:clamp(340px,56vw,520px);perspective:760px;perspective-origin:50% 42%;overflow:hidden;border-radius:16px;background:#111}
+.scene{position:absolute;inset:0;transform-style:preserve-3d;animation:walk 18s ease-in-out infinite alternate;animation-play-state:var(--play,running)}
+@keyframes walk{0%{transform:translateZ(-40px) rotateY(0)}35%{transform:translateZ(260px) rotateY(-6deg)}70%{transform:translateZ(420px) rotateY(5deg)}100%{transform:translateZ(520px) rotateY(0)}}
+.rw{position:absolute;background:radial-gradient(ellipse 50% 60% at 50% 20%,rgba(255,255,255,.18),transparent 70%),var(--wallc);backface-visibility:hidden}
+.rw.back{left:0;top:0;width:100%;height:100%;transform:translateZ(-760px);display:flex;justify-content:center;align-items:center;gap:8%}
+.rw.left{left:0;top:0;height:100%;width:760px;transform-origin:left center;transform:rotateY(90deg);filter:brightness(.88)}
+.rw.right{right:0;top:0;height:100%;width:760px;transform-origin:right center;transform:rotateY(-90deg);filter:brightness(.92)}
+.rw.floor{left:0;bottom:0;width:100%;height:760px;transform-origin:bottom center;transform:rotateX(90deg);background:repeating-linear-gradient(90deg,rgba(0,0,0,.08) 0 2px,transparent 2px 60px),linear-gradient(#b78a5c,#9a6d42);filter:none}
+.rw.ceil{left:0;top:0;width:100%;height:760px;transform-origin:top center;transform:rotateX(-90deg);background:repeating-linear-gradient(0deg,#e9e6e0 0 120px,#fffbe8 120px 132px);filter:brightness(.95)}
+.rw .art{position:absolute;width:150px;top:26%}
+.rw.back .art{position:static;width:min(28%,180px)}
+.rw .art::before{content:"";position:absolute;left:-30%;right:-30%;top:-40%;height:80%;background:radial-gradient(ellipse at 50% 0%,rgba(255,248,220,.55),transparent 70%);pointer-events:none}
+.rw .label{display:none}
+.bench{position:absolute;left:50%;bottom:0;width:240px;height:46px;margin-left:-120px;transform:translateZ(-420px) translateY(-0px);background:linear-gradient(#5b4636,#3e2f24);border-radius:4px;box-shadow:0 10px 20px rgba(0,0,0,.4)}
+.roomctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:13px}
+.roomctl button,.showctl button{font:600 14px var(--body);background:var(--frame);color:var(--ink);border:1.5px solid var(--line);border-radius:99px;padding:6px 14px;cursor:pointer}
+/* slideshow */
+.show{position:relative;height:clamp(340px,60vw,560px);overflow:hidden;border-radius:16px}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;opacity:0;transition:opacity 1.1s ease;padding:24px}
+.slide.on{opacity:1}
+.slide .art{width:min(62%,460px);cursor:default}
+.slide.on .frame{animation:kb 6s ease-out both}
+@keyframes kb{from{transform:scale(1) translateY(6px)}to{transform:scale(1.05) translateY(0)}}
+.slide .label{align-items:center;text-align:center;max-width:46ch}
+.slide .quote{font-size:20px}
+.showctl{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+.dots{display:flex;gap:6px}.dots span{width:8px;height:8px;border-radius:50%;background:var(--line)}.dots span.on{background:var(--accent)}
+.show:fullscreen{border-radius:0;height:100vh}
+@media (prefers-reduced-motion:reduce){.scene{animation:none}.slide.on .frame{animation:none}.slide{transition:none}}
+</style></head><body data-frame="oak">
 <div class="backbar">Test site: Maya and her drawings are made up. <a href="../index.html">Hero House Books home</a> · <a href="../gifts/fridge-gallery.html">The Fridge Gallery gift</a></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -61,17 +126,25 @@ body{margin:0}
   <span class="sample">Sample gallery · made-up drawings, not a real child</span>
   <header>
     <h1>Maya's Art Gallery</h1>
-    <p class="sub">Every drawing Maya brought home from school, saved in one place, with the story she told about each one.</p>
+    <p class="sub">Every drawing Maya brought home from school, framed and hung in one place, with the story she told about each one.</p>
     <div class="stats"><span><b>8</b> pieces</span><span><b>3</b> school years</span><span>Pre-K to 1st grade</span><span>Shared with grandparents</span></div>
   </header>
+  <div class="toolbar" role="group" aria-label="Display settings">
+    <div class="tgroup"><span>View</span><div class="seg" data-opt="view">
+      <button type="button" data-v="grid" aria-pressed="true">By school year</button><button type="button" data-v="salon" aria-pressed="false">Salon wall</button><button type="button" data-v="room" aria-pressed="false">Museum room</button><button type="button" data-v="show" aria-pressed="false">Slideshow</button></div></div>
+    <div class="tgroup"><span>Frame</span><div class="seg" data-opt="frame">
+      <button type="button" data-v="oak" aria-pressed="true">Oak</button><button type="button" data-v="mat" aria-pressed="false">White mat</button><button type="button" data-v="gold" aria-pressed="false">Gold</button><button type="button" data-v="black" aria-pressed="false">Black</button><button type="button" data-v="float" aria-pressed="false">No frame</button></div></div>
+    <div class="tgroup"><span>Wall</span><div class="seg" data-opt="wall">
+      <button type="button" class="sw" style="--c:#f4f1ea;background:#f4f1ea" data-v="white" aria-pressed="true" aria-label="Gallery white"></button><button type="button" class="sw" style="--c:#c7d4bf;background:#c7d4bf" data-v="sage" aria-pressed="false" aria-label="Sage"></button><button type="button" class="sw" style="--c:#ecd3cb;background:#ecd3cb" data-v="blush" aria-pressed="false" aria-label="Blush"></button><button type="button" class="sw" style="--c:#26324f;background:#26324f" data-v="navy" aria-pressed="false" aria-label="Navy"></button><button type="button" class="sw" style="--c:#2f2d33;background:#2f2d33" data-v="charcoal" aria-pressed="false" aria-label="Charcoal"></button></div></div>
+  </div>
   <nav class="tabs" aria-label="Filter by school year">
-    <button type="button" id="t-all" aria-pressed="true" data-y="all">All years</button>
-    <button type="button" id="t-1" aria-pressed="false" data-y="1st">1st grade</button>
-    <button type="button" id="t-k" aria-pressed="false" data-y="K">Kindergarten</button>
-    <button type="button" id="t-p" aria-pressed="false" data-y="Pre-K">Pre-K</button>
+    <button type="button" aria-pressed="true" data-y="all">All years</button>
+    <button type="button" aria-pressed="false" data-y="1st">1st grade</button>
+    <button type="button" aria-pressed="false" data-y="K">Kindergarten</button>
+    <button type="button" aria-pressed="false" data-y="Pre-K">Pre-K</button>
   </nav>
-  <main id="gallery"></main>
-  <p class="footer-note">How it works: parents snap or scan each piece, add what their child said about it, and we clean up the photo, crop it and hang it here. At the end of the year the whole wall becomes a printed hardcover art book.</p>
+  <div class="wall" id="wall" data-wall="white"><div id="gallery"></div></div>
+  <p class="footer-note">How it works: parents snap or scan each piece, add what their child said about it, and we clean up the photo, crop it and hang it here. Grandparents get the link. At the end of the year the whole wall becomes a printed hardcover art book.</p>
 </div>
 
 <dialog id="dlg" aria-label="Artwork">
@@ -81,7 +154,6 @@ body{margin:0}
     <p class="quote" id="d-quote"></p>
   </div>
 </dialog>
-
 <script>
 const C={red:"#e5484d",org:"#f28c28",yel:"#f5c518",grn:"#3fa34d",blu:"#2f6fdb",pur:"#8a4fd1",brn:"#8a5a33",blk:"#2b2540",pnk:"#f26fa8",sky:"#8fd3ff"};
 const g=(s)=>`<svg viewBox="0 0 400 300" role="img"><g filter="url(#crayon)" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="5">${s}</g></svg>`;
@@ -138,32 +210,67 @@ const art=[
   <path d="M310 160 c-15 -25 30 -30 15 -5 c25 0 0 30 -15 5" stroke="${C.blu}"/><circle cx="360" cy="155" r="15" stroke="${C.org}"/>`)}
 ];
 const years=[{k:"1st",n:"1st grade",r:"2026–27"},{k:"K",n:"Kindergarten",r:"2025–26"},{k:"Pre-K",n:"Pre-K",r:"2024–25"}];
-const main=document.getElementById("gallery");
-function render(f){
-  main.innerHTML="";
-  years.filter(y=>f==="all"||y.k===f).forEach(y=>{
-    const items=art.map((a,i)=>({...a,i})).filter(a=>a.y===y.k);
-    const sec=document.createElement("section");sec.className="year";
-    sec.innerHTML=`<h2>${y.n} <span>${y.r} · ${items.length} pieces</span></h2><div class="grid"></div>`;
-    const grid=sec.querySelector(".grid");
-    items.forEach(a=>{
-      const b=document.createElement("button");b.className="art";b.type="button";b.setAttribute("aria-label",`Open ${a.t}`);
-      b.innerHTML=`<div class="frame"><div class="paper">${a.s}</div></div><div class="label"><strong>${a.t}</strong><small>${a.d}</small><span class="quote">${a.q}</span></div>`;
-      b.addEventListener("click",()=>openArt(a.i));grid.appendChild(b);
-    });
-    main.appendChild(sec);
-  });
-  main.style.display="flex";main.style.flexDirection="column";main.style.gap="34px";
+const main=document.getElementById("gallery"),wall=document.getElementById("wall");
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const st={view:"grid",y:"all"};let timer=null,slideI=0;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const items=()=>art.map((a,i)=>({...a,i})).filter(a=>st.y==="all"||a.y===st.y);
+const piece=(a,tag="button")=>`<${tag} class="art" ${tag==="button"?`type="button" data-open="${a.i}" aria-label="Open ${esc(a.t)}"`:""} style="position:relative"><div class="frame"><div class="mat"><div class="paper">${a.s}</div></div></div><div class="label"><strong>${esc(a.t)}</strong><small>${esc(a.d)}</small><span class="quote">${esc(a.q)}</span></div></${tag}>`;
+function stop(){clearInterval(timer);timer=null;}
+function render(){
+  stop();main.removeAttribute("style");
+  const list=items();
+  if(st.view==="grid"){
+    main.style.cssText="display:flex;flex-direction:column;gap:34px";
+    main.innerHTML=years.filter(y=>st.y==="all"||y.k===st.y).map(y=>{const its=list.filter(a=>a.y===y.k);
+      return `<section class="year"><h2>${y.n} <span>${y.r} · ${its.length} pieces</span></h2><div class="grid">${its.map(a=>piece(a)).join("")}</div></section>`;}).join("");
+  }
+  if(st.view==="salon"){
+    const W=[250,170,210,290,190,230,165,260],M=[0,40,-20,10,30,-10,50,0];
+    main.innerHTML=`<div class="salon">${list.map((a,k)=>piece(a).replace('style="position:relative"',`style="position:relative;--w:${W[k%8]}px;--mt:${M[k%8]}px"`)).join("")}</div>`;
+  }
+  if(st.view==="room"){
+    const L=list.slice(0,3),B=list.slice(3,5),R=list.slice(5,8);
+    const side=arr=>arr.map((a,k)=>piece(a).replace('style="position:relative"',`style="left:${110+k*215}px"`)).join("");
+    main.innerHTML=`<div class="roomwrap"><div class="room" id="room"><div class="scene" id="scene">
+      <div class="rw ceil"></div><div class="rw floor"></div>
+      <div class="rw left">${side(L)}</div><div class="rw right">${side(R)}</div>
+      <div class="rw back">${B.map(a=>piece(a)).join("")}</div><div class="bench"></div></div></div>
+      <div class="roomctl"><button type="button" id="walk">${reduce?"Walk through":"Pause"}</button><span>A slow walk through Maya's room. Tap a drawing to see it up close.</span></div></div>`;
+    const sc=document.getElementById("scene");let playing=!reduce;sc.style.setProperty("--play",playing?"running":"paused");
+    if(reduce)sc.style.animation="walk 18s ease-in-out infinite alternate paused";
+    document.getElementById("walk").onclick=e=>{playing=!playing;sc.style.animation="";sc.style.setProperty("--play",playing?"running":"paused");e.target.textContent=playing?"Pause":"Walk through";};
+  }
+  if(st.view==="show"){
+    slideI=0;
+    main.innerHTML=`<div class="show" id="show">${list.map((a,k)=>`<div class="slide${k===0?" on":""}">${piece(a,"div")}</div>`).join("")}</div>
+      <div class="showctl"><button type="button" data-s="-1">Back</button><button type="button" id="play">${reduce?"Play":"Pause"}</button><button type="button" data-s="1">Next</button><div class="dots">${list.map((_,k)=>`<span${k===0?' class="on"':""}></span>`).join("")}</div><button type="button" id="fs">Full screen</button></div>`;
+    const sl=[...main.querySelectorAll(".slide")],dots=[...main.querySelectorAll(".dots span")];
+    const go=n=>{sl[slideI].classList.remove("on");dots[slideI].classList.remove("on");slideI=(n+sl.length)%sl.length;sl[slideI].classList.add("on");dots[slideI].classList.add("on");};
+    const play=()=>{timer=setInterval(()=>go(slideI+1),5200);document.getElementById("play").textContent="Pause";};
+    main.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>go(slideI+ +b.dataset.s));
+    document.getElementById("play").onclick=()=>{if(timer){stop();document.getElementById("play").textContent="Play";}else play();};
+    const show=document.getElementById("show");
+    document.getElementById("fs").onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else if(show.requestFullscreen){show.style.background=getComputedStyle(wall).backgroundColor;show.requestFullscreen().catch(()=>{});}};
+    if(!reduce&&sl.length>1)play();
+  }
 }
 const dlg=document.getElementById("dlg");
 function openArt(i){const a=art[i];
   document.getElementById("d-title").textContent=a.t;document.getElementById("d-meta").textContent=a.d;
   document.getElementById("d-art").innerHTML=a.s;document.getElementById("d-quote").textContent=a.q;
   if(dlg.showModal)dlg.showModal();}
+main.addEventListener("click",e=>{const b=e.target.closest("[data-open]");if(b)openArt(+b.dataset.open);});
 document.getElementById("d-close").addEventListener("click",()=>dlg.close());
 dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close();});
+document.querySelectorAll(".seg").forEach(seg=>seg.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  seg.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
+  const o=seg.dataset.opt,v=b.dataset.v;
+  if(o==="frame")document.body.dataset.frame=v;
+  if(o==="wall")wall.dataset.wall=v;
+  if(o==="view"){st.view=v;render();}}));
 document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>{
-  document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));render(b.dataset.y);}));
-render("all");
+  document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));st.y=b.dataset.y;render();}));
+render();
 </script>
 </body></html>

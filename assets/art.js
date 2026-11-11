@@ -65,12 +65,12 @@ A.couple=()=>flat(`<rect width="400" height="400" fill="#dfe7ff"/><circle cx="20
 A.cafe=()=>flat(`<rect width="400" height="400" fill="#f4e3d3"/><rect x="40" y="40" width="320" height="150" rx="10" fill="#c7e1ea"/><path d="M40 115 h320 M200 40 v150" stroke="#fff" stroke-width="6"/><rect y="260" width="400" height="140" fill="#b68d6a"/>
  <rect x="130" y="250" width="140" height="14" rx="4" fill="#6b4c36"/>${person(120,360,.9,{shirt:P.navy,hair:P.hair1,skin:P.skin3})}${person(285,360,.9,{shirt:"#e5484d",hair:P.hair1,long:true,skin:P.skin2})}
  <rect x="175" y="232" width="16" height="18" rx="3" fill="#fff"/><rect x="210" y="232" width="16" height="18" rx="3" fill="#fff"/>`);
-A.office=()=>flat(`<rect width="400" height="400" fill="#e8f1ef"/><rect x="30" y="50" width="340" height="120" rx="8" fill="#ffffff" stroke="#c9d8d5" stroke-width="4"/>
- <text x="200" y="120" text-anchor="middle" font-family="Bricolage Grotesque,Segoe UI,sans-serif" font-size="30" font-weight="700" fill="${P.teal}">Thank you, Denise!</text>
+A.office=(n)=>flat(`<rect width="400" height="400" fill="#e8f1ef"/><rect x="30" y="50" width="340" height="120" rx="8" fill="#ffffff" stroke="#c9d8d5" stroke-width="4"/>
+ <text x="200" y="120" text-anchor="middle" font-family="Bricolage Grotesque,Segoe UI,sans-serif" font-size="30" font-weight="700" fill="${P.teal}">Thank you, ${String(n||"Denise").replace(/[&<>"]/g,"").slice(0,22)}!</text>
  ${person(80,370,.8,{shirt:P.sun,hair:P.hair2,long:true})}${person(150,370,.85,{shirt:P.teal,hair:P.hair1,skin:P.skin3})}${person(220,370,.95,{shirt:"#7a5af8",hair:P.hair3,long:true,glasses:true,skin:P.skin2,wave:true})}${person(290,370,.85,{shirt:P.red,hair:P.hair1,beard:true})}${person(350,370,.78,{shirt:P.navy,hair:P.hair1,skin:P.skin2})}`);
 A.cake=(n)=>flat(`<rect width="400" height="400" fill="#fff1d6"/><rect x="110" y="200" width="180" height="110" rx="12" fill="#f7b6c8"/><rect x="110" y="200" width="180" height="26" rx="12" fill="#fff"/>
- <rect x="70" y="305" width="260" height="14" rx="7" fill="#d9a066"/>${[0,1,2,3,4].slice(0,Math.min(n||5,5)).map(i=>`<rect x="${150+i*25}" y="160" width="8" height="40" fill="${[P.blu,P.grn,P.red,P.pur,P.org][i]}"/><path d="M${154+i*25} 148 q6 8 0 14 q-6 -6 0 -14z" fill="${P.sun}"/>`).join("")}
- <text x="200" y="275" text-anchor="middle" font-family="Caveat,cursive" font-size="40" fill="#8a3550">${n||5}</text>`);
+ <rect x="70" y="305" width="260" height="14" rx="7" fill="#d9a066"/>${[0,1,2,3,4].slice(0,Math.min(n===undefined?5:n,5)).map(i=>`<rect x="${150+i*25}" y="160" width="8" height="40" fill="${[P.blu,P.grn,P.red,P.pur,P.org][i]}"/><path d="M${154+i*25} 148 q6 8 0 14 q-6 -6 0 -14z" fill="${P.sun}"/>`).join("")}
+ <text x="200" y="275" text-anchor="middle" font-family="Caveat,cursive" font-size="40" fill="#8a3550">${n===undefined?5:n}</text>`);
 A.desk=()=>flat(`<rect width="400" height="400" fill="#eaeef9"/><rect y="270" width="400" height="130" fill="#b9c4e0"/><rect x="70" y="160" width="160" height="110" rx="6" fill="#2b2540"/><rect x="80" y="170" width="140" height="86" fill="#8fd3ff"/>
  <rect x="260" y="200" width="44" height="70" rx="6" fill="#fff"/><rect x="250" y="226" width="12" height="20" rx="5" fill="none" stroke="#fff" stroke-width="5"/>
  <path d="M100 190 h80 M100 206 h60 M100 222 h70" stroke="#2f6fdb" stroke-width="5"/>`);

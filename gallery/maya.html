@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Maya's Art Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito+Sans:wght@400;600&family=Patrick+Hand&display=swap">
+<style>
+/* Layout: a museum-style wall for one child, salon hang of framed drawings, grouped by school year */
+:root{
+  --wall:#f3f0fa; --frame:#ffffff; --ink:#2b2540; --muted:#6c6584; --accent:#5b4bd6; --accent-soft:#e6e2fb; --mat:#fbfaf6; --line:#ddd8ec;
+  --display:"Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Nunito Sans", system-ui, -apple-system, sans-serif;
+  --hand:"Patrick Hand", "Comic Sans MS", cursive;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --wall:#1b1828; --frame:#2a2640; --ink:#efeaff; --muted:#a8a0c4; --accent:#a99cff; --accent-soft:#332c5c; --mat:#f6f4ee; --line:#3a3456; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --wall:#1b1828; --frame:#2a2640; --ink:#efeaff; --muted:#a8a0c4; --accent:#a99cff; --accent-soft:#332c5c; --mat:#f6f4ee; --line:#3a3456; color-scheme:dark}
+body{background:var(--wall);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:28px}
+.sample{align-self:flex-start;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:4px 10px;border-radius:99px}
+header{display:flex;flex-direction:column;gap:6px}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(30px,6vw,48px);line-height:1.05;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:0;max-width:60ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px 20px;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:600}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tabs button{font:600 14px var(--body);color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:99px;padding:6px 14px;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.tabs button:focus-visible,.art:focus-visible,.close:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.year{display:flex;flex-direction:column;gap:14px}
+.year h2{font-family:var(--display);font-weight:500;font-size:20px;margin:0;display:flex;align-items:baseline;gap:10px}
+.year h2 span{font-family:var(--body);font-size:13px;color:var(--muted);font-weight:400}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:22px}
+.art{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:10px;min-width:0}
+.frame{background:var(--frame);padding:12px;border-radius:4px;box-shadow:0 1px 0 var(--line),0 10px 24px -14px rgba(30,20,70,.35);transition:transform .2s}
+.art:hover .frame{transform:translateY(-3px) rotate(-.4deg)}
+.paper{background:var(--mat);aspect-ratio:4/3;display:block;width:100%;max-width:100%}
+.paper svg{width:100%;height:100%;display:block}
+.label{display:flex;flex-direction:column;gap:2px;padding-inline:2px}
+.label strong{font-family:var(--display);font-weight:500;font-size:16px}
+.label small{color:var(--muted);font-size:12.5px}
+.quote{font-family:var(--hand);font-size:17px;line-height:1.3;color:var(--ink)}
+.footer-note{border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:13px;max-width:70ch}
+dialog{border:none;border-radius:10px;padding:0;max-width:min(760px,calc(100vw - 32px));width:100%;background:var(--frame);color:var(--ink)}
+dialog::backdrop{background:rgba(15,10,35,.6)}
+.dlg{display:flex;flex-direction:column;gap:12px;padding:18px}
+.dlg .paper{aspect-ratio:4/3}
+.dlg-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.close{font:600 14px var(--body);background:var(--accent-soft);color:var(--ink);border:none;border-radius:99px;padding:6px 12px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.frame{transition:none}.art:hover .frame{transform:none}}
+.backbar{background:#fff3cf;color:#1c2340;font-size:13px;text-align:center;padding:7px 12px;font-family:Inter,system-ui,sans-serif}.backbar a{color:#0f7c86;font-weight:600}
+body{margin:0}
+</style></head><body>
+<div class="backbar">Test site: Maya and her drawings are made up. <a href="../index.html">Hero House Books home</a> · <a href="../gifts/fridge-gallery.html">The Fridge Gallery gift</a></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="crayon"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="3.2"/></filter>
+</svg>
+
+<div class="wrap">
+  <span class="sample">Sample gallery · made-up drawings, not a real child</span>
+  <header>
+    <h1>Maya's Art Gallery</h1>
+    <p class="sub">Every drawing Maya brought home from school, saved in one place, with the story she told about each one.</p>
+    <div class="stats"><span><b>8</b> pieces</span><span><b>3</b> school years</span><span>Pre-K to 1st grade</span><span>Shared with grandparents</span></div>
+  </header>
+  <nav class="tabs" aria-label="Filter by school year">
+    <button type="button" id="t-all" aria-pressed="true" data-y="all">All years</button>
+    <button type="button" id="t-1" aria-pressed="false" data-y="1st">1st grade</button>
+    <button type="button" id="t-k" aria-pressed="false" data-y="K">Kindergarten</button>
+    <button type="button" id="t-p" aria-pressed="false" data-y="Pre-K">Pre-K</button>
+  </nav>
+  <main id="gallery"></main>
+  <p class="footer-note">How it works: parents snap or scan each piece, add what their child said about it, and we clean up the photo, crop it and hang it here. At the end of the year the whole wall becomes a printed hardcover art book.</p>
+</div>
+
+<dialog id="dlg" aria-label="Artwork">
+  <div class="dlg">
+    <div class="dlg-head"><div class="label"><strong id="d-title"></strong><small id="d-meta"></small></div><button class="close" id="d-close" type="button">Close</button></div>
+    <div class="paper" id="d-art"></div>
+    <p class="quote" id="d-quote"></p>
+  </div>
+</dialog>
+
+<script>
+const C={red:"#e5484d",org:"#f28c28",yel:"#f5c518",grn:"#3fa34d",blu:"#2f6fdb",pur:"#8a4fd1",brn:"#8a5a33",blk:"#2b2540",pnk:"#f26fa8",sky:"#8fd3ff"};
+const g=(s)=>`<svg viewBox="0 0 400 300" role="img"><g filter="url(#crayon)" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="5">${s}</g></svg>`;
+const art=[
+ {y:"1st",t:"My Rocket to the Moon",d:"October, age 6",q:"\"The rocket has three windows so Mom, Dad and me can all look out. The moon is waiting.\"",s:g(`
+  <circle cx="320" cy="70" r="40" stroke="${C.yel}" fill="${C.yel}" fill-opacity=".35"/>
+  <path d="M170 230 L170 120 Q195 60 220 120 L220 230 Z" stroke="${C.red}" fill="${C.red}" fill-opacity=".25"/>
+  <circle cx="195" cy="140" r="9" stroke="${C.blu}"/><circle cx="195" cy="170" r="9" stroke="${C.blu}"/><circle cx="195" cy="200" r="9" stroke="${C.blu}"/>
+  <path d="M170 200 L145 235 L170 230 M220 200 L245 235 L220 230" stroke="${C.red}"/>
+  <path d="M180 240 Q195 290 210 240 M188 245 Q195 275 202 245" stroke="${C.org}"/>
+  <path d="M60 60 l6 12 l12 2 l-9 8 l2 12 l-11 -6 l-11 6 l2 -12 l-9 -8 l12 -2 z M100 150 l3 6 M330 200 l4 8 M60 230 l3 6" stroke="${C.yel}"/>`)},
+ {y:"1st",t:"Our Family at the Beach",d:"September, age 6",q:"\"That's Grandpa. He's tall because he's the oldest.\"",s:g(`
+  <path d="M0 200 Q100 185 200 200 T400 200" stroke="${C.blu}"/><path d="M0 220 L400 220" stroke="${C.yel}" stroke-width="22" stroke-opacity=".5"/>
+  <circle cx="340" cy="55" r="28" stroke="${C.org}"/><path d="M340 15 v-8 M375 55 h10 M305 55 h-10 M365 30 l6 -6 M315 30 l-6 -6" stroke="${C.org}"/>
+  <circle cx="90" cy="95" r="16" stroke="${C.blk}"/><path d="M90 111 v60 M90 130 l-22 16 M90 130 l22 16 M90 171 l-14 34 M90 171 l14 34" stroke="${C.blk}"/>
+  <circle cx="160" cy="115" r="14" stroke="${C.pnk}"/><path d="M160 129 v45 M160 145 l-18 12 M160 145 l18 12 M160 174 l-12 30 M160 174 l12 30" stroke="${C.pnk}"/>
+  <circle cx="220" cy="140" r="11" stroke="${C.pur}"/><path d="M220 151 v32 M220 162 l-14 10 M220 162 l14 10 M220 183 l-9 22 M220 183 l9 22" stroke="${C.pur}"/>
+  <circle cx="275" cy="120" r="13" stroke="${C.grn}"/><path d="M275 133 v42 M275 148 l-16 12 M275 148 l16 12 M275 175 l-11 30 M275 175 l11 30" stroke="${C.grn}"/>`)},
+ {y:"1st",t:"Rainbow Cat",d:"November, age 6",q:"\"She is every color because she can't decide.\"",s:g(`
+  <ellipse cx="200" cy="190" rx="95" ry="60" stroke="${C.pur}"/>
+  <path d="M120 175 Q200 140 280 175" stroke="${C.red}"/><path d="M112 192 Q200 158 288 192" stroke="${C.org}"/><path d="M115 210 Q200 178 285 210" stroke="${C.grn}"/>
+  <circle cx="150" cy="110" r="45" stroke="${C.pur}"/><path d="M118 80 L112 40 L140 68 M182 80 L188 40 L160 68" stroke="${C.pur}"/>
+  <circle cx="135" cy="105" r="5" stroke="${C.blk}" fill="${C.blk}"/><circle cx="165" cy="105" r="5" stroke="${C.blk}" fill="${C.blk}"/>
+  <path d="M143 122 q7 8 14 0 M110 118 h-30 M110 126 l-28 8 M190 118 h30 M190 126 l28 8" stroke="${C.blk}" stroke-width="3"/>
+  <path d="M290 185 Q340 150 330 100" stroke="${C.pur}"/>`)},
+ {y:"K",t:"The Dinosaur Who Likes Tacos",d:"April, age 5",q:"\"He is a nice dinosaur. He only eats tacos, not people.\"",s:g(`
+  <path d="M70 220 Q90 120 180 130 Q230 80 270 95 Q310 100 300 125 Q280 140 245 135 Q260 180 250 220 M120 220 v30 M210 220 v30 M70 220 Q40 230 20 210" stroke="${C.grn}" fill="${C.grn}" fill-opacity=".2"/>
+  <circle cx="280" cy="110" r="4" fill="${C.blk}" stroke="${C.blk}"/>
+  <path d="M130 135 l10 -22 l12 20 l12 -24 l12 22 l10 -18" stroke="${C.org}"/>
+  <path d="M310 175 Q340 140 370 175 Z" stroke="${C.yel}" fill="${C.yel}" fill-opacity=".4"/><path d="M322 168 h36" stroke="${C.red}"/><path d="M325 160 h30" stroke="${C.grn}"/>`)},
+ {y:"K",t:"My House in the Rain",d:"February, age 5",q:"\"The rain is happy rain. It makes the flowers drink.\"",s:g(`
+  <path d="M120 250 V150 H280 V250 Z" stroke="${C.brn}"/><path d="M105 155 L200 80 L295 155" stroke="${C.red}"/>
+  <path d="M185 250 v-50 h30 v50" stroke="${C.blu}"/><path d="M140 175 h30 v25 h-30 z M230 175 h30 v25 h-30 z" stroke="${C.sky}"/>
+  <path d="M70 40 Q100 15 130 40 Q160 20 180 45 Q170 65 70 60 Z M230 35 Q260 10 290 35 Q330 20 330 50 Q300 62 232 55 Z" stroke="${C.muted||'#888'}" fill="#bfc4d6" fill-opacity=".5"/>
+  <path d="M90 80 l-4 12 M120 85 l-4 12 M150 80 l-4 12 M250 75 l-4 12 M285 80 l-4 12 M315 75 l-4 12" stroke="${C.blu}"/>
+  <path d="M60 250 v-25 M60 225 l-8 -8 M60 225 l8 -8 M340 250 v-25" stroke="${C.grn}"/><circle cx="60" cy="214" r="7" stroke="${C.pnk}"/><circle cx="340" cy="218" r="7" stroke="${C.yel}"/>`)},
+ {y:"K",t:"Me Being a Doctor",d:"January, age 5",q:"\"I'm fixing a bear's tummy. He ate too much honey.\"",s:g(`
+  <circle cx="130" cy="95" r="30" stroke="${C.brn}"/><path d="M110 85 q5 -6 10 0 M140 85 q5 -6 10 0 M118 108 q12 10 24 0" stroke="${C.blk}" stroke-width="3"/>
+  <path d="M95 125 h70 v95 h-70 z" stroke="${C.sky}" fill="${C.sky}" fill-opacity=".25"/><path d="M130 140 v20 M120 150 h20" stroke="${C.red}"/>
+  <path d="M95 140 l-25 40 M165 140 l40 25" stroke="${C.brn}"/>
+  <ellipse cx="290" cy="200" rx="60" ry="45" stroke="${C.brn}" fill="${C.brn}" fill-opacity=".2"/><circle cx="290" cy="135" r="30" stroke="${C.brn}"/>
+  <circle cx="268" cy="108" r="10" stroke="${C.brn}"/><circle cx="312" cy="108" r="10" stroke="${C.brn}"/>
+  <path d="M278 132 l4 4 M298 132 l4 4 M284 150 q6 -5 12 0" stroke="${C.blk}" stroke-width="3"/><path d="M270 205 h40 M290 190 v30" stroke="${C.pnk}"/>`)},
+ {y:"Pre-K",t:"Sun",d:"May, age 4",q:"\"It's the sun. He's smiling at you.\"",s:g(`
+  <circle cx="200" cy="150" r="70" stroke="${C.yel}" fill="${C.yel}" fill-opacity=".4"/>
+  <path d="M200 60 v-40 M200 240 v40 M110 150 h-40 M290 150 h40 M135 85 l-28 -28 M265 85 l28 -28 M135 215 l-28 28 M265 215 l28 28" stroke="${C.org}"/>
+  <circle cx="175" cy="135" r="6" fill="${C.blk}" stroke="${C.blk}"/><circle cx="225" cy="135" r="6" fill="${C.blk}" stroke="${C.blk}"/><path d="M168 168 Q200 200 232 168" stroke="${C.red}"/>`)},
+ {y:"Pre-K",t:"Scribble Garden",d:"March, age 4",q:"\"These are all the flowers. Every single one.\"",s:g(`
+  <path d="M30 260 Q60 200 50 140 M90 260 Q100 210 120 170 M160 260 v-110 M230 260 Q220 200 245 150 M300 260 Q320 220 310 160 M360 260 v-90" stroke="${C.grn}"/>
+  <path d="M50 140 c-25 -10 -10 -40 0 -20 c10 -25 35 -5 15 10 c25 5 5 35 -15 10" stroke="${C.red}"/>
+  <path d="M120 170 c-20 -20 25 -40 20 -10 c-5 25 -40 15 -20 -10" stroke="${C.pur}"/>
+  <circle cx="160" cy="135" r="18" stroke="${C.yel}"/><circle cx="160" cy="135" r="6" stroke="${C.org}" fill="${C.org}"/>
+  <path d="M245 150 c-30 -10 0 -45 10 -20 c25 -20 30 20 0 18 c10 20 -30 25 -10 2" stroke="${C.pnk}"/>
+  <path d="M310 160 c-15 -25 30 -30 15 -5 c25 0 0 30 -15 5" stroke="${C.blu}"/><circle cx="360" cy="155" r="15" stroke="${C.org}"/>`)}
+];
+const years=[{k:"1st",n:"1st grade",r:"2026–27"},{k:"K",n:"Kindergarten",r:"2025–26"},{k:"Pre-K",n:"Pre-K",r:"2024–25"}];
+const main=document.getElementById("gallery");
+function render(f){
+  main.innerHTML="";
+  years.filter(y=>f==="all"||y.k===f).forEach(y=>{
+    const items=art.map((a,i)=>({...a,i})).filter(a=>a.y===y.k);
+    const sec=document.createElement("section");sec.className="year";
+    sec.innerHTML=`<h2>${y.n} <span>${y.r} · ${items.length} pieces</span></h2><div class="grid"></div>`;
+    const grid=sec.querySelector(".grid");
+    items.forEach(a=>{
+      const b=document.createElement("button");b.className="art";b.type="button";b.setAttribute("aria-label",`Open ${a.t}`);
+      b.innerHTML=`<div class="frame"><div class="paper">${a.s}</div></div><div class="label"><strong>${a.t}</strong><small>${a.d}</small><span class="quote">${a.q}</span></div>`;
+      b.addEventListener("click",()=>openArt(a.i));grid.appendChild(b);
+    });
+    main.appendChild(sec);
+  });
+  main.style.display="flex";main.style.flexDirection="column";main.style.gap="34px";
+}
+const dlg=document.getElementById("dlg");
+function openArt(i){const a=art[i];
+  document.getElementById("d-title").textContent=a.t;document.getElementById("d-meta").textContent=a.d;
+  document.getElementById("d-art").innerHTML=a.s;document.getElementById("d-quote").textContent=a.q;
+  if(dlg.showModal)dlg.showModal();}
+document.getElementById("d-close").addEventListener("click",()=>dlg.close());
+dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close();});
+document.querySelectorAll(".tabs button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));render(b.dataset.y);}));
+render("all");
+</script>
+</body></html>

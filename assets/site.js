@@ -19,7 +19,7 @@ function vars(g,given){
   const o={};g.fields.forEach(f=>{const v=given&&given[f.k];o[f.k]=(v===undefined||v===null||String(v).trim()==="")?f.def:String(v).trim().slice(0,40);});
   const fem=/^(mom|grandma)$/i.test(o.Rel||"")||o.Role==="Grandma";
   Object.assign(o,{he:fem?"she":"he",He:fem?"She":"He",his:fem?"her":"his",His:fem?"Her":"His",rel:(o.Rel||"").toLowerCase(),spouse:o.Role==="Grandma"?"grandfather":"grandmother",Spouse:o.Role==="Grandma"?"Grandpa":"Grandma",
-    Other:{Mom:"Grandma",Dad:"Grandpa",Grandma:"Mom",Grandpa:"Dad"}[o.Rel]||"Grandma",Copy:/^grand/i.test(o.Rel||"")?"Mom and Dad":"Grandma"});
+    Other:{Mom:"Grandma",Dad:"Grandpa",Grandma:"Mom",Grandpa:"Dad"}[o.Rel]||"Grandma",Copy:/^grand/i.test(o.Rel||"")?"Mom and Dad":"Grandma and Grandpa",CopyShort:/^grand/i.test(o.Rel||"")?"Mom & Dad":"Grandma & Grandpa"});
   const age=Math.max(0,Math.min(18,parseInt(o.Age,10)||0));
   if(o.Age!==undefined){o.Age=String(age);o.AgeWord=WORDS[age];o.AgeWordCap=age===0?"Born":cap(WORDS[age]);
     o.Candles=age===0?"No candles yet. One very small hat":(age===1?"One candle":cap(WORDS[age])+" candles")+", a few loose teeth, one new bike";
@@ -116,9 +116,11 @@ function fieldHtml(f,val,id){
 function pairHtml(g,o,pick){
   const row=(v,title,sub,add)=>`<label class="pair-opt${pick===v?" on":""}"><input type="radio" name="two" value="${v}"${pick===v?" checked":""}><span><b>${title}</b>${sub?`<small>${sub}</small>`:""}</span><em>${add}</em></label>`;
   const two=pick!=="none";
+  const gc=g.gcopy?`<label class="gcopy${pick==="0"?" on":""}"><input type="checkbox" id="gcopy"${pick==="0"?" checked":""}>${g.photo?img(g.id,"",null,true):""}<span><b>Copy for ${esc(o.CopyShort||"Grandma & Grandpa")}</b><small>The same book, so they get their own. One tap, half off.</small></span><em>+${money(half(g))}</em></label>`:"";
   return `<legend>${OFFER}</legend>
+   ${gc}
    ${row("none","Just one book","",money(g.price))}
-   ${g.pair.map((p,i)=>row(String(i),fill(p[0],o),fill(p[1],o),"+"+money(half(g)))).join("")}
+   ${g.pair.map((p,i)=>g.gcopy&&i===0?"":row(String(i),fill(p[0],o),fill(p[1],o),"+"+money(half(g)))).join("")}
    <p class="pair-total">${two?`<b>${money(pairTotal(g))} for two books.</b> You save ${money(half(g))}, and shipping is included for both.`:`Add a second book for ${money(half(g))} and pay ${money(pairTotal(g))} for both.`}</p>
    <p class="notice">Or pair it with <a href="${root}index.html#gifts">any other gift</a>: the lower-priced book is half off.</p>`;
 }
@@ -155,7 +157,7 @@ function gift(){
   if(g.look&&!full)lookInside(g);
   const pairEl=document.getElementById("pair");const tw=parseInt(qs.get("two"),10);let pick=tw>=1&&tw<=g.pair.length?String(tw-1):"none";
   const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick);};showPair();
-  pairEl.addEventListener("change",e=>{if(e.target.name==="two"){pick=e.target.value;showPair();}});
+  pairEl.addEventListener("change",e=>{if(e.target.name==="two"){pick=e.target.value;showPair();}if(e.target.id==="gcopy"){pick=e.target.checked?"0":"none";showPair();}});
   const when=document.getElementById("when");const showWhen=()=>when.innerHTML=timingHtml(g,need);showWhen();
   document.getElementById("app").addEventListener("input",e=>{if(!e.target.closest("#mine,#mine-book"))return;
     if(e.target.id==="need"){need=parse(e.target.value);showWhen();return;}

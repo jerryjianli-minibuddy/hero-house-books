@@ -2,7 +2,7 @@
    Sample text uses {Tokens} filled from the names a shopper types; defaults come from each field's def. */
 window.HHGifts=[
 {
- id:"in-my-words", book:true, fillDemo:{raw:"photo-steps-raw",done:"photo-steps"}, bookNote:"Leo, his dad, the answers and the drawings are made up.", photo:"A hardcover book titled Mom, According to Ava with a child's drawing on the cover, next to tulips on a sunny table", name:"In My Words", short:"Dad, According to Leo",
+ id:"in-my-words", gcopy:true, book:true, fillDemo:{raw:"photo-steps-raw",done:"photo-steps"}, bookNote:"Leo, his dad, the answers and the drawings are made up.", photo:"A hardcover book titled Mom, According to Ava with a child's drawing on the cover, next to tulips on a sunny table", name:"In My Words", short:"Dad, According to Leo",
  tags:["parents"], forLine:"For Mom, Dad or a grandparent, from the kids", card:"kidDad",
  tagline:"Your child describes Mom, Dad or a grandparent in their own words. Every answer goes in the book exactly as they said it, next to their own drawings.",
  price:49, priceNote:"Hardcover, 8.5 × 8.5 in, about 26 pages, shipping included",
@@ -24,7 +24,7 @@ window.HHGifts=[
  ]}
 },
 {
- id:"fridge-gallery", look:4, photo:"A fridge covered in children's drawings, with an open art book of the same drawings on the counter below", name:"The Fridge Gallery", short:"Maya's Year in Art",
+ id:"fridge-gallery", gcopy:true, look:4, photo:"A fridge covered in children's drawings, with an open art book of the same drawings on the counter below", name:"The Fridge Gallery", short:"Maya's Year in Art",
  tags:["kids","parents","grandparents"], forLine:"For the artist, and the grandparents who want copies", card:"kidRocket",
  tagline:"Snap their school art all year. We turn it into a private online gallery and, in June, a hardcover book of the year.",
  price:69, priceNote:"40-page hardcover, up to 60 pieces, online gallery included",
@@ -86,7 +86,7 @@ window.HHGifts=[
  ]}
 },
 {
- id:"the-year-you-were", look:4, photo:"A fifth birthday table with a cake, party hats and a child's hands on an illustrated picture book", name:"The Year You Were Five", short:"Ava at Five",
+ id:"the-year-you-were", gcopy:true, look:4, photo:"A fifth birthday table with a cake, party hats and a child's hands on an illustrated picture book", name:"The Year You Were Five", short:"Ava at Five",
  tags:["kids"], forLine:"For a child's birthday, from parents or grandparents", card:"cake",
  tagline:"One small book every birthday: what they said, loved and feared that year, and a letter from you. By eighteen it's a shelf of who they were.",
  price:49, priceNote:"Hardcover, 32 pages, shipping included",
@@ -127,7 +127,7 @@ window.HHGifts=[
  ]}
 },
 {
- id:"family-epic", look:3, photo:"An open comic book of a family canoe trip on a dock by a misty cypress lake", name:"The Family Epic", short:"The Parkers and the Gator of Caddo Lake",
+ id:"family-epic", gcopy:true, look:3, photo:"An open comic book of a family canoe trip on a dock by a misty cypress lake", name:"The Family Epic", short:"The Parkers and the Gator of Caddo Lake",
  tags:["kids","parents"], forLine:"For the whole family, about a trip you took", card:"lake",
  tagline:"Send photos and the story of a real family trip. We turn it into a comic book where your family are the heroes, and the dramatic parts get more dramatic.",
  price:49, priceNote:"Comic book hardcover, 32 pages, shipping included",

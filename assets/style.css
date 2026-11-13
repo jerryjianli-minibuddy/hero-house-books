@@ -170,3 +170,17 @@ dialog::backdrop{background:rgba(10,14,35,.55)}
 .p-photo{margin:0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);aspect-ratio:4/3;background:var(--paper)}
 .p-photo img{width:100%;height:100%;object-fit:cover;display:block}
 .banner{width:100%;max-height:260px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--line);margin-top:8px;display:block}
+
+/* look inside */
+.look-stage{position:relative;margin:0;border-radius:12px;overflow:hidden;background:#ece6da;box-shadow:0 10px 30px rgba(0,0,0,.12)}
+.look-stage:focus-visible{outline:3px solid var(--accent,#1f6f6b);outline-offset:3px}
+.look-stage img{display:block;width:100%;height:auto;aspect-ratio:2/1}
+.look-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.92);font-size:30px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);color:#222}
+.look-nav.prev{left:10px}.look-nav.next{right:10px}
+.look-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.look-bar span{font-size:.95rem;color:var(--muted,#666);min-width:110px}
+.look-thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.look-thumbs button{padding:0;border:2px solid transparent;border-radius:6px;background:none;cursor:pointer;line-height:0;opacity:.7}
+.look-thumbs button[aria-current="true"]{border-color:var(--accent,#1f6f6b);opacity:1}
+.look-thumbs img{width:96px;height:48px;border-radius:4px;object-fit:cover}
+@media (max-width:600px){.look-nav{width:36px;height:36px;font-size:24px}.look-thumbs img{width:72px;height:36px}}

@@ -140,12 +140,17 @@ function gift(){
      <div class="fields">${g.fields.map((f,i)=>fieldHtml(f,given[f.k],"f"+i)).join("")}</div>
      <label class="fld"><span>Need it by</span><input type="date" id="need" min="${iso(today())}" value="${need?iso(need):""}"></label>
      <div id="when"></div></form></div></section>
+  ${g.look?`<section class="stack-lg look" id="look"><div class="stack"><h2>Look inside</h2><p class="notice">Real page spreads from a sample book. Printed as an 8.5 × 8.5 in hardcover. The family and drawings here are made up.</p></div>
+   <figure class="look-stage"><img id="look-img" src="${root}assets/look/${g.id}-1.webp" alt="" width="1600" height="800" decoding="async">
+    <button type="button" class="look-nav prev" id="look-prev" aria-label="Previous pages">&#8249;</button><button type="button" class="look-nav next" id="look-next" aria-label="Next pages">&#8250;</button></figure>
+   <div class="look-bar"><span id="look-count" aria-live="polite"></span><div class="look-thumbs" role="group" aria-label="Choose pages">${Array.from({length:g.look},(_,i)=>`<button type="button" data-i="${i}" aria-label="Pages ${i*2+1} and ${i*2+2}"><img src="${root}assets/look/${g.id}-${i+1}-sm.webp" alt="" loading="lazy"></button>`).join("")}</div></div></section>`:""}
   <section class="stack" style="padding-top:20px"><h2>Why it lands</h2><p class="why">${esc(g.why)}</p></section>
   <section class="stack-lg" id="how"><h2>How it's made</h2><ol class="how">${g.how.map(h=>`<li><b>${esc(h[0])}</b><span>${esc(h[1])}</span></li>`).join("")}</ol><p class="notice">What we'll need from you: ${esc(g.time.needs)}.</p></section>
   <section class="stack"><h2>What's inside</h2><ul>${g.inside.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></section>
   <section class="stack"><h2>Questions</h2><div class="faq">${g.faq.map(f=>`<details><summary>${esc(f[0])}</summary><p>${esc(f[1])}</p></details>`).join("")}</div></section>
   <section class="stack-lg"><h2>More gifts like this</h2><div class="cards">${others.map(card).join("")}</div></section></div>`;
   const bk=book(document.getElementById("book"),g,given);
+  if(g.look)lookInside(g);
   const pairEl=document.getElementById("pair");const tw=parseInt(qs.get("two"),10);let pick=tw>=1&&tw<=g.pair.length?String(tw-1):"none";
   const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick);};showPair();
   pairEl.addEventListener("change",e=>{if(e.target.name==="two"){pick=e.target.value;showPair();}});
@@ -154,6 +159,18 @@ function gift(){
     if(e.target.id==="need"){need=parse(e.target.value);showWhen();return;}
     const k=e.target.dataset.k;if(k){given[k]=e.target.value;bk.update(given);showPair();}
   });
+}
+
+/* ---------- look inside ---------- */
+function lookInside(g){
+  const im=document.getElementById("look-img"),cnt=document.getElementById("look-count"),th=[...document.querySelectorAll(".look-thumbs button")];
+  let i=0;const go=n=>{i=(n+g.look)%g.look;im.src=`${root}assets/look/${g.id}-${i+1}.webp`;im.alt=`${g.name} sample, spread ${i+1} of ${g.look}`;cnt.textContent=`Spread ${i+1} of ${g.look}`;th.forEach((b,k)=>b.setAttribute("aria-current",k===i?"true":"false"));};
+  document.getElementById("look-prev").onclick=()=>go(i-1);document.getElementById("look-next").onclick=()=>go(i+1);
+  th.forEach(b=>b.onclick=()=>go(+b.dataset.i));
+  const st=im.parentElement;st.tabIndex=0;st.addEventListener("keydown",e=>{if(e.key==="ArrowLeft")go(i-1);if(e.key==="ArrowRight")go(i+1);});
+  let x0=null;st.addEventListener("touchstart",e=>x0=e.touches[0].clientX,{passive:true});st.addEventListener("touchend",e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40)go(i+(dx<0?1:-1));x0=null;});
+  for(let k=2;k<=g.look;k++){const p=new Image();p.src=`${root}assets/look/${g.id}-${k}.webp`;}
+  go(0);
 }
 
 /* ---------- chooser ---------- */

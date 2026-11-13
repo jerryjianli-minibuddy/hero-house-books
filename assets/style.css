@@ -149,3 +149,18 @@ dialog::backdrop{background:rgba(10,14,35,.55)}
 .occasions{display:flex;flex-wrap:wrap;gap:8px}
 .occasions a{font:600 14px var(--body);text-decoration:none;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:7px 14px}
 .occasions a:hover{border-color:var(--accent)}
+
+/* buy one, get the second half off */
+.offerbar{background:var(--ink);color:var(--bg);font-size:14px;text-align:center;padding:8px 12px}
+.card .price small{font-weight:400;color:var(--accent);font-size:13px;margin-left:4px}
+.pair{border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px 12px;margin:0;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.pair legend{font-family:var(--display);font-weight:700;font-size:17px;padding:0 6px}
+.pair-opt{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--bg)}
+.pair-opt.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.pair-opt input{margin-top:4px;accent-color:var(--accent)}
+.pair-opt span{flex:1;display:flex;flex-direction:column;gap:2px}
+.pair-opt small{color:var(--muted);font-size:13px}
+.pair-opt em{font-style:normal;font-weight:600;font-variant-numeric:tabular-nums}
+.pair-total{margin:4px 0 0}
+.pair-tip{background:var(--teal-soft);border-radius:10px;padding:12px 14px}
+.offer-line{background:var(--sun-soft);border-radius:10px;padding:10px 14px;margin:0}

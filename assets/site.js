@@ -6,6 +6,9 @@ const root=document.body.dataset.root||"";
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fillSvg=svg=>svg.replace("<svg ","<svg preserveAspectRatio=\"xMidYMid slice\" ");
 const logo=`<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 19 L20 6 L35 19 V35 H5Z" fill="#0f7c86"/><path d="M11 22.5 q9 -4.5 9 2 q0 -6.5 9 -2 v9.5 q-9 -4 -9 2 q0 -6 -9 -2z" fill="#fffdf7"/><circle cx="20" cy="14" r="2.6" fill="#f2a900"/></svg>`;
+const money=n=>"$"+(Math.round(n*100)%100?n.toFixed(2):String(Math.round(n)));
+const half=g=>g.price*C.SECOND, pairTotal=g=>g.price+half(g);
+const OFFER="Buy one, get the second book 50% off";
 const label=(list,k)=>(list.find(x=>x[0]===k)||[,""])[1];
 
 /* ---------- names in samples ---------- */
@@ -15,7 +18,8 @@ const ord=n=>n+(["th","st","nd","rd"][(n%100-20)%10]||["th","st","nd","rd"][n%10
 function vars(g,given){
   const o={};g.fields.forEach(f=>{const v=given&&given[f.k];o[f.k]=(v===undefined||v===null||String(v).trim()==="")?f.def:String(v).trim().slice(0,40);});
   const fem=/^(mom|grandma)$/i.test(o.Rel||"")||o.Role==="Grandma";
-  Object.assign(o,{he:fem?"she":"he",He:fem?"She":"He",his:fem?"her":"his",rel:(o.Rel||"").toLowerCase(),spouse:o.Role==="Grandma"?"grandfather":"grandmother"});
+  Object.assign(o,{he:fem?"she":"he",He:fem?"She":"He",his:fem?"her":"his",rel:(o.Rel||"").toLowerCase(),spouse:o.Role==="Grandma"?"grandfather":"grandmother",Spouse:o.Role==="Grandma"?"Grandpa":"Grandma",
+    Other:{Mom:"Grandma",Dad:"Grandpa",Grandma:"Mom",Grandpa:"Dad"}[o.Rel]||"Grandma",Copy:/^grand/i.test(o.Rel||"")?"Mom and Dad":"Grandma"});
   const age=Math.max(0,Math.min(18,parseInt(o.Age,10)||0));
   if(o.Age!==undefined){o.Age=String(age);o.AgeWord=WORDS[age];o.AgeWordCap=age===0?"Born":cap(WORDS[age]);
     o.Candles=age===0?"No candles yet. One very small hat":(age===1?"One candle":cap(WORDS[age])+" candles")+", a few loose teeth, one new bike";
@@ -60,6 +64,7 @@ function nextDate(occ){
 function chrome(){
   const head=document.createElement("div");
   head.innerHTML=`<div class="testbar">Test site. Every person, quote and drawing here is made up, and nothing is for sale yet.</div>
+  <div class="offerbar"><b>${OFFER}.</b> One for Mom, one for Grandma. No code needed.</div>
   <header class="site-head"><div class="wrap"><a class="brand" href="${root}index.html">${logo}Hero House Books</a>
   <nav class="nav" aria-label="Main"><a href="${root}choose.html"><b>Help me choose</b></a><a href="${root}index.html#gifts">All gifts</a><a href="${root}index.html#how">How it works</a><a href="${root}gallery/maya.html">Sample gallery</a></nav></div></header>`;
   document.body.prepend(...head.childNodes);
@@ -86,7 +91,7 @@ function book(el,g,given){
   show();
   return {update(ng){o=vars(g,ng);show();},title:()=>fill(g.sample.title,o)};
 }
-function card(g){return `<a class="card" href="${root}gifts/${g.id}.html" data-tags="${g.tags.join(" ")}"><div class="art">${fillSvg(art(g.card))}</div><div class="body"><span class="for">${esc(g.forLine)}</span><h3>${esc(g.name)}</h3><p>${esc(g.tagline)}</p><span class="price">$${g.price}</span></div></a>`;}
+function card(g){return `<a class="card" href="${root}gifts/${g.id}.html" data-tags="${g.tags.join(" ")}"><div class="art">${fillSvg(art(g.card))}</div><div class="body"><span class="for">${esc(g.forLine)}</span><h3>${esc(g.name)}</h3><p>${esc(g.tagline)}</p><span class="price">$${g.price} <small>2nd book half off</small></span></div></a>`;}
 const giftUrl=(g,given,need)=>{const q=new URLSearchParams();g.fields.forEach(f=>{if(given&&given[f.k]!==undefined&&String(given[f.k]).trim()!=="")q.set(f.k,given[f.k]);});if(need)q.set("need",iso(need));const s=q.toString();return `${root}gifts/${g.id}.html${s?"?"+s:""}`;};
 
 /* ---------- home ---------- */
@@ -106,6 +111,15 @@ function fieldHtml(f,val,id){
   if(f.type==="number")return `<label class="fld"><span>${esc(f.label)}</span><input data-k="${f.k}" id="${id}" type="number" inputmode="numeric" min="${f.min}" max="${f.max}" placeholder="${f.def}" value="${esc(v)}"></label>`;
   return `<label class="fld"><span>${esc(f.label)}</span><input data-k="${f.k}" id="${id}" type="text" maxlength="40" autocomplete="off" placeholder="${esc(f.def)}" value="${esc(v)}"></label>`;
 }
+function pairHtml(g,o,pick){
+  const row=(v,title,sub,add)=>`<label class="pair-opt${pick===v?" on":""}"><input type="radio" name="two" value="${v}"${pick===v?" checked":""}><span><b>${title}</b>${sub?`<small>${sub}</small>`:""}</span><em>${add}</em></label>`;
+  const two=pick!=="none";
+  return `<legend>${OFFER}</legend>
+   ${row("none","Just one book","",money(g.price))}
+   ${g.pair.map((p,i)=>row(String(i),fill(p[0],o),fill(p[1],o),"+"+money(half(g)))).join("")}
+   <p class="pair-total">${two?`<b>${money(pairTotal(g))} for two books.</b> You save ${money(half(g))}, and shipping is included for both.`:`Add a second book for ${money(half(g))} and pay ${money(pairTotal(g))} for both.`}</p>
+   <p class="notice">Or pair it with <a href="${root}index.html#gifts">any other gift</a>: the lower-priced book is half off.</p>`;
+}
 function gift(){
   const id=document.body.dataset.gift;if(!id)return;const g=G.find(x=>x.id===id);if(!g)return;
   document.title=`${g.name} | Hero House Books`;
@@ -116,6 +130,7 @@ function gift(){
   main.innerHTML=`<div class="wrap">
   <section class="p-hero"><div class="stack-lg"><div class="stack"><span class="eyebrow">${esc(g.forLine)}</span><h1>${esc(g.name)}</h1><p class="lede">${esc(g.tagline)}</p></div>
    <div><div class="price-big">$${g.price}</div><p class="notice">${esc(g.priceNote)}</p></div>
+   <fieldset class="pair" id="pair"></fieldset>
    <dl class="facts">${g.facts.map(f=>`<div><dt>${esc(f[0])}</dt><dd>${esc(f[1])}</dd></div>`).join("")}</dl>
    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#" data-soon>Start this gift</a><a class="btn ghost" href="${root}choose.html">Not sure? Help me choose</a></div></div>
    <div class="stack-lg"><div class="book" id="book" tabindex="0" aria-label="Sample book"></div>
@@ -129,10 +144,13 @@ function gift(){
   <section class="stack"><h2>Questions</h2><div class="faq">${g.faq.map(f=>`<details><summary>${esc(f[0])}</summary><p>${esc(f[1])}</p></details>`).join("")}</div></section>
   <section class="stack-lg"><h2>More gifts like this</h2><div class="cards">${others.map(card).join("")}</div></section></div>`;
   const bk=book(document.getElementById("book"),g,given);
+  const pairEl=document.getElementById("pair");const tw=parseInt(qs.get("two"),10);let pick=tw>=1&&tw<=g.pair.length?String(tw-1):"none";
+  const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick);};showPair();
+  pairEl.addEventListener("change",e=>{if(e.target.name==="two"){pick=e.target.value;showPair();}});
   const when=document.getElementById("when");const showWhen=()=>when.innerHTML=timingHtml(g,need);showWhen();
   document.getElementById("mine").addEventListener("input",e=>{
     if(e.target.id==="need"){need=parse(e.target.value);showWhen();return;}
-    const k=e.target.dataset.k;if(k){given[k]=e.target.value;bk.update(given);}
+    const k=e.target.dataset.k;if(k){given[k]=e.target.value;bk.update(given);showPair();}
   });
 }
 
@@ -179,7 +197,7 @@ function chooser(){
       if(ans.from){if(g.fit.from.includes(ans.from))s+=2;else s-=1;}
       const a=ans.to==="child"?ans.age:kidGiving()?ans.kidAge:"";
       if(g.fit.ages&&a!==""&&a!==undefined){const n=+a;if(n<g.fit.ages[0]||n>g.fit.ages[1]){s-=3;warn.push(`Best for ages ${g.fit.ages[0]} to ${g.fit.ages[1]}`);}else{s+=1;why.push(`Works well at age ${n}`);}}
-      if(ans.budget&&ans.budget!=="any"){if(g.price>+ans.budget){s-=3;warn.push(`Over your budget at $${g.price}`);}else{s+=1;why.push(`Fits your budget at $${g.price}`);}}
+      if(ans.budget&&ans.budget!=="any"){if(g.price>+ans.budget){s-=3;warn.push(`Over your budget at $${g.price}`);}else{s+=1;why.push(pairTotal(g)<=+ans.budget?`Fits your budget at $${g.price}, or ${money(pairTotal(g))} for two`:`Fits your budget at $${g.price}`);}}
       if(need){const t=timing(g,need);if(!t.rushOk){s-=6;warn.push("Can't arrive in time");}else if(!t.stdOk){s-=1;warn.push("Needs rush shipping");}}
       return {g,s,why,warn};}).sort((x,y)=>y.s-x.s);
   }
@@ -196,13 +214,14 @@ function chooser(){
       body=`<h2>When do you need it?</h2><p class="notice">Books take about 3 weeks: a few days for you to gather things, a few for us to design, then printing and mail.</p>
       <div class="fields"><label class="fld"><span>Need it by</span><input data-a="need" type="date" min="${iso(today())}" value="${pre}"></label></div>
       <button type="button" class="linkish" data-norush>No date, no rush</button>`;}
-    if(k==="budget")body=`<h2>What would you like to spend?</h2><p class="notice">Every price includes shipping. Group gifts can be split.</p>${opts("budget",C.budgets)}`;
+    if(k==="budget")body=`<h2>What would you like to spend?</h2><p class="notice">Prices are for one book, shipping included. A second book is always half off, and group gifts can be split.</p>${opts("budget",C.budgets)}`;
     if(k==="result")return result();
     host.innerHTML=`<div class="progress" aria-hidden="true"><span style="width:${Math.round(step/total*100)}%"></span></div><p class="notice">Question ${step+1} of ${total}</p>
       <div class="q">${body}</div>
       <div class="pager"><button type="button" data-nav="-1" ${step===0?"disabled":""}>Back</button><button type="button" data-nav="1">${k==="names"||k==="when"?"Next":"Skip"}</button></div>`;
     const first=host.querySelector(".q button,.q input");if(first&&step>0)first.focus({preventScroll:true});
   }
+  const pairFor=g=>g.id==="in-my-words"&&kidGiving()&&/^(mom|dad|grandma|grandpa)$/.test(ans.to||"")?1:0;
   function result(){
     const r=rank(),best=r[0],alts=r.slice(1,3),need=parse(ans.need),v=mapTo(best.g);
     host.innerHTML=`<div class="progress"><span style="width:100%"></span></div>
@@ -211,9 +230,10 @@ function chooser(){
       <ul class="ticks">${best.why.map(w=>`<li>${esc(w)}</li>`).join("")}${best.warn.map(w=>`<li class="w">${esc(w)}</li>`).join("")}</ul>
       ${timingHtml(best.g,need)}
       <p><b>What we'll need from you:</b> ${esc(best.g.time.needs)}.</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="${giftUrl(best.g,v,need)}">See this gift with your names</a><a class="btn ghost" href="#" data-soon>Start this gift</a></div></div>
+      ${(()=>{const pp=best.g.pair[pairFor(best.g)],o=vars(best.g,v);return `<div class="pair-tip"><b>Make it two for ${money(pairTotal(best.g))}.</b> ${fill(pp[0],o)} is ${money(half(best.g))} more. ${fill(pp[1],o)}</div>`;})()}
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="${giftUrl(best.g,v,need)}">See this gift with your names</a><a class="btn ghost" href="${(u=>u+(u.includes("?")?"&":"?")+"two="+(pairFor(best.g)+1)+"#pair")(giftUrl(best.g,v,need))}">Make it two</a><a class="btn ghost" href="#" data-soon>Start this gift</a></div></div>
      <div class="book" id="rbook" tabindex="0" aria-label="Sample book with your names"></div></div>
-    <section class="stack-lg"><h3>Also good</h3><div class="cards">${alts.map(a=>`<a class="card" href="${giftUrl(a.g,mapTo(a.g),need)}"><div class="art">${fillSvg(art(a.g.card))}</div><div class="body"><h3>${esc(a.g.name)}</h3><p>${esc(a.why[0]||a.g.forLine)}${a.warn.length?". "+esc(a.warn[0]):""}</p><span class="price">$${a.g.price}</span></div></a>`).join("")}</div>
+    <section class="stack-lg"><h3>Also good</h3><div class="cards">${alts.map(a=>`<a class="card" href="${giftUrl(a.g,mapTo(a.g),need)}"><div class="art">${fillSvg(art(a.g.card))}</div><div class="body"><h3>${esc(a.g.name)}</h3><p>${esc(a.why[0]||a.g.forLine)}${a.warn.length?". "+esc(a.warn[0]):""}</p><span class="price">$${a.g.price} <small>2nd book half off</small></span></div></a>`).join("")}</div>
      <p><button type="button" class="linkish" data-restart>Start over</button> or <a href="${root}index.html#gifts">see all seven gifts</a></p></section>`;
     book(document.getElementById("rbook"),best.g,v);
     host.scrollIntoView({behavior:"smooth",block:"start"});

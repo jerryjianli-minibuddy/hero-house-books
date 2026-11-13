@@ -63,7 +63,7 @@ function nextDate(occ){
 /* ---------- page chrome ---------- */
 function chrome(){
   const head=document.createElement("div");
-  head.innerHTML=`<div class="testbar">Test site. Every person, quote and drawing here is made up, and nothing is for sale yet.</div>
+  head.innerHTML=`<div class="testbar">Test site. Every person, quote, drawing and photo here is made up, and nothing is for sale yet.</div>
   <div class="offerbar"><b>${OFFER}.</b> One for Mom, one for Grandma. No code needed.</div>
   <header class="site-head"><div class="wrap"><a class="brand" href="${root}index.html">${logo}Hero House Books</a>
   <nav class="nav" aria-label="Main"><a href="${root}choose.html"><b>Help me choose</b></a><a href="${root}index.html#gifts">All gifts</a><a href="${root}index.html#how">How it works</a><a href="${root}gallery/maya.html">Sample gallery</a></nav></div></header>`;
@@ -91,14 +91,16 @@ function book(el,g,given){
   show();
   return {update(ng){o=vars(g,ng);show();},title:()=>fill(g.sample.title,o)};
 }
-function card(g){return `<a class="card" href="${root}gifts/${g.id}.html" data-tags="${g.tags.join(" ")}"><div class="art">${fillSvg(art(g.card))}</div><div class="body"><span class="for">${esc(g.forLine)}</span><h3>${esc(g.name)}</h3><p>${esc(g.tagline)}</p><span class="price">$${g.price} <small>2nd book half off</small></span></div></a>`;}
+const img=(n,alt,cls,sm)=>`<img${cls?` class="${cls}"`:""} src="${root}assets/img/${n}${sm?"-sm":""}.webp" alt="${esc(alt)}" loading="lazy" decoding="async">`;
+const pic=g=>g.photo?img(g.id,g.photo,"",true):fillSvg(art(g.card));
+function card(g){return `<a class="card" href="${root}gifts/${g.id}.html" data-tags="${g.tags.join(" ")}"><div class="art">${pic(g)}</div><div class="body"><span class="for">${esc(g.forLine)}</span><h3>${esc(g.name)}</h3><p>${esc(g.tagline)}</p><span class="price">$${g.price} <small>2nd book half off</small></span></div></a>`;}
 const giftUrl=(g,given,need)=>{const q=new URLSearchParams();g.fields.forEach(f=>{if(given&&given[f.k]!==undefined&&String(given[f.k]).trim()!=="")q.set(f.k,given[f.k]);});if(need)q.set("need",iso(need));const s=q.toString();return `${root}gifts/${g.id}.html${s?"?"+s:""}`;};
 
 /* ---------- home ---------- */
 function home(){
   const grid=document.getElementById("grid");if(!grid)return;
   grid.innerHTML=G.map(card).join("");
-  const q=document.getElementById("quote-art");if(q)q.innerHTML=fillSvg(art("kidDad"));
+  const q=document.getElementById("quote-art");if(q)q.innerHTML=img("hero","A child drawing a picture of Dad at the kitchen table while a phone records their answers, next to an open book of drawings");
   const chips=document.querySelectorAll("#gifts .chips button");
   chips.forEach(c=>c.addEventListener("click",()=>{chips.forEach(x=>x.setAttribute("aria-pressed",x===c));const t=c.dataset.tag;
     grid.querySelectorAll(".card").forEach(k=>k.hidden=!(t==="all"||k.dataset.tags.split(" ").includes(t)));}));
@@ -133,7 +135,7 @@ function gift(){
    <fieldset class="pair" id="pair"></fieldset>
    <dl class="facts">${g.facts.map(f=>`<div><dt>${esc(f[0])}</dt><dd>${esc(f[1])}</dd></div>`).join("")}</dl>
    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#" data-soon>Start this gift</a><a class="btn ghost" href="${root}choose.html">Not sure? Help me choose</a></div></div>
-   <div class="stack-lg"><div class="book" id="book" tabindex="0" aria-label="Sample book"></div>
+   <div class="stack-lg">${g.photo?`<figure class="p-photo">${img(g.id,g.photo)}</figure>`:""}<div class="book" id="book" tabindex="0" aria-label="Sample book"></div>
     <form class="panel" id="mine" onsubmit="return false"><h3>Make the sample yours</h3><p class="notice">Type real names to see how your book would read. Nothing is saved.</p>
      <div class="fields">${g.fields.map((f,i)=>fieldHtml(f,given[f.k],"f"+i)).join("")}</div>
      <label class="fld"><span>Need it by</span><input type="date" id="need" min="${iso(today())}" value="${need?iso(need):""}"></label>
@@ -233,7 +235,7 @@ function chooser(){
       ${(()=>{const pp=best.g.pair[pairFor(best.g)],o=vars(best.g,v);return `<div class="pair-tip"><b>Make it two for ${money(pairTotal(best.g))}.</b> ${fill(pp[0],o)} is ${money(half(best.g))} more. ${fill(pp[1],o)}</div>`;})()}
       <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="${giftUrl(best.g,v,need)}">See this gift with your names</a><a class="btn ghost" href="${(u=>u+(u.includes("?")?"&":"?")+"two="+(pairFor(best.g)+1)+"#pair")(giftUrl(best.g,v,need))}">Make it two</a><a class="btn ghost" href="#" data-soon>Start this gift</a></div></div>
      <div class="book" id="rbook" tabindex="0" aria-label="Sample book with your names"></div></div>
-    <section class="stack-lg"><h3>Also good</h3><div class="cards">${alts.map(a=>`<a class="card" href="${giftUrl(a.g,mapTo(a.g),need)}"><div class="art">${fillSvg(art(a.g.card))}</div><div class="body"><h3>${esc(a.g.name)}</h3><p>${esc(a.why[0]||a.g.forLine)}${a.warn.length?". "+esc(a.warn[0]):""}</p><span class="price">$${a.g.price} <small>2nd book half off</small></span></div></a>`).join("")}</div>
+    <section class="stack-lg"><h3>Also good</h3><div class="cards">${alts.map(a=>`<a class="card" href="${giftUrl(a.g,mapTo(a.g),need)}"><div class="art">${pic(a.g)}</div><div class="body"><h3>${esc(a.g.name)}</h3><p>${esc(a.why[0]||a.g.forLine)}${a.warn.length?". "+esc(a.warn[0]):""}</p><span class="price">$${a.g.price} <small>2nd book half off</small></span></div></a>`).join("")}</div>
      <p><button type="button" class="linkish" data-restart>Start over</button> or <a href="${root}index.html#gifts">see all seven gifts</a></p></section>`;
     book(document.getElementById("rbook"),best.g,v);
     host.scrollIntoView({behavior:"smooth",block:"start"});

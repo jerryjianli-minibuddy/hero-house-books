@@ -40,6 +40,10 @@ h1{font-family:var(--display);font-weight:600;font-size:clamp(30px,6vw,48px);lin
 .label strong{font-family:var(--display);font-weight:500;font-size:16px}
 .label small{color:var(--muted);font-size:12.5px}
 .quote{font-family:var(--hand);font-size:17px;line-height:1.3;color:var(--ink)}
+.athome{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.athome figure{margin:0;display:flex;flex-direction:column;gap:8px}
+.athome img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;border:1px solid var(--line);display:block}
+.athome figcaption{font-size:13px;color:var(--muted)}
 .footer-note{border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:13px;max-width:70ch}
 dialog{border:none;border-radius:10px;padding:0;max-width:min(760px,calc(100vw - 32px));width:100%;background:var(--frame);color:var(--ink)}
 dialog::backdrop{background:rgba(15,10,35,.6)}
@@ -144,6 +148,11 @@ body[data-frame="float"] .mat{box-shadow:none}
     <button type="button" aria-pressed="false" data-y="Pre-K">Pre-K</button>
   </nav>
   <div class="wall" id="wall" data-wall="white"><div id="gallery"></div></div>
+  <section class="athome-wrap" style="display:flex;flex-direction:column;gap:14px" aria-labelledby="athome-h"><h2 id="athome-h" style="font-family:var(--display);font-weight:500;font-size:22px;margin:0">Then hang the real ones at home</h2>
+  <div class="athome">
+   <figure><img src="../assets/img/wall-salon.webp" alt="A living-room wall hung with nine children's drawings in light oak frames above a linen sofa" loading="lazy" decoding="async" width="1022" height="571"><figcaption>Salon wall: a whole year, framed in oak.</figcaption></figure>
+   <figure><img src="../assets/img/wall-single.webp" alt="One child's watercolor of a whale under a rainbow in a black frame with a white mat, above a green sofa" loading="lazy" decoding="async" width="1022" height="764"><figcaption>One favorite, matted and framed on its own.</figcaption></figure>
+  </div></section>
   <p class="footer-note">How it works: parents snap or scan each piece, add what their child said about it, and we clean up the photo, crop it and hang it here. Grandparents get the link. At the end of the year the whole wall becomes a printed hardcover art book.</p>
 </div>
 

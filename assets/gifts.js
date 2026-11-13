@@ -2,18 +2,18 @@
    Sample text uses {Tokens} filled from the names a shopper types; defaults come from each field's def. */
 window.HHGifts=[
 {
- id:"in-my-words", look:4, photo:"A hardcover book titled Mom, According to Ava with a child's drawing on the cover, next to tulips on a sunny table", name:"In My Words", short:"Dad, According to Leo",
+ id:"in-my-words", book:true, fillDemo:{raw:"photo-steps-raw",done:"photo-steps"}, bookNote:"Leo, his dad, the answers and the drawings are made up.", photo:"A hardcover book titled Mom, According to Ava with a child's drawing on the cover, next to tulips on a sunny table", name:"In My Words", short:"Dad, According to Leo",
  tags:["parents"], forLine:"For Mom, Dad or a grandparent, from the kids", card:"kidDad",
  tagline:"Your child describes Mom, Dad or a grandparent in their own words. Every answer goes in the book exactly as they said it, next to their own drawings.",
- price:49, priceNote:"Hardcover, 32 pages, shipping included",
+ price:49, priceNote:"Hardcover, 8.5 × 8.5 in, about 26 pages, shipping included",
  pair:[["A copy for {Copy}","The same book, so {Copy} can keep one too."],["A second book about {Other}","{Kid} answers a new set of questions about {Other}. Another 15 minutes, a whole new book."]],
  facts:[["Who buys it","The other parent, or a grandparent"],["The moment","Mother's Day, Father's Day, a birthday"],["Best for kids aged","3 to 12"],["Ready in","About 3 weeks"]],
  fit:{occ:["mothers","fathers","birthday","holidays","grandparent","just"],to:["mom","dad","grandma","grandpa"],from:["kids","mekids","family"],ages:[3,12]},
- time:{collect:3,make:3,needs:"15 minutes of your child answering questions on your phone, and 6 to 10 of their drawings"},
+ time:{collect:3,make:3,needs:"15 minutes of your child answering questions on your phone, 6 to 10 of their drawings and up to 4 family photos"},
  fields:[{k:"Rel",label:"The book is about",type:"select",opts:["Dad","Mom","Grandpa","Grandma"],def:"Dad"},{k:"Kid",label:"Child's name",def:"Leo"},{k:"Age",label:"Child's age",type:"number",min:2,max:14,def:6}],
  why:"Nobody else can write this book. A six-year-old's answer to \"What does Dad do when you're scared?\" is the kind of thing a parent forgets in a year and wants back for the rest of their life. We don't improve the words, and the drawings stay exactly as wonky as they were.",
- how:[["Get 20 questions","We send a short list made for their age: what's Dad's job, what makes him laugh, what do you want to tell him."],["Record 15 minutes","Ask them on your phone, video or voice, in one go or over a week. Send the recordings and 6 to 10 of their drawings."],["We write nothing","We type their answers word for word, pick the best 14 and design the book around their art."],["See it first","You get every page to check and one free round of changes before we print."]],
- inside:["A cover with their drawing of the person","14 questions and their exact answers","Their drawings, cleaned up but never redrawn","A last page: \"What do you want to tell them?\""],
+ how:[["Get 20 questions","We send a short list made for their age: what's Dad's job, what makes him laugh, what do you want to tell him."],["Record 15 minutes","Ask them on your phone, video or voice, in one go or over a week. Send the recordings, 6 to 10 of their drawings and up to 4 family photos."],["We write nothing","We type their answers word for word, pick the best 12 to 14, draw crayon doodles on your photos and design the book around their art."],["See it first","You get every page to check and one free round of changes before we print."]],
+ inside:["A cover with their drawing of the person","Their best 12 to 14 answers, word for word","Their drawings, cleaned up but never redrawn","Your family photos, with crayon doodles drawn on them","Their handprint, and a last page: \"What do you want to tell them?\"","A blank page at the back for the grown-up to write back"],
  faq:[["What if my child is shy?","Short sessions work best. Most families record 3 or 4 short chats over a week. Silly answers are the best ones."],["Can two kids share one book?","Yes. Each answer is signed with who said it, up to 3 kids."],["Do you use AI to write it?","No. Every word is your child's. A person on our team lays out the book."]],
  sample:{title:"{Rel}, According to {Kid}", caption:"Sample book. {Kid}, {Rel} and the drawings are made up.", spreads:[
   [{art:"kidDad"},{html:`<h4>{Rel}, According to {Kid}</h4><p class="small">Words by {Kid}, age {Age}. Drawings by {Kid}.</p><p>Everything in this book is exactly what {Kid} said.</p>`}],

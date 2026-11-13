@@ -18,7 +18,7 @@ const ord=n=>n+(["th","st","nd","rd"][(n%100-20)%10]||["th","st","nd","rd"][n%10
 function vars(g,given){
   const o={};g.fields.forEach(f=>{const v=given&&given[f.k];o[f.k]=(v===undefined||v===null||String(v).trim()==="")?f.def:String(v).trim().slice(0,40);});
   const fem=/^(mom|grandma)$/i.test(o.Rel||"")||o.Role==="Grandma";
-  Object.assign(o,{he:fem?"she":"he",He:fem?"She":"He",his:fem?"her":"his",rel:(o.Rel||"").toLowerCase(),spouse:o.Role==="Grandma"?"grandfather":"grandmother",Spouse:o.Role==="Grandma"?"Grandpa":"Grandma",
+  Object.assign(o,{he:fem?"she":"he",He:fem?"She":"He",his:fem?"her":"his",His:fem?"Her":"His",rel:(o.Rel||"").toLowerCase(),spouse:o.Role==="Grandma"?"grandfather":"grandmother",Spouse:o.Role==="Grandma"?"Grandpa":"Grandma",
     Other:{Mom:"Grandma",Dad:"Grandpa",Grandma:"Mom",Grandpa:"Dad"}[o.Rel]||"Grandma",Copy:/^grand/i.test(o.Rel||"")?"Mom and Dad":"Grandma"});
   const age=Math.max(0,Math.min(18,parseInt(o.Age,10)||0));
   if(o.Age!==undefined){o.Age=String(age);o.AgeWord=WORDS[age];o.AgeWordCap=age===0?"Born":cap(WORDS[age]);
@@ -128,19 +128,21 @@ function gift(){
   const qs=new URLSearchParams(location.search),given={};g.fields.forEach(f=>{if(qs.has(f.k))given[f.k]=qs.get(f.k);});
   let need=parse(qs.get("need"));
   const others=G.filter(x=>x.id!==id).slice(0,3);
+  const full=!!(g.book&&window.HHBook&&window.HHBooks&&HHBooks[g.id]);
   const main=document.getElementById("app");
   main.innerHTML=`<div class="wrap">
   <section class="p-hero"><div class="stack-lg"><div class="stack"><span class="eyebrow">${esc(g.forLine)}</span><h1>${esc(g.name)}</h1><p class="lede">${esc(g.tagline)}</p></div>
    <div><div class="price-big">$${g.price}</div><p class="notice">${esc(g.priceNote)}</p></div>
    <fieldset class="pair" id="pair"></fieldset>
    <dl class="facts">${g.facts.map(f=>`<div><dt>${esc(f[0])}</dt><dd>${esc(f[1])}</dd></div>`).join("")}</dl>
-   <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#" data-soon>Start this gift</a><a class="btn ghost" href="${root}choose.html">Not sure? Help me choose</a></div></div>
-   <div class="stack-lg">${g.photo?`<figure class="p-photo">${img(g.id,g.photo)}</figure>`:""}<div class="book" id="book" tabindex="0" aria-label="Sample book"></div>
-    <form class="panel" id="mine" onsubmit="return false"><h3>Make the sample yours</h3><p class="notice">Type real names to see how your book would read. Nothing is saved.</p>
-     <div class="fields">${g.fields.map((f,i)=>fieldHtml(f,given[f.k],"f"+i)).join("")}</div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#" data-soon>Start this gift</a>${full?`<a class="btn ghost" href="#look">See every page</a>`:""}<a class="btn ghost" href="${root}choose.html">Not sure? Help me choose</a></div></div>
+   <div class="stack-lg">${g.photo?`<figure class="p-photo">${img(g.id,g.photo)}</figure>`:""}${full?"":`<div class="book" id="book" tabindex="0" aria-label="Sample book"></div>`}
+    <form class="panel" id="mine" onsubmit="return false">${full?`<h3>When do you need it?</h3><p class="notice">We'll tell you the last day to start.</p>`:`<h3>Make the sample yours</h3><p class="notice">Type real names to see how your book would read. Nothing is saved.</p>
+     <div class="fields">${g.fields.map((f,i)=>fieldHtml(f,given[f.k],"f"+i)).join("")}</div>`}
      <label class="fld"><span>Need it by</span><input type="date" id="need" min="${iso(today())}" value="${need?iso(need):""}"></label>
      <div id="when"></div></form></div></section>
-  ${g.look?`<section class="stack-lg look" id="look"><div class="stack"><h2>Look inside</h2><p class="notice">Real page spreads from a sample book. Printed as an 8.5 × 8.5 in hardcover. The family and drawings here are made up.</p></div>
+  ${full?fullBookHtml(g,given):""}
+  ${g.look&&!full?`<section class="stack-lg look" id="look"><div class="stack"><h2>Look inside</h2><p class="notice">Real page spreads from a sample book. Printed as an 8.5 × 8.5 in hardcover. The family and drawings here are made up.</p></div>
    <figure class="look-stage"><img id="look-img" src="${root}assets/look/${g.id}-1.webp" alt="" width="1600" height="800" decoding="async">
     <button type="button" class="look-nav prev" id="look-prev" aria-label="Previous pages">&#8249;</button><button type="button" class="look-nav next" id="look-next" aria-label="Next pages">&#8250;</button></figure>
    <div class="look-bar"><span id="look-count" aria-live="polite"></span><div class="look-thumbs" role="group" aria-label="Choose pages">${Array.from({length:g.look},(_,i)=>`<button type="button" data-i="${i}" aria-label="Pages ${i*2+1} and ${i*2+2}"><img src="${root}assets/look/${g.id}-${i+1}-sm.webp" alt="" loading="lazy"></button>`).join("")}</div></div></section>`:""}
@@ -149,16 +151,50 @@ function gift(){
   <section class="stack"><h2>What's inside</h2><ul>${g.inside.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></section>
   <section class="stack"><h2>Questions</h2><div class="faq">${g.faq.map(f=>`<details><summary>${esc(f[0])}</summary><p>${esc(f[1])}</p></details>`).join("")}</div></section>
   <section class="stack-lg"><h2>More gifts like this</h2><div class="cards">${others.map(card).join("")}</div></section></div>`;
-  const bk=book(document.getElementById("book"),g,given);
-  if(g.look)lookInside(g);
+  const bk=full?fullBook(g,given):book(document.getElementById("book"),g,given);
+  if(g.look&&!full)lookInside(g);
   const pairEl=document.getElementById("pair");const tw=parseInt(qs.get("two"),10);let pick=tw>=1&&tw<=g.pair.length?String(tw-1):"none";
   const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick);};showPair();
   pairEl.addEventListener("change",e=>{if(e.target.name==="two"){pick=e.target.value;showPair();}});
   const when=document.getElementById("when");const showWhen=()=>when.innerHTML=timingHtml(g,need);showWhen();
-  document.getElementById("mine").addEventListener("input",e=>{
+  document.getElementById("app").addEventListener("input",e=>{if(!e.target.closest("#mine,#mine-book"))return;
     if(e.target.id==="need"){need=parse(e.target.value);showWhen();return;}
     const k=e.target.dataset.k;if(k){given[k]=e.target.value;bk.update(given);showPair();}
   });
+}
+
+/* ---------- the whole finished book (assets/book.js) ---------- */
+function fullBookHtml(g,given){
+  const base=`${root}assets/books/${g.id}/`;
+  return `<section class="stack-lg look" id="look"><div class="stack"><h2>Look inside the whole book</h2><p class="notice">Every page of a finished example, printed as an 8.5 × 8.5 in hardcover. ${esc(g.bookNote||"The family, the answers and the drawings are made up.")}</p></div>
+   <div id="hbook"></div>
+   <div class="hb-tools">
+    <div class="panel stack"><h3>Pick a style</h3><div class="seg" role="group" aria-label="Book style">${HHBook.STYLES.map((x,i)=>`<button type="button" data-style="${x[0]}" aria-pressed="${i===0}">${x[1]}</button>`).join("")}</div><p class="notice">Same words and pictures, two looks. You choose when you order.</p></div>
+    <form class="panel stack" id="mine-book" onsubmit="return false"><h3>Try it with your names</h3><div class="fields">${g.fields.map((f,i)=>fieldHtml(f,given[f.k],"b"+i)).join("")}</div></form>
+    <div class="panel stack"><h3>Try it with your photos</h3><p class="notice">Add up to 4 photos and one drawing to see them in the book. They stay on this device. Nothing is uploaded.</p>
+     <div class="upl"><label class="btn ghost">Add photos<input type="file" id="up-photos" accept="image/jpeg,image/png,image/webp,image/gif" multiple></label><label class="btn ghost">Add a drawing<input type="file" id="up-draw" accept="image/jpeg,image/png,image/webp,image/gif"></label><button type="button" class="btn ghost" id="up-reset" hidden>Start over</button></div>
+     <p class="notice" id="up-note" aria-live="polite"></p></div>
+   </div>
+   ${g.fillDemo?`<div class="stack"><h3>How your photo becomes a page</h3><ol class="fill-demo">
+    <li><img src="${base}${g.fillDemo.raw}.webp" alt="A plain family photo" loading="lazy"><b>1. You send a photo</b>Any phone photo works.</li>
+    <li><img src="${base}${g.fillDemo.done}.webp" alt="The same photo with crayon doodles drawn on it" loading="lazy"><b>2. We draw on it</b>Doodles drawn to fit your picture.</li>
+    <li><div class="mini hb-book hb-crayon" id="fill-mini"></div><b>3. It's a page in the book</b>Right next to your child's own words.</li></ol></div>`:""}
+  </section>`;
+}
+function fullBook(g,given){
+  const bk=HHBook.mount(document.getElementById("hbook"),{book:HHBooks[g.id],base:`${root}assets/books/${g.id}/`,vars:()=>vars(g,given)});
+  const mini=document.getElementById("fill-mini");
+  const renderMini=()=>{if(!mini)return;const pg=HHBooks[g.id].spreads.flat().find(p=>p.t==="photo"&&p.slot===0);
+    if(pg)mini.innerHTML=HHBook.pageHtml(pg,vars(g,given),{book:HHBooks[g.id],base:`${root}assets/books/${g.id}/`},"r");};renderMini();
+  const seg=[...document.querySelectorAll("[data-style]")];
+  seg.forEach(b=>b.onclick=()=>{seg.forEach(x=>x.setAttribute("aria-pressed",x===b));bk.style(b.dataset.style);});
+  const note=document.getElementById("up-note"),reset=document.getElementById("up-reset");
+  const pages=()=>HHBooks[g.id].spreads.map((s,k)=>s.map((p,j)=>p.t==="photo"?{slot:p.slot,page:k*2-1+j}:null)).flat().filter(Boolean).sort((a,b)=>a.slot-b.slot);
+  document.getElementById("up-photos").onchange=e=>{const f=[...e.target.files].filter(x=>/^image\//.test(x.type));if(!f.length)return;const n=bk.photos(f);
+    const pg=pages().slice(0,n).map(x=>x.page);note.textContent=`Your ${n===1?"photo is":n+" photos are"} on page${n===1?"":"s"} ${pg.join(", ").replace(/, (\d+)$/," and $1")}, with sample doodles on top. In a real book, the doodles are drawn to fit each photo.`;reset.hidden=false;e.target.value="";};
+  document.getElementById("up-draw").onchange=e=>{const f=e.target.files[0];if(!f||!/^image\//.test(f.type))return;bk.drawing(f);note.textContent="Your drawing is on the cover. In a real book we clean it up but never redraw it.";reset.hidden=false;e.target.value="";};
+  reset.onclick=()=>{bk.reset();note.textContent="";reset.hidden=true;};
+  return {update(){bk.update();renderMini();}};
 }
 
 /* ---------- look inside ---------- */

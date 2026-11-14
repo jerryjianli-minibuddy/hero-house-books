@@ -287,3 +287,14 @@ dialog::backdrop{background:rgba(10,14,35,.55)}
 .gcopy span{flex:1;display:flex;flex-direction:column;gap:2px}
 .gcopy small{color:var(--muted);font-size:13px}
 .gcopy em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* Two Sides of Us pages */
+.hb-who{margin:0;font-family:var(--display);font-weight:700;font-size:3.3cqw;letter-spacing:.08em;text-transform:uppercase}
+.hb-side .hb-who{font-size:3.6cqw}
+.hb-pair{gap:1.6cqw}
+.hb-pair .hb-who{margin-top:3.4cqw}
+.hb-pair .hb-a{font-size:6.6cqw}
+.hb-crayon .hb-who{color:#e5432d}
+.hb-crayon .r .hb-side .hb-who{color:#2f6fd6}
+.hb-classic .hb-who{font-family:var(--body);color:#1d2a52;font-size:2.6cqw;letter-spacing:.16em}
+.hb-classic .hb-pair .hb-a{font-size:5.2cqw}

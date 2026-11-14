@@ -35,6 +35,10 @@ const T={
   photo(p,o,ctx){const s=photoSrc(p,ctx);return `<figure class="hb-photo${s.mine?" mine":""}"><img src="${esc(s.src)}" alt="${s.mine?"Your photo":esc(fill(p.alt,o))}" loading="lazy" decoding="async">${s.mine?doodle(p.slot,o):""}${p.cap?`<figcaption>${fill(p.cap,o)}</figcaption>`:""}</figure>`;},
   hand(p,o,ctx){return `<figure class="hb-hand"><img src="${ctx.base}${p.src}.webp" alt="A child's blue paint handprint" loading="lazy" decoding="async"><figcaption>${fill(p.cap,o)}</figcaption></figure>`;},
   reply(p,o){return `<div class="hb-reply"><h4>${fill(p.title,o)}</h4><p class="hb-sub">${fill(p.sub,o)}</p><div class="hb-lines"></div></div>`;},
+  /* Two Sides: one partner's answer on a page, the other's on the facing page. */
+  side(p,o){return `<div class="hb-qa hb-side"><p class="hb-who">${fill(p.who,o)}</p><p class="hb-q">${fill(p.q,o)}</p><p class="hb-a">${fill(p.a,o)}</p></div>`;},
+  /* Two Sides: a short question with both answers on one page. */
+  pair(p,o){return `<div class="hb-qa hb-pair"><p class="hb-q">${fill(p.q,o)}</p>${p.ans.map(x=>`<p class="hb-who">${fill(x[0],o)}</p><p class="hb-a">${fill(x[1],o)}</p>`).join("")}</div>`;},
   end(p,o){return `<div class="hb-center hb-end">${p.lines.map(l=>`<p>${fill(l,o)}</p>`).join("")}<p class="hb-mark">Hero House Books</p></div>`;}
 };
 function pageHtml(p,o,ctx,side){return `<div class="hb-pg ${side} t-${p.t}">${(T[p.t]||T.note)(p,o,ctx)}</div>`;}

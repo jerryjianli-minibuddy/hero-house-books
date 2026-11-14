@@ -1,0 +1,41 @@
+/* Two Sides of Us: the finished example book. Marcus, Dana and every answer here are made up.
+   Not wired into the gift page yet: the drawings and photos still need to be made. */
+(window.HHBooks=window.HHBooks||{})["two-sides"]={
+ title:"Two Sides of Us",
+ spreads:[
+  [{t:"back",quote:"“I still keep the parking ticket in my wallet.”",who:"{A}, year {Years}"},
+   {t:"cover",art:"draw-cover",by:"{A} and {B}, {Years} years"}],
+  [{t:"title",sub:"{A} and {B}, in their own words"},
+   {t:"note",lines:["We asked {A} and {B} the same fifteen questions, one at a time, a week apart.","Neither one has seen the other’s answers.","Until now."]}],
+  [{t:"side",who:"{A}",q:"How did you two meet?",a:"“A friend’s barbecue. {B} was explaining to a whole table why ketchup belongs in the fridge. I disagreed on purpose so we’d keep talking.”"},
+   {t:"side",who:"{B}",q:"How did you two meet?",a:"“At Jo’s barbecue. {A} lost an argument about ketchup to me and then asked for my number like a good loser.”"}],
+  [{t:"photo",src:"photo-early",slot:0,cap:"The early days",alt:"A young couple laughing on a park bench in the late afternoon, seen from behind"},
+   {t:"art",src:"draw-ketchup",tilt:"r",alt:"Hand-drawn sketch of two people arguing over a ketchup bottle at a picnic table, both smiling"}],
+  [{t:"side",who:"{A}",q:"What did you think of {B} at first?",a:"“Loud, and very sure about everything. I liked that more than I wanted to.”"},
+   {t:"side",who:"{B}",q:"What did you think of {A} at first?",a:"“Quiet, until you got {A} going. Then I couldn’t get a word in.”"}],
+  [{t:"side",who:"{A}",q:"When did you know?",a:"“Our second date. {B} got a parking ticket and laughed so hard there were tears. I thought: I want to be near that.”"},
+   {t:"side",who:"{B}",q:"When did you know?",a:"“Month four. {A} drove three hours with soup when I had the flu. The soup was bad. I stayed anyway.”"}],
+  [{t:"pair",q:"Who said “I love you” first?",ans:[["{A}","“Me. In the car. {B} said ‘okay’ and then said it back at a red light.”"],["{B}","“{A} did. I said ‘okay’ because I panicked. Then I said it properly.”"]]},
+   {t:"art",src:"draw-redlight",tilt:"l",alt:"Hand-drawn sketch of a small car waiting at a red light with a heart floating above it"}],
+  [{t:"art",src:"draw-pancakes",tilt:"r",alt:"Hand-drawn sketch of a stack of pancakes with two forks, one from each side"},
+   {t:"pair",q:"The most “us” thing we do",ans:[["{A}","“Sunday pancakes. Nobody gets dressed until noon.”"],["{B}","“Fight about the thermostat, then share a blanket.”"]]}],
+  [{t:"side",who:"{A}",q:"What does {B} do that drives you crazy, and you’d miss?",a:"“Sings in the car. Wrong words, every song, full volume.”"},
+   {t:"side",who:"{B}",q:"What does {A} do that drives you crazy, and you’d miss?",a:"“Reads me the news out loud while I’m trying to sleep. All of it.”"}],
+  [{t:"photo",src:"photo-kitchen",slot:1,cap:"Sunday, noon",alt:"A couple in pajamas making pancakes together in a sunny kitchen, faces turned away"},
+   {t:"pair",q:"What do you argue about?",ans:[["{A}","“The thermostat. Also whose turn it is to call the plumber.”"],["{B}","“How to load the dishwasher. I am right.”"]]}],
+  [{t:"side",who:"{A}",q:"What was our best day?",a:"“The day the car broke down in the middle of nowhere and we ate gas station sandwiches on the hood and watched the sunset. Best sandwich of my life.”"},
+   {t:"side",who:"{B}",q:"What was our best day?",a:"“The day the car died on the way to the coast. We never made it. I don’t think we needed to.”"}],
+  [{t:"photo",src:"photo-road",slot:2,cap:"We never made it to the coast",alt:"Two people sitting on the hood of an old car at sunset on an empty road, seen from behind"},
+   {t:"art",src:"draw-sunset",tilt:"l",alt:"Hand-drawn sketch of an old car on a road with a big setting sun and two tiny figures on the hood"}],
+  [{t:"side",who:"{A}",q:"What got us through the hard year?",a:"“{B} never once made me feel like a burden. We just kept having dinner together, every night, even the bad ones.”"},
+   {t:"side",who:"{B}",q:"What got us through the hard year?",a:"“Dinner. Every night at seven, no phones. Some nights that was the only thing that went right.”"}],
+  [{t:"side",who:"{A}",q:"What have you never told {B}?",a:"“I still keep the parking ticket in my wallet. The one from our second date.”"},
+   {t:"side",who:"{B}",q:"What have you never told {A}?",a:"“When you nap on the couch, I check that you’re breathing. Every time.”"}],
+  [{t:"photo",src:"photo-now",slot:3,cap:"{Years} years in",alt:"An older couple on a porch swing sharing a blanket, seen from the side, faces not shown"},
+   {t:"pair",q:"Where should we go next?",ans:[["{A}","“The coast. We still owe it a visit.”"],["{B}","“Anywhere. As long as {A} drives and I pick the songs.”"]]}],
+  [{t:"side",who:"{A}",q:"What do you hope the next {Years} years look like?",a:"“The same, but with a car that starts.”"},
+   {t:"side",who:"{B}",q:"What do you hope the next {Years} years look like?",a:"“More Sundays. Fewer thermostat fights. Okay, the same number of thermostat fights.”"}],
+  [{t:"reply",title:"The next chapter",sub:"Write it together, on the day you open this book."},
+   {t:"end",lines:["{A} and {B} answered fifteen questions, separately.","They opened this book together.","{Years} years, and counting."]}]
+ ]
+};

@@ -113,14 +113,16 @@ function fieldHtml(f,val,id){
   if(f.type==="number")return `<label class="fld"><span>${esc(f.label)}</span><input data-k="${f.k}" id="${id}" type="number" inputmode="numeric" min="${f.min}" max="${f.max}" placeholder="${f.def}" value="${esc(v)}"></label>`;
   return `<label class="fld"><span>${esc(f.label)}</span><input data-k="${f.k}" id="${id}" type="text" maxlength="40" autocomplete="off" placeholder="${esc(f.def)}" value="${esc(v)}"></label>`;
 }
-function pairHtml(g,o,pick){
+function pairHtml(g,o,pick,sibName){
   const row=(v,title,sub,add)=>`<label class="pair-opt${pick===v?" on":""}"><input type="radio" name="two" value="${v}"${pick===v?" checked":""}><span><b>${title}</b>${sub?`<small>${sub}</small>`:""}</span><em>${add}</em></label>`;
   const two=pick!=="none";
   const gc=g.gcopy?`<label class="gcopy${pick==="0"?" on":""}"><input type="checkbox" id="gcopy"${pick==="0"?" checked":""}>${g.photo?img(g.id,"",null,true):""}<span><b>Copy for ${esc(o.CopyShort||"Grandma & Grandpa")}</b><small>The same book, so they get their own. One tap, half off.</small></span><em>+${money(half(g))}</em></label>`:"";
+  const sv=g.sibIdx!=null?String(g.sibIdx):"sib";
+  const sb=g.sib?`<div class="gcopy sibcopy${pick===sv?" on":""}"><label class="sib-top"><input type="checkbox" id="sibcopy"${pick===sv?" checked":""}><span><b>${fill(g.sib[0],o)}</b><small>${fill(g.sib[1],o)} One tap, half off.</small></span><em>+${money(half(g))}</em></label>${pick===sv?`<label class="fld sib-name"><span>Brother or sister's name</span><input type="text" id="sib-name" maxlength="40" autocomplete="off" placeholder="Their name" value="${esc(sibName||"")}"></label><p class="notice">You'll add their photo${g.id==="fridge-gallery"?" and art":""} when you start the order.</p>`:""}</div>`:"";
   return `<legend>${OFFER}</legend>
-   ${gc}
+   ${gc}${sb}
    ${row("none","Just one book","",money(g.price))}
-   ${g.pair.map((p,i)=>g.gcopy&&i===0?"":row(String(i),fill(p[0],o),fill(p[1],o),"+"+money(half(g)))).join("")}
+   ${g.pair.map((p,i)=>(g.gcopy&&i===0)||(g.sib&&g.sibIdx===i)?"":row(String(i),fill(p[0],o),fill(p[1],o),"+"+money(half(g)))).join("")}
    <p class="pair-total">${two?`<b>${money(pairTotal(g))} for two books.</b> You save ${money(half(g))}, and shipping is included for both.`:`Add a second book for ${money(half(g))} and pay ${money(pairTotal(g))} for both.`}</p>
    <p class="notice">Or pair it with <a href="${root}index.html#gifts">any other gift</a>: the lower-priced book is half off.</p>`;
 }
@@ -156,8 +158,11 @@ function gift(){
   const bk=full?fullBook(g,given):book(document.getElementById("book"),g,given);
   if(g.look&&!full)lookInside(g);
   const pairEl=document.getElementById("pair");const tw=parseInt(qs.get("two"),10);let pick=tw>=1&&tw<=g.pair.length?String(tw-1):"none";
-  const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick);};showPair();
-  pairEl.addEventListener("change",e=>{if(e.target.name==="two"){pick=e.target.value;showPair();}if(e.target.id==="gcopy"){pick=e.target.checked?"0":"none";showPair();}});
+  let sibName="";
+  const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick,sibName);};showPair();
+  pairEl.addEventListener("change",e=>{if(e.target.name==="two"){pick=e.target.value;showPair();}if(e.target.id==="gcopy"){pick=e.target.checked?"0":"none";showPair();}
+    if(e.target.id==="sibcopy"){pick=e.target.checked?(g.sibIdx!=null?String(g.sibIdx):"sib"):"none";showPair();if(e.target.checked)document.getElementById("sib-name").focus();}});
+  pairEl.addEventListener("input",e=>{if(e.target.id==="sib-name")sibName=e.target.value;});
   const when=document.getElementById("when");const showWhen=()=>when.innerHTML=timingHtml(g,need);showWhen();
   document.getElementById("app").addEventListener("input",e=>{if(!e.target.closest("#mine,#mine-book"))return;
     if(e.target.id==="need"){need=parse(e.target.value);showWhen();return;}

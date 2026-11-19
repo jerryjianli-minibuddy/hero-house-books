@@ -20,19 +20,28 @@ const DOODLES=[
   o=>sun(86,13,5.5)+`<path d="M2 92q6-5 12 0t12 0t12 0t12 0t12 0t12 0t12 0t12 0" fill="none" stroke="${C.blue}"/><path d="M12 80q5-5 10 0q-5 5-10 0l-3 -3v6z" fill="none" stroke="${C.orange}"/>`+word(8,18,"SPLASH!",C.blue,10,-6),
   o=>`<path d="M84 8a9 9 0 1 0 6 15a7 7 0 1 1 -6 -15z" fill="${C.yel}" fill-opacity=".35" stroke="${C.yel}"/>`+word(10,18,"Zzz",C.blue,12,-8)+star(30,10,3,C.yel)+star(66,9,2.4,C.yel)+star(8,40,2.2,C.yel)+heart(90,86,3,C.red)
 ];
-const doodle=(slot,o)=>`<svg class="hb-doodle" viewBox="0 0 100 100" aria-hidden="true"><defs><filter id="hbcr${slot}"><feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="2" seed="${slot+3}"/><feDisplacementMap in="SourceGraphic" scale="1.1"/></filter></defs><g filter="url(#hbcr${slot})" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">${DOODLES[slot%DOODLES.length](o)}</g></svg>`;
+/* White-ink doodles for grown-up books (book.doodles:"ink"): hearts, sparkles, a moon. No words. */
+const W="#ffffff";
+const spark=(x,y,r)=>`<path d="M${x} ${y-r}L${x} ${y+r}M${x-r} ${y}L${x+r} ${y}M${x-r*.6} ${y-r*.6}L${x+r*.6} ${y+r*.6}M${x-r*.6} ${y+r*.6}L${x+r*.6} ${y-r*.6}" stroke="${W}"/>`;
+const INK=[
+  o=>heart(50,14,3.2,W)+spark(40,10,1.6)+spark(60,9,1.3)+`<path d="M84 18q-6 8 -14 9m14 -9l-1 4m1 -4l-4 0" fill="none" stroke="${W}"/>`+spark(10,88,1.8),
+  o=>`<path d="M14 24c-3-4 3-6 0-10M20 24c-3-4 3-6 0-10" fill="none" stroke="${W}"/>`+heart(88,16,2.8,W)+spark(80,10,1.4)+spark(90,86,1.6),
+  o=>`<circle cx="14" cy="14" r="4" fill="none" stroke="${W}"/>`+[0,1,2,3,4,5,6,7].map(i=>{const a=Math.PI/4*i;return `<path d="M${(14+Math.cos(a)*5.5).toFixed(1)} ${(14+Math.sin(a)*5.5).toFixed(1)}L${(14+Math.cos(a)*8).toFixed(1)} ${(14+Math.sin(a)*8).toFixed(1)}" stroke="${W}"/>`;}).join("")+heart(50,28,2.6,W)+`<path d="M88 40q-6 20 0 40" fill="none" stroke="${W}" stroke-dasharray="1.6 2.4"/>`,
+  o=>`<path d="M86 8a8 8 0 1 0 5 13a6 6 0 1 1 -5 -13z" fill="none" stroke="${W}"/>`+spark(70,10,1.3)+spark(92,32,1.2)+spark(60,18,1)+heart(48,36,2.6,W)
+];
+const doodle=(slot,o,set)=>{const ink=set==="ink",D=ink?INK:DOODLES;return `<svg class="hb-doodle${ink?" ink":""}" viewBox="0 0 100 100" aria-hidden="true"><defs><filter id="hbcr${slot}"><feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="2" seed="${slot+3}"/><feDisplacementMap in="SourceGraphic" scale="${ink?.5:1.1}"/></filter></defs><g filter="url(#hbcr${slot})" stroke-width="${ink?.7:1.1}" stroke-linecap="round" stroke-linejoin="round">${D[slot%D.length](o)}</g></svg>`;};
 
 /* ---------- page templates ---------- */
 function photoSrc(p,ctx){const u=ctx.photos&&ctx.photos[p.slot];return u?{src:u,mine:true}:{src:ctx.base+p.src+".webp",mine:false};}
 const T={
   cover(p,o,ctx){const d=ctx.drawing?ctx.drawing:ctx.base+p.art+".webp";
-    return `<div class="hb-cover"><h3 class="hb-booktitle">${fill(ctx.book.title,o)}</h3><div class="hb-window"><img src="${esc(d)}" alt="${ctx.drawing?"Your drawing on the cover":"A child's crayon drawing of Dad with the child on his shoulders"}"></div><p class="hb-by">${fill(p.by,o)}</p></div>`;},
+    return `<div class="hb-cover"><h3 class="hb-booktitle">${fill(ctx.book.title,o)}</h3><div class="hb-window"><img src="${esc(d)}" alt="${ctx.drawing?"Your picture on the cover":esc(fill(p.alt||"A child's crayon drawing of Dad with the child on his shoulders",o))}"></div><p class="hb-by">${fill(p.by,o)}</p></div>`;},
   back(p,o){return `<div class="hb-back"><p class="hb-pull">${fill(p.quote,o)}</p><p class="hb-pullwho">${fill(p.who,o)}</p><p class="hb-mark">Hero House Books</p></div>`;},
   title(p,o,ctx){return `<div class="hb-center"><h3 class="hb-booktitle">${fill(ctx.book.title,o)}</h3><p class="hb-sub">${fill(p.sub,o)}</p></div>`;},
   note(p,o){return `<div class="hb-center hb-note">${p.lines.map(l=>`<p>${fill(l,o)}</p>`).join("")}</div>`;},
   qa(p,o){return `<div class="hb-qa${p.big?" big":""}"><p class="hb-q">${fill(p.q,o)}</p><p class="hb-a">${fill(p.a,o)}</p>${p.two?`<p class="hb-q">${fill(p.two.q,o)}</p><p class="hb-a">${fill(p.two.a,o)}</p>`:""}</div>`;},
   art(p,o,ctx){return `<figure class="hb-art${p.tilt?" tilt-"+p.tilt:""}"><img src="${ctx.base}${p.src}.webp" alt="${esc(fill(p.alt,o))}" loading="lazy" decoding="async"></figure>`;},
-  photo(p,o,ctx){const s=photoSrc(p,ctx);return `<figure class="hb-photo${s.mine?" mine":""}"><img src="${esc(s.src)}" alt="${s.mine?"Your photo":esc(fill(p.alt,o))}" loading="lazy" decoding="async">${s.mine?doodle(p.slot,o):""}${p.cap?`<figcaption>${fill(p.cap,o)}</figcaption>`:""}</figure>`;},
+  photo(p,o,ctx){const s=photoSrc(p,ctx);return `<figure class="hb-photo${s.mine?" mine":""}"><img src="${esc(s.src)}" alt="${s.mine?"Your photo":esc(fill(p.alt,o))}" loading="lazy" decoding="async">${s.mine?doodle(p.slot,o,ctx.book.doodles):""}${p.cap?`<figcaption>${fill(p.cap,o)}</figcaption>`:""}</figure>`;},
   hand(p,o,ctx){return `<figure class="hb-hand"><img src="${ctx.base}${p.src}.webp" alt="A child's blue paint handprint" loading="lazy" decoding="async"><figcaption>${fill(p.cap,o)}</figcaption></figure>`;},
   reply(p,o){return `<div class="hb-reply"><h4>${fill(p.title,o)}</h4><p class="hb-sub">${fill(p.sub,o)}</p><div class="hb-lines"></div></div>`;},
   /* Two Sides: one partner's answer on a page, the other's on the facing page. */
@@ -49,7 +58,7 @@ const label=i=>i===0?"Cover":`Pages ${i*2-1} and ${i*2}`;
 function mount(el,opt){
   const book=opt.book,n=book.spreads.length;
   const ctx={book,base:opt.base,photos:[],drawing:null};
-  let i=0,o=opt.vars(),style=STYLES[0][0];
+  const styles=book.styles||STYLES;let i=0,o=opt.vars(),style=styles[0][0];
   el.classList.add("hb");
   el.innerHTML=`<div class="hb-stage" tabindex="0" aria-roledescription="book" aria-label="Sample book, use the arrow keys to turn pages"><div class="hb-book hb-${style}" aria-live="polite"></div>
     <button type="button" class="look-nav prev" aria-label="Previous pages">&#8249;</button><button type="button" class="look-nav next" aria-label="Next pages">&#8250;</button></div>

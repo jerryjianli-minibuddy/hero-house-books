@@ -171,21 +171,22 @@ function gift(){
 }
 
 /* ---------- the whole finished book (assets/book.js) ---------- */
+const UPLOAD={coverWhat:"one drawing",coverBtn:"Add a drawing",coverDone:"Your drawing is on the cover. In a real book we clean it up but never redraw it.",doneAlt:"The same photo with crayon doodles drawn on it",doneSub:"Doodles drawn to fit your picture.",pageSub:"Right next to your child's own words."};
 function fullBookHtml(g,given){
-  const base=`${root}assets/books/${g.id}/`;
+  const base=`${root}assets/books/${g.id}/`,u=Object.assign({},UPLOAD,g.upload);
   return `<section class="stack-lg look" id="look"><div class="stack"><h2>Look inside the whole book</h2><p class="notice">Every page of a finished example, printed as an 8.5 × 8.5 in hardcover. ${esc(g.bookNote||"The family, the answers and the drawings are made up.")}</p></div>
    <div id="hbook"></div>
    <div class="hb-tools">
-    <div class="panel stack"><h3>Pick a style</h3><div class="seg" role="group" aria-label="Book style">${HHBook.STYLES.map((x,i)=>`<button type="button" data-style="${x[0]}" aria-pressed="${i===0}">${x[1]}</button>`).join("")}</div><p class="notice">Same words and pictures, two looks. You choose when you order.</p></div>
+    <div class="panel stack"><h3>Pick a style</h3><div class="seg" role="group" aria-label="Book style">${(HHBooks[g.id].styles||HHBook.STYLES).map((x,i)=>`<button type="button" data-style="${x[0]}" aria-pressed="${i===0}">${x[1]}</button>`).join("")}</div><p class="notice">Same words and pictures, two looks. You choose when you order.</p></div>
     <form class="panel stack" id="mine-book" onsubmit="return false"><h3>Try it with your names</h3><div class="fields">${g.fields.map((f,i)=>fieldHtml(f,given[f.k],"b"+i)).join("")}</div></form>
-    <div class="panel stack"><h3>Try it with your photos</h3><p class="notice">Add up to 4 photos and one drawing to see them in the book. They stay on this device. Nothing is uploaded.</p>
-     <div class="upl"><label class="btn ghost">Add photos<input type="file" id="up-photos" accept="image/jpeg,image/png,image/webp,image/gif" multiple></label><label class="btn ghost">Add a drawing<input type="file" id="up-draw" accept="image/jpeg,image/png,image/webp,image/gif"></label><button type="button" class="btn ghost" id="up-reset" hidden>Start over</button></div>
+    <div class="panel stack"><h3>Try it with your photos</h3><p class="notice">Add up to 4 photos and ${esc(u.coverWhat)} to see them in the book. They stay on this device. Nothing is uploaded.</p>
+     <div class="upl"><label class="btn ghost">Add photos<input type="file" id="up-photos" accept="image/jpeg,image/png,image/webp,image/gif" multiple></label><label class="btn ghost">${esc(u.coverBtn)}<input type="file" id="up-draw" accept="image/jpeg,image/png,image/webp,image/gif"></label><button type="button" class="btn ghost" id="up-reset" hidden>Start over</button></div>
      <p class="notice" id="up-note" aria-live="polite"></p></div>
    </div>
    ${g.fillDemo?`<div class="stack"><h3>How your photo becomes a page</h3><ol class="fill-demo">
     <li><img src="${base}${g.fillDemo.raw}.webp" alt="A plain family photo" loading="lazy"><b>1. You send a photo</b>Any phone photo works.</li>
-    <li><img src="${base}${g.fillDemo.done}.webp" alt="The same photo with crayon doodles drawn on it" loading="lazy"><b>2. We draw on it</b>Doodles drawn to fit your picture.</li>
-    <li><div class="mini hb-book hb-crayon" id="fill-mini"></div><b>3. It's a page in the book</b>Right next to your child's own words.</li></ol></div>`:""}
+    <li><img src="${base}${g.fillDemo.done}.webp" alt="${esc(u.doneAlt)}" loading="lazy"><b>2. We draw on it</b>${esc(u.doneSub)}</li>
+    <li><div class="mini hb-book hb-${(HHBooks[g.id].styles||HHBook.STYLES)[0][0]}" id="fill-mini"></div><b>3. It's a page in the book</b>${esc(u.pageSub)}</li></ol></div>`:""}
   </section>`;
 }
 function fullBook(g,given){
@@ -199,7 +200,7 @@ function fullBook(g,given){
   const pages=()=>HHBooks[g.id].spreads.map((s,k)=>s.map((p,j)=>p.t==="photo"?{slot:p.slot,page:k*2-1+j}:null)).flat().filter(Boolean).sort((a,b)=>a.slot-b.slot);
   document.getElementById("up-photos").onchange=e=>{const f=[...e.target.files].filter(x=>/^image\//.test(x.type));if(!f.length)return;const n=bk.photos(f);
     const pg=pages().slice(0,n).map(x=>x.page);note.textContent=`Your ${n===1?"photo is":n+" photos are"} on page${n===1?"":"s"} ${pg.join(", ").replace(/, (\d+)$/," and $1")}, with sample doodles on top. In a real book, the doodles are drawn to fit each photo.`;reset.hidden=false;e.target.value="";};
-  document.getElementById("up-draw").onchange=e=>{const f=e.target.files[0];if(!f||!/^image\//.test(f.type))return;bk.drawing(f);note.textContent="Your drawing is on the cover. In a real book we clean it up but never redraw it.";reset.hidden=false;e.target.value="";};
+  document.getElementById("up-draw").onchange=e=>{const f=e.target.files[0];if(!f||!/^image\//.test(f.type))return;bk.drawing(f);note.textContent=Object.assign({},UPLOAD,g.upload).coverDone;reset.hidden=false;e.target.value="";};
   reset.onclick=()=>{bk.reset();note.textContent="";reset.hidden=true;};
   return {update(){bk.update();renderMini();}};
 }

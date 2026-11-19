@@ -45,7 +45,7 @@ window.HHGifts=[
  ]}
 },
 {
- id:"two-sides", look:4, photo:"A couple on the sofa with tea, looking through a book with a photo of the two of them on a date", name:"Two Sides of Us", short:"Marcus and Dana, Ten Years",
+ id:"two-sides", book:true, fillDemo:{raw:"photo-early-raw",done:"photo-early"}, bookNote:"Marcus, Dana, their answers and their photos are made up.", upload:{coverWhat:"one cover picture",coverBtn:"Add a cover picture",coverDone:"Your picture is on the cover. In a real book an artist can turn it into a watercolor sketch.",doneAlt:"The same photo with a few white ink doodles drawn on it",doneSub:"A few ink doodles drawn to fit your picture.",pageSub:"Right next to both of your answers."}, photo:"A couple on the sofa with tea, looking through a book with a photo of the two of them on a date", name:"Two Sides of Us", short:"Marcus and Dana, Ten Years",
  tags:["partner"], forLine:"For a husband, wife or partner, or for your parents' anniversary", card:"couple",
  tagline:"You both answer the same questions, separately. The book puts your answers side by side, and neither of you sees the other's until it's opened.",
  price:49, priceNote:"Hardcover, 32 pages, shipping included",

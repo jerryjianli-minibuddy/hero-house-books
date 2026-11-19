@@ -309,3 +309,15 @@ dialog::backdrop{background:rgba(10,14,35,.55)}
 .sib-name{display:flex;flex-direction:column;gap:4px}
 .sib-name input{width:100%;box-sizing:border-box}
 .sibcopy .sib-name input{height:auto;padding:10px 12px;margin:0;flex:initial}
+/* Watercolor (Two Sides of Us): off-white paper, soft teal cover, ink answers; sketches sit on the paper */
+.hb-sketch .hb-pg{background:#fbf8f2}
+.hb-sketch .hb-q{color:#2f6f6b}
+.hb-sketch .hb-a{color:#262b40}
+.hb-sketch .hb-who{color:#c95c45}
+.hb-sketch .r .hb-side .hb-who{color:#2f6f6b}
+.hb-sketch .t-cover,.hb-sketch .t-back{background:#e4efeb radial-gradient(circle at 75% 18%,rgba(255,255,255,.55),transparent 60%)}
+.hb-sketch .hb-booktitle{font-family:var(--story);font-weight:600;letter-spacing:-.01em;color:#262b40}
+.hb-sketch .hb-window{background:#fbf8f2;padding:1.6cqw;box-shadow:0 1cqw 2.6cqw rgba(30,40,50,.16)}
+.hb-sketch .hb-art img{width:86%;padding:0;background:transparent;box-shadow:none;transform:none;mix-blend-mode:multiply}
+.hb-sketch .hb-photo figcaption{background:#fbf8f2;color:#262b40}
+.hb-doodle.ink{filter:drop-shadow(0 0 .35cqw rgba(0,0,0,.45))}

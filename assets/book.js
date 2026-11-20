@@ -48,6 +48,8 @@ const T={
   side(p,o){return `<div class="hb-qa hb-side"><p class="hb-who">${fill(p.who,o)}</p><p class="hb-q">${fill(p.q,o)}</p><p class="hb-a">${fill(p.a,o)}</p></div>`;},
   /* Two Sides: a short question with both answers on one page. */
   pair(p,o){return `<div class="hb-qa hb-pair"><p class="hb-q">${fill(p.q,o)}</p>${p.ans.map(x=>`<p class="hb-who">${fill(x[0],o)}</p><p class="hb-a">${fill(x[1],o)}</p>`).join("")}</div>`;},
+  /* Year You Were: a keepsake card of that year's facts (height, teeth, best friend). */
+  stats(p,o){return `<div class="hb-stats"><h4>${fill(p.title,o)}</h4><dl>${p.rows.map(r=>`<dt>${fill(r[0],o)}</dt><dd>${fill(r[1],o)}</dd>`).join("")}</dl></div>`;},
   end(p,o){return `<div class="hb-center hb-end">${p.lines.map(l=>`<p>${fill(l,o)}</p>`).join("")}<p class="hb-mark">Hero House Books</p></div>`;}
 };
 function pageHtml(p,o,ctx,side){return `<div class="hb-pg ${side} t-${p.t}">${(T[p.t]||T.note)(p,o,ctx)}</div>`;}

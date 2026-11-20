@@ -321,3 +321,9 @@ dialog::backdrop{background:rgba(10,14,35,.55)}
 .hb-sketch .hb-art img{width:86%;padding:0;background:transparent;box-shadow:none;transform:none;mix-blend-mode:multiply}
 .hb-sketch .hb-photo figcaption{background:#fbf8f2;color:#262b40}
 .hb-doodle.ink{filter:drop-shadow(0 0 .35cqw rgba(0,0,0,.45))}
+/* The Year You Were Five: facts card */
+.hb-stats{padding:8% 9%;height:100%;display:flex;flex-direction:column;justify-content:center}
+.hb-stats h4{font-family:"Bricolage Grotesque",sans-serif;font-size:1.25em;margin:0 0 .8em}
+.hb-stats dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:.55em 1em}
+.hb-stats dt{font-weight:600;opacity:.75}
+.hb-stats dd{margin:0}

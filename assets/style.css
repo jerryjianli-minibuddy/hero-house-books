@@ -327,3 +327,13 @@ dialog::backdrop{background:rgba(10,14,35,.55)}
 .hb-stats dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:.55em 1em}
 .hb-stats dt{font-weight:600;opacity:.75}
 .hb-stats dd{margin:0}
+/* Tell Me When You Were Little: chapters, story pages, family page */
+.hb-chapter,.hb-story,.hb-family{padding:8% 9%;height:100%;display:flex;flex-direction:column;justify-content:center;font-family:"Source Serif 4",serif}
+.hb-chn{text-transform:uppercase;letter-spacing:.12em;font-size:.72em;opacity:.65;margin:0 0 .3em}
+.hb-chapter h4,.hb-family h4{font-family:"Bricolage Grotesque",sans-serif;font-size:1.3em;margin:0 0 .7em}
+.hb-chapter p,.hb-story p{line-height:1.5;margin:0 0 .8em}
+.hb-chapter>p:not(.hb-chn){font-style:italic}
+.hb-voice{display:flex;align-items:center;gap:.6em;margin-top:auto;font-size:.75em;opacity:.8}
+.hb-qr{width:2.6em;height:2.6em;border:2px solid currentColor;background:repeating-linear-gradient(90deg,currentColor 0 3px,transparent 3px 6px),repeating-linear-gradient(0deg,currentColor 0 3px,transparent 3px 7px);background-blend-mode:difference;opacity:.8}
+.hb-tree{display:grid;grid-template-columns:repeat(3,1fr);gap:.8em;margin:1em 0}
+.hb-tree span{height:2.4em;border-bottom:1px solid currentColor;opacity:.4}

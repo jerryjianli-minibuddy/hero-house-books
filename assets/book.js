@@ -50,6 +50,10 @@ const T={
   pair(p,o){return `<div class="hb-qa hb-pair"><p class="hb-q">${fill(p.q,o)}</p>${p.ans.map(x=>`<p class="hb-who">${fill(x[0],o)}</p><p class="hb-a">${fill(x[1],o)}</p>`).join("")}</div>`;},
   /* Year You Were: a keepsake card of that year's facts (height, teeth, best friend). */
   stats(p,o){return `<div class="hb-stats"><h4>${fill(p.title,o)}</h4><dl>${p.rows.map(r=>`<dt>${fill(r[0],o)}</dt><dd>${fill(r[1],o)}</dd>`).join("")}</dl></div>`;},
+  /* Grandpa's Stories: a chapter opener with a voice code, and plain story pages. */
+  chapter(p,o){return `<div class="hb-chapter"><p class="hb-chn">${fill(p.n,o)}</p><h4>${fill(p.title,o)}</h4>${(p.paras||[]).map(x=>`<p>${fill(x,o)}</p>`).join("")}<div class="hb-voice"><span class="hb-qr" aria-hidden="true"></span><span>Scan to hear it told</span></div></div>`;},
+  story(p,o){return `<div class="hb-story">${p.paras.map(x=>`<p>${fill(x,o)}</p>`).join("")}</div>`;},
+  family(p,o){return `<div class="hb-family"><h4>${fill(p.title,o)}</h4><p class="hb-sub">${fill(p.sub,o)}</p><div class="hb-tree"><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="hb-lines"></div></div>`;},
   end(p,o){return `<div class="hb-center hb-end">${p.lines.map(l=>`<p>${fill(l,o)}</p>`).join("")}<p class="hb-mark">Hero House Books</p></div>`;}
 };
 function pageHtml(p,o,ctx,side){return `<div class="hb-pg ${side} t-${p.t}">${(T[p.t]||T.note)(p,o,ctx)}</div>`;}

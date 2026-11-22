@@ -1,0 +1,36 @@
+/* The Fridge Gallery: the finished example book. Maya, her teacher and every piece of art here are made up. */
+(window.HHBooks=window.HHBooks||{})["fridge-gallery"]={
+ title:"{Kid}’s Year in Art",
+ spreads:[
+  [{t:"back",quote:"“She is rainbow because she ate a rainbow.”",who:"{Kid}, age {Age}, about Rainbow Cat"},
+   {t:"cover",art:"art-rocket",by:"{Grade}, by {Kid}, age {Age}",alt:"A child's painting of a red rocket with yellow flames and three stars"}],
+  [{t:"title",sub:"The {Grade} collection"},
+   {t:"note",lines:["Everything here came home in a backpack, sometimes folded, once with a bite out of it.","We kept the art and let the paper go.","Titles and words are {Kid}’s own."]}],
+  [{t:"piece",src:"art-cat",title:"Rainbow Cat",when:"September",said:"“She is rainbow because she ate a rainbow.”"},
+   {t:"piece",src:"art-dino",title:"Taco Dinosaur",when:"September",said:"“He likes tacos. Not people. Tacos.”"}],
+  [{t:"piece",src:"art-house",title:"Our House at Night",when:"October",said:"“The yellow windows are where we are.”"},
+   {t:"piece",src:"art-pumpkin",title:"Grumpy Pumpkin",when:"October",said:"“He’s grumpy because it’s not Halloween yet.”"}],
+  [{t:"photo",src:"photo-fridge",slot:0,cap:"The fridge in October",alt:"A kitchen fridge covered in children's drawings held up by magnets, with frame doodles drawn on the photo"},
+   {t:"qa",big:true,q:"Why does {Kid} draw?",a:"“Because my hands want to.”"}],
+  [{t:"piece",src:"art-family",title:"My Family (and the Fish)",when:"November",said:"“The fish is the most important one. He can’t draw himself.”",full:true},
+   {t:"note",lines:["Room 12 drew their families in November.","{Kid} drew everyone holding hands, including the fish, who has arms just for this picture."]}],
+  [{t:"piece",src:"art-snow",title:"Snow Day That Didn’t Happen",when:"December",said:"“I drew it so it would come. It didn’t come.”"},
+   {t:"piece",src:"art-handtree",title:"Handprint Tree",when:"December",said:"“Those are my hands. Ten of them.”"}],
+  [{t:"photo",src:"photo-easel",slot:1,cap:"Painting at the kitchen table",alt:"A child seen from behind painting at a kitchen table covered in newspaper, with a doodled frame and a star on the photo"},
+   {t:"piece",src:"art-sun",title:"The Sun Wearing Sunglasses",when:"January",said:"“Because it’s too bright for him too.”"}],
+  [{t:"piece",src:"art-teacher",title:"Ms. Rivera",when:"February",said:"“Her hair is that big in real life.”"},
+   {t:"piece",src:"art-heart",title:"Valentine for Everybody",when:"February",said:"“I didn’t want anybody to be left out, so it’s for everybody.”"}],
+  [{t:"piece",src:"art-ocean",title:"Under the Sea, Part One",when:"March",said:"“There’s a part two but it’s in my head.”",full:true},
+   {t:"qa",q:"What {Kid} said about it",a:"“The octopus is shy. That’s why he’s behind the rock. The rock is purple because I like purple.”"}],
+  [{t:"piece",src:"art-bug",title:"Ladybug Hotel",when:"April",said:"“Every ladybug gets her own room and a tiny bed.”"},
+   {t:"piece",src:"art-flower",title:"Flowers for Grandma",when:"April",said:"“I picked these with crayons so they don’t die.”"}],
+  [{t:"photo",src:"photo-show",slot:2,cap:"Showing Grandpa the gallery",alt:"A grandparent and a child from behind looking at a tablet showing a grid of children's art, with a doodled heart on the photo"},
+   {t:"piece",src:"art-rain",title:"Rainy Day Racecar",when:"May",said:"“It goes so fast the rain can’t catch it.”"}],
+  [{t:"piece",src:"art-me",title:"Me, Almost Done with {Grade}",when:"June",said:"“I made myself taller because I’m going to be.”",full:true},
+   {t:"stats",title:"{Kid} at the end of {Grade}",rows:[["Pieces this year","31 drawings, 4 paintings, 1 macaroni necklace"],["Favorite color","Purple, “but sparkly”"],["Best thing I made","“The dinosaur. He likes tacos.”"],["Next year I’ll draw","“A horse. A real one, not a dog with long legs.”"]]}],
+  [{t:"photo",src:"photo-artist",slot:3,cap:"The artist",alt:"A child from the side holding up a painting of a rocket, with a doodled gold frame on the photo"},
+   {t:"qa",big:true,q:"A note for {Kid}",a:"“Every one of these hung on our fridge. Thank you for making our kitchen a gallery. Love, Mom and Dad.”"}],
+  [{t:"index",title:"The {Grade} index",items:["Rainbow Cat · Sept","Taco Dinosaur · Sept","Our House at Night · Oct","Grumpy Pumpkin · Oct","My Family (and the Fish) · Nov","Snow Day That Didn’t Happen · Dec","Handprint Tree · Dec","The Sun Wearing Sunglasses · Jan","Ms. Rivera · Feb","Valentine for Everybody · Feb","Under the Sea, Part One · Mar","Ladybug Hotel · Apr","Flowers for Grandma · Apr","Rainy Day Racecar · May","Me, Almost Done · June"]},
+   {t:"end",lines:["The {Grade} collection of {Kid}, age {Age}.","The rest of the gallery lives online, where the grandparents visit it every week.","See you in the next grade."]}]
+ ]
+};

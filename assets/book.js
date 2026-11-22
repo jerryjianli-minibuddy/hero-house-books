@@ -54,6 +54,9 @@ const T={
   chapter(p,o){return `<div class="hb-chapter"><p class="hb-chn">${fill(p.n,o)}</p><h4>${fill(p.title,o)}</h4>${(p.paras||[]).map(x=>`<p>${fill(x,o)}</p>`).join("")}<div class="hb-voice"><span class="hb-qr" aria-hidden="true"></span><span>Scan to hear it told</span></div></div>`;},
   story(p,o){return `<div class="hb-story">${p.paras.map(x=>`<p>${fill(x,o)}</p>`).join("")}</div>`;},
   family(p,o){return `<div class="hb-family"><h4>${fill(p.title,o)}</h4><p class="hb-sub">${fill(p.sub,o)}</p><div class="hb-tree"><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="hb-lines"></div></div>`;},
+  /* Fridge Gallery: one framed piece with its title, month and the artist's words; and a back-of-book index. */
+  piece(p,o,ctx){return `<figure class="hb-piece${p.full?" full":""}"><div class="hb-frame"><img src="${ctx.base}${p.src}.webp" alt="${esc(fill(p.title,o))}, a child's artwork" loading="lazy" decoding="async"></div><figcaption><b>${fill(p.title,o)}</b><span>${fill(p.when,o)}</span><em>${fill(p.said,o)}</em></figcaption></figure>`;},
+  index(p,o){return `<div class="hb-index"><h4>${fill(p.title,o)}</h4><ol>${p.items.map(x=>`<li>${fill(x,o)}</li>`).join("")}</ol></div>`;},
   end(p,o){return `<div class="hb-center hb-end">${p.lines.map(l=>`<p>${fill(l,o)}</p>`).join("")}<p class="hb-mark">Hero House Books</p></div>`;}
 };
 function pageHtml(p,o,ctx,side){return `<div class="hb-pg ${side} t-${p.t}">${(T[p.t]||T.note)(p,o,ctx)}</div>`;}

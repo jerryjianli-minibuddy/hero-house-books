@@ -337,3 +337,15 @@ dialog::backdrop{background:rgba(10,14,35,.55)}
 .hb-qr{width:2.6em;height:2.6em;border:2px solid currentColor;background:repeating-linear-gradient(90deg,currentColor 0 3px,transparent 3px 6px),repeating-linear-gradient(0deg,currentColor 0 3px,transparent 3px 7px);background-blend-mode:difference;opacity:.8}
 .hb-tree{display:grid;grid-template-columns:repeat(3,1fr);gap:.8em;margin:1em 0}
 .hb-tree span{height:2.4em;border-bottom:1px solid currentColor;opacity:.4}
+/* The Fridge Gallery: framed pieces and the index */
+.hb-piece{margin:0;padding:7% 9%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:.6em}
+.hb-frame{background:#fff;padding:5%;border:6px solid #3b2f2a;box-shadow:0 4px 10px rgba(0,0,0,.18);width:78%}
+.hb-piece.full .hb-frame{width:92%}
+.hb-frame img{display:block;width:100%;height:auto}
+.hb-piece figcaption{text-align:center;font-size:.8em;line-height:1.35}
+.hb-piece figcaption b{display:block}
+.hb-piece figcaption span{display:block;opacity:.6;font-size:.85em}
+.hb-piece figcaption em{display:block;margin-top:.2em}
+.hb-index{padding:8% 9%;height:100%;font-size:.78em}
+.hb-index h4{font-family:"Bricolage Grotesque",sans-serif;font-size:1.4em;margin:0 0 .6em}
+.hb-index ol{margin:0;padding-left:1.4em;line-height:1.6}

@@ -86,7 +86,7 @@ window.HHGifts=[
  ]}
 },
 {
- id:"the-year-you-were", gcopy:true, sibIdx:1, sib:["Same book starring {Kid}\u2019s brother or sister","Their own year, with the same look and keepsake pages."], look:4, photo:"A fifth birthday table with a cake, party hats and a child's hands on an illustrated picture book", name:"The Year You Were Five", short:"Ava at Five",
+ id:"the-year-you-were", gcopy:true, series:true, sibIdx:1, sib:["Same book starring {Kid}\u2019s brother or sister","Their own year, with the same look and keepsake pages."], look:4, photo:"A fifth birthday table with a cake, party hats and a child's hands on an illustrated picture book", name:"The Year You Were Five", short:"Ava at Five",
  tags:["kids"], forLine:"For a child's birthday, from parents or grandparents", card:"cake",
  tagline:"One small book every birthday: what they said, loved and feared that year, and a letter from you. By eighteen it's a shelf of who they were.",
  price:49, priceNote:"Hardcover, 32 pages, shipping included",

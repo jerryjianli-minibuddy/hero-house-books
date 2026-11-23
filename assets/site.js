@@ -50,7 +50,7 @@ function timingHtml(g,need){
   if(!need)return `<p class="timing ok">Arrives about <b>${fmt(t.std)}</b> if you start today, shipping included. Rush: about ${fmt(t.rush)} for $${C.RUSH_PRICE} more.</p>`;
   if(t.stdOk)return `<p class="timing ok"><b>In time for ${fmt(need)}</b> with regular shipping, included in the price. Start by ${fmt(t.startBy)} at the latest.</p>`;
   if(t.rushOk)return `<p class="timing warn"><b>Only with rush shipping</b> ($${C.RUSH_PRICE} more): arrives about ${fmt(t.rush)}, before ${fmt(need)}. Start today.</p>`;
-  return `<p class="timing no"><b>Too late for ${fmt(need)}.</b> The earliest it can arrive is about ${fmt(t.rush)} with rush shipping.</p>`;
+  return `<p class="timing no"><b>Too late for ${fmt(need)}.</b> The earliest it can arrive is about ${fmt(t.rush)} with rush shipping. Our free printable <a href="${root}reveal.html?gift=${g.id}">"on its way" card</a> covers the day.</p>`;
 }
 function nthSunday(y,m,n){const d=new Date(y,m,1,12);const first=(7-d.getDay())%7;return new Date(y,m,1+first+7*(n-1),12);}
 function nextDate(occ){
@@ -72,7 +72,7 @@ function chrome(){
   foot.innerHTML=`<div class="wrap"><span>Hero House Books. Real words, real drawings, printed in the USA.</span><span>A test site: no orders, no uploads, nothing saved.</span></div>`;
   document.body.append(foot);
   const d=document.createElement("dialog");d.id="soon";
-  d.innerHTML=`<div class="dlg"><h3>Not taking orders yet</h3><p>This is a test site for trying out ideas. Nothing you click here is saved or charged.</p><form method="dialog"><button class="btn">Got it</button></form></div>`;
+  d.innerHTML=`<div class="dlg"><h3>Not taking orders yet</h3><p>This is a test site for trying out ideas. Nothing you click here is saved or charged.</p><p class="notice">After a real order you'd get a free printable "on its way" card and the full preview pages to show on the day. <a href="${root}reveal.html${document.body.dataset.gift?"?gift="+document.body.dataset.gift:""}">See the card</a></p><form method="dialog"><button class="btn">Got it</button></form></div>`;
   document.body.append(d);
   document.addEventListener("click",e=>{const t=e.target.closest("[data-soon]");if(t){e.preventDefault();d.showModal();}});
 }
@@ -217,9 +217,77 @@ function valentines(){
     if(reg>0){const d=Math.floor(reg/DAY),h=Math.floor(reg%DAY/36e5),m=Math.floor(reg%36e5/6e4);
       cd.innerHTML=`<span class="cd-n"><b>${d}</b>days</span><span class="cd-n"><b>${h}</b>hours</span><span class="cd-n"><b>${m}</b>min</span><span class="cd-l">left to order for Valentine's Day with free shipping. Last day: ${fmt(last)}.</span>`;}
     else if(rush>0)cd.innerHTML=`<span class="cd-l"><b>Rush only now.</b> Start by ${fmt(lastRush)} and add rush shipping, $${C.RUSH_PRICE}, to have it by Feb 13.</span>`;
-    else cd.innerHTML=`<span class="cd-l"><b>Too late for delivery by Valentine's Day.</b> Order now and we'll email a printable "your book is on its way" card for the 14th.</span>`;
+    else cd.innerHTML=`<span class="cd-l"><b>Too late for delivery by Valentine's Day.</b> Order now and we'll email a <a href="${root}reveal.html?gift=two-sides">printable "your book is on its way" card</a> for the 14th.</span>`;
   }
   tick();setInterval(tick,30000);
+}
+/* ---------- "On its way" reveal card: free with every order, so nobody is empty-handed while the book prints ---------- */
+const REVEAL_TO={"in-my-words":o=>o.Rel,"fridge-gallery":()=>"Grandma","two-sides":o=>o.B,"grandpas-stories":o=>o.Elder,"the-year-you-were":o=>o.Kid,"from-all-of-us":o=>o.Honoree,"family-epic":o=>"the "+o.Family};
+const revealUrl=(g,given)=>{const q=giftUrl(g,given,null).split("?")[1];return `${root}reveal.html?gift=${g.id}${q?"&"+q:""}`;};
+function revealCard(g,to,from,msg,arrive){
+  return `<div class="rv-card" id="rv-card">
+   <div class="rv-panel rv-front"><div class="rv-pic">${img(g.id,g.photo)}</div><div class="rv-words"><p class="rv-kick">Something is on its way</p><h2 class="rv-to">For ${esc(to||"you")}</h2></div></div>
+   <div class="rv-panel rv-inside"><p class="rv-msg">${esc(msg||"We made you something, and it's on its way.")}</p>
+    <p>It's a book called <b>${esc(g.name)}</b>, printed just for you. It arrives about <b>${fmt(arrive)}</b>.</p>
+    <div class="rv-peek">${qrSvg(5)}<span>Can't wait? Scan to flip through every page now.</span></div>
+    <p class="rv-from">${from?"Love, "+esc(from):""}</p><p class="rv-mark">Hero House Books</p></div></div>`;
+}
+function reveal(){
+  if(document.body.dataset.page!=="reveal")return;
+  const qs=new URLSearchParams(location.search);
+  let g=G.find(x=>x.id===qs.get("gift"))||G[0];const given={};g.fields.forEach(f=>{if(qs.has(f.k))given[f.k]=qs.get(f.k);});
+  let to=REVEAL_TO[g.id](vars(g,given)),from="",msg="";
+  const app=document.getElementById("app");
+  app.innerHTML=`<div class="wrap">
+  <section class="hero rv-hero"><div class="stack"><span class="eyebrow">Free with every order</span><h1>Your book is on its way. Here's what to hand over on the day.</h1>
+   <p class="lede">Printing and shipping take about three weeks. So every order comes with a printable card to give on the day, and the full preview pages to show them. Nobody waits empty-handed.</p></div></section>
+  <section class="rv-grid"><form class="panel" id="rv-form" onsubmit="return false"><h3>Make your card</h3>
+    <label class="fld"><span>The gift</span><select id="rv-gift">${G.map(x=>`<option value="${x.id}"${x===g?" selected":""}>${esc(x.name)}</option>`).join("")}</select></label>
+    <label class="fld"><span>Who it's for</span><input type="text" id="rv-to" maxlength="40" autocomplete="off" value="${esc(to)}"></label>
+    <label class="fld"><span>From</span><input type="text" id="rv-from" maxlength="40" autocomplete="off" placeholder="Your names"></label>
+    <label class="fld"><span>A line from you</span><input type="text" id="rv-msg" maxlength="90" autocomplete="off" placeholder="We made you something, and it's on its way."></label>
+    <p class="notice">Nothing you type here is saved. After a real order, the card comes by email, already filled in, and its code opens your book's preview pages. The code here is a sample.</p>
+    <div class="upl"><button type="button" class="btn" id="rv-print">Print the card</button><a class="btn ghost" id="rv-look" href="#">Open the preview pages</a></div>
+    <p class="notice">Prints on one sheet. Fold it in half with the picture on the outside.</p></form>
+   <div class="rv-stage" id="rv-stage"></div></section>
+  <section class="stack-lg rv-day"><h2>On the day</h2><ol class="how">
+   <li><b>Hand over the card</b><span>The picture is on the front, your note on the back.</span></li>
+   <li><b>Show them the pages</b><span>Open the preview on your phone or a TV. It's the real book, every page, with their names.</span></li>
+   <li><b>The book arrives</b><span>We email you the tracking number the day it ships.</span></li></ol></section></div>`;
+  const show=()=>{const a=timing(g,null).std;document.getElementById("rv-stage").innerHTML=revealCard(g,to,from,msg,a);document.getElementById("rv-look").href=giftUrl(g,given,null)+"#look";};show();
+  document.getElementById("rv-form").addEventListener("input",e=>{const id=e.target.id;
+    if(id==="rv-to")to=e.target.value;if(id==="rv-from")from=e.target.value;if(id==="rv-msg")msg=e.target.value;show();});
+  document.getElementById("rv-gift").addEventListener("change",e=>{g=G.find(x=>x.id===e.target.value);for(const k in given)delete given[k];to=REVEAL_TO[g.id](vars(g,given));document.getElementById("rv-to").value=to;show();});
+  document.getElementById("rv-print").addEventListener("click",()=>window.print());
+}
+
+/* ---------- The Year You Were: a collectible series whose spines build one picture on the shelf ---------- */
+const SER_N=19,SER_W=30,SER_H=200;
+function seriesScene(u){return `<defs><linearGradient id="sky${u}" x1="0" x2="1"><stop offset="0" stop-color="#ffcfb8"/><stop offset=".45" stop-color="#bfe3ff"/><stop offset="1" stop-color="#cbbcff"/></linearGradient></defs>
+ <rect width="570" height="200" fill="url(#sky${u})"/><circle cx="300" cy="62" r="26" fill="#ffd447"/>
+ <g fill="#fff" opacity=".92"><ellipse cx="90" cy="40" rx="26" ry="9"/><ellipse cx="108" cy="34" rx="16" ry="9"/><ellipse cx="430" cy="46" rx="30" ry="9"/><ellipse cx="450" cy="39" rx="17" ry="9"/></g>
+ <path d="M250 30q4-4 8 0q4-4 8 0M512 24q3-3 6 0q3-3 6 0" fill="none" stroke="#1c2340" stroke-width="1.2"/>
+ <path d="M420 132L482 70L520 108L546 86L570 112V200H420Z" fill="#8a95c9"/><path d="M482 70L494 82L488 85L482 79L474 87Z" fill="#fff"/>
+ <path d="M0 130Q80 100 160 125T330 118T570 128V200H0Z" fill="#7cc58a"/><path d="M0 160Q100 135 200 155T400 150T570 158V200H0Z" fill="#4fae64"/>
+ <path d="M20 200Q60 170 140 168T300 150T470 128" fill="none" stroke="#f6e3b0" stroke-width="7" stroke-linecap="round"/>
+ <g transform="translate(22 122)"><rect y="12" width="26" height="20" fill="#fffdf7"/><path d="M-3 13L13 0L29 13Z" fill="#e5432d"/><rect x="10" y="20" width="7" height="12" fill="#f2a900"/></g>
+ <g transform="translate(372 106)"><rect x="6" y="18" width="5" height="22" fill="#8a5a3c"/><circle cx="8.5" cy="14" r="14" fill="#2f8f4e"/></g>
+ <g transform="translate(196 70)"><ellipse cx="10" cy="10" rx="10" ry="12" fill="#e5432d"/><path d="M10 22V40" stroke="#1c2340" stroke-width=".8"/></g>`;}
+const SER_COL=["#f2a900","#e5432d","#2f6fd6","#2fa84f","#e8589e","#0f7c86"];
+function seriesHtml(o){
+  const age=+o.Age,kid=esc(o.Kid);let spines="";
+  for(let i=0;i<SER_N;i++){const x=i*SER_W,own=i<=age;
+    spines+=(own?"":`<rect x="${x}" y="0" width="${SER_W}" height="${SER_H}" fill="#f6f2ea" opacity=".8"/>`)+
+     `<path d="M${x} 0V${SER_H}" stroke="rgba(28,35,64,.35)" stroke-width="1"/><rect x="${x+5}" y="6" width="20" height="15" rx="3" fill="#fffdf7" opacity="${own?.95:.6}"/><text x="${x+15}" y="17.5" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1c2340" opacity="${own?1:.5}">${i}</text>`+
+     (own?`<text transform="translate(${x+19} 192) rotate(-90)" font-size="9.5" fill="#1c2340" font-weight="600">${kid}</text>`:"");}
+  const cur=`<rect x="${age*SER_W+1}" y="1" width="${SER_W-2}" height="${SER_H-2}" fill="none" stroke="#1c2340" stroke-width="2.5"/>`;
+  const shelf=`<svg viewBox="0 0 570 212" role="img" aria-label="A shelf of 19 matching books, ages 0 to 18. Together their spines make one picture of a path from a little house to the mountains. ${age+1} are filled in.">${seriesScene("s")}${spines}${cur}<rect y="200" width="570" height="12" rx="2" fill="#8a5a3c"/></svg>`;
+  const ages=[age-1,age,age+1].filter(a=>a>=0&&a<=18),lab=a=>a===age?"This birthday":a<age?"Last year":"Next year";
+  const covers=ages.map(a=>`<figure class="sc-cov${a===age?" cur":""}" style="--c:${SER_COL[a%SER_COL.length]}"><div class="sc-body"><svg class="sc-spine" viewBox="${a*SER_W} 0 ${SER_W} ${SER_H}" preserveAspectRatio="none" aria-hidden="true">${seriesScene("c"+a)}</svg><span class="sc-n">${a}</span><b>The Year You Were ${a===0?"Born":cap(WORDS[a])}</b><small>${kid}</small></div><figcaption>${lab(a)}</figcaption></figure>`).join("");
+  return `<div class="stack"><h2>Collect every year</h2><p class="lede">Every book in the series is the same size, with a matching cover and a numbered spine. Each spine is one slice of a single picture, so ${kid}'s shelf fills in one birthday at a time. By eighteen the picture is whole.</p></div>
+   <figure class="shelf">${shelf}<figcaption>${kid}'s shelf at ${o.Age}: ${age+1} of 19 books. The faded spines are the years still to come.</figcaption></figure>
+   <div class="stack"><h3>Same cover, new color each year</h3><div class="sc-covers">${covers}</div></div>
+   <p class="notice">No subscription. We email you a month before each birthday with that year's questions, and you decide. Start at any age, and make the earlier years from your photos and what you remember.</p>`;
 }
 function gift(){
   const id=document.body.dataset.gift;if(!id)return;const g=G.find(x=>x.id===id);if(!g)return;
@@ -235,12 +303,14 @@ function gift(){
    ${heirOk(g)?`<fieldset class="pair" id="edition"></fieldset>`:""}
    <fieldset class="pair" id="pair"></fieldset>${voiceOk(g)?`<div class="voice" id="voice"></div>`:""}
    <dl class="facts">${g.facts.map(f=>`<div><dt>${esc(f[0])}</dt><dd>${esc(f[1])}</dd></div>`).join("")}</dl>
-   <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#" data-soon>Start this gift</a>${full?`<a class="btn ghost" href="#look">See every page</a>`:""}<a class="btn ghost" href="${root}choose.html">Not sure? Help me choose</a></div></div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#" data-soon>Start this gift</a>${full?`<a class="btn ghost" href="#look">See every page</a>`:""}<a class="btn ghost" href="${root}choose.html">Not sure? Help me choose</a></div>
+   <p class="notice rv-line">Every order comes with a free printable "on its way" card and the full preview pages to show on the day. <a id="rv-link" href="${revealUrl(g,given)}">See the card</a></p></div>
    <div class="stack-lg">${g.photo?`<figure class="p-photo">${img(g.id,g.photo)}</figure>`:""}${full?"":`<div class="book" id="book" tabindex="0" aria-label="Sample book"></div>`}
     <form class="panel" id="mine" onsubmit="return false">${full?`<h3>When do you need it?</h3><p class="notice">We'll tell you the last day to start.</p>`:`<h3>Make the sample yours</h3><p class="notice">Type real names to see how your book would read. Nothing is saved.</p>
      <div class="fields">${g.fields.map((f,i)=>fieldHtml(f,given[f.k],"f"+i)).join("")}</div>`}
      <label class="fld"><span>Need it by</span><input type="date" id="need" min="${iso(today())}" value="${need?iso(need):""}"></label>
      <div id="when"></div></form></div></section>
+  ${g.series?`<section class="stack-lg series" id="series"></section>`:""}
   ${full?fullBookHtml(g,given):""}
   ${g.look&&!full?`<section class="stack-lg look" id="look"><div class="stack"><h2>Look inside</h2><p class="notice">Real page spreads from a sample book. Printed as an 8.5 × 8.5 in hardcover. The family and drawings here are made up.</p></div>
    <figure class="look-stage"><img id="look-img" src="${root}assets/look/${g.id}-1.webp" alt="" width="1600" height="800" decoding="async">
@@ -266,10 +336,11 @@ function gift(){
     if(e.target.id==="sibcopy"){pick=e.target.checked?(g.sibIdx!=null?String(g.sibIdx):"sib"):"none";showPair();if(e.target.checked)document.getElementById("sib-name").focus();}});
   pairEl.addEventListener("input",e=>{if(e.target.id==="sib-name")sibName=e.target.value;
     if(e.target.id==="gnote"){note=e.target.value;document.getElementById("gnote-n").textContent=`Printed on a card inside their box. ${200-note.length} characters left.`;}});
+  const serEl=document.getElementById("series");const showSeries=()=>{if(serEl)serEl.innerHTML=seriesHtml(vars(g,given));};showSeries();
   const when=document.getElementById("when");const showWhen=()=>when.innerHTML=timingHtml(g,need);showWhen();
   document.getElementById("app").addEventListener("input",e=>{if(!e.target.closest("#mine,#mine-book"))return;
     if(e.target.id==="need"){need=parse(e.target.value);showWhen();return;}
-    const k=e.target.dataset.k;if(k){given[k]=e.target.value;bk.update(given);showPair();}
+    const k=e.target.dataset.k;if(k){given[k]=e.target.value;bk.update(given);showPair();showSeries();document.getElementById("rv-link").href=revealUrl(g,given);}
   });
 }
 
@@ -415,5 +486,5 @@ function chooser(){
   const pre=new URLSearchParams(location.search).get("occ");if(pre&&C.occasions.some(o=>o[0]===pre)){ans.occ=pre;step=1;}
   render();
 }
-chrome();home();valentines();gift();chooser();
+chrome();home();valentines();reveal();gift();chooser();
 })();

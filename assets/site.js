@@ -113,17 +113,30 @@ function fieldHtml(f,val,id){
   if(f.type==="number")return `<label class="fld"><span>${esc(f.label)}</span><input data-k="${f.k}" id="${id}" type="number" inputmode="numeric" min="${f.min}" max="${f.max}" placeholder="${f.def}" value="${esc(v)}"></label>`;
   return `<label class="fld"><span>${esc(f.label)}</span><input data-k="${f.k}" id="${id}" type="text" maxlength="40" autocomplete="off" placeholder="${esc(f.def)}" value="${esc(v)}"></label>`;
 }
-function pairHtml(g,o,pick,sibName){
+/* Heirloom edition: navy linen hardcover, gold foil on the spine, printed dust jacket, 8.5 x 11 in. Lulu: $22.15 vs $17.85 standard (Nov 23). */
+const HEIR=69;
+const heirOk=g=>g.price===49;
+/* Grandparents' copy shipped to their own address: a second Lulu shipment, Mail from $5.69 */
+const SHIP2=5.95;
+function editionHtml(g,ed){
+  const row=(v,title,sub,add,pic)=>`<label class="pair-opt${ed===v?" on":""}"><input type="radio" name="ed" value="${v}"${ed===v?" checked":""}>${pic||""}<span><b>${title}</b><small>${sub}</small></span><em>${add}</em></label>`;
+  return `<legend>Choose the edition</legend>
+   ${row("classic","Classic hardcover","8.5 × 8.5 in with a printed cover.",money(g.price))}
+   ${row("heirloom","Heirloom edition","Navy linen cover with the title and their name in gold foil on the spine, and a dust jacket with their name on the front. Larger 8.5 × 11 in pages.",money(HEIR),`<span class="linen" aria-hidden="true"><i></i></span>`)}`;
+}
+function pairHtml(g,o,pick,sibName,p1,ship,note){
   const row=(v,title,sub,add)=>`<label class="pair-opt${pick===v?" on":""}"><input type="radio" name="two" value="${v}"${pick===v?" checked":""}><span><b>${title}</b>${sub?`<small>${sub}</small>`:""}</span><em>${add}</em></label>`;
   const two=pick!=="none";
   const gc=g.gcopy?`<label class="gcopy${pick==="0"?" on":""}"><input type="checkbox" id="gcopy"${pick==="0"?" checked":""}>${g.photo?img(g.id,"",null,true):""}<span><b>Copy for ${esc(o.CopyShort||"Grandma & Grandpa")}</b><small>The same book, so they get their own. One tap, half off.</small></span><em>+${money(half(g))}</em></label>`:"";
+  const who=esc(o.CopyShort||"Grandma & Grandpa");
+  const gcx=g.gcopy&&pick==="0"?`<div class="gship"><label class="sib-top"><input type="checkbox" id="gship"${ship?" checked":""}><span><b>Ship it straight to them</b><small>Their copy goes in its own box to their address, with its own tracking. We ask for the address when you order.</small></span><em>+${money(SHIP2)}</em></label>${ship?`<label class="fld sib-name"><span>Gift note for ${who}</span><textarea id="gnote" maxlength="200" rows="3" placeholder="We made this for you. Love, Maya">${esc(note||"")}</textarea></label><p class="notice" id="gnote-n">Printed on a card inside their box. ${200-(note||"").length} characters left.</p>`:""}</div>`:"";
   const sv=g.sibIdx!=null?String(g.sibIdx):"sib";
   const sb=g.sib?`<div class="gcopy sibcopy${pick===sv?" on":""}"><label class="sib-top"><input type="checkbox" id="sibcopy"${pick===sv?" checked":""}><span><b>${fill(g.sib[0],o)}</b><small>${fill(g.sib[1],o)} One tap, half off.</small></span><em>+${money(half(g))}</em></label>${pick===sv?`<label class="fld sib-name"><span>Brother or sister's name</span><input type="text" id="sib-name" maxlength="40" autocomplete="off" placeholder="Their name" value="${esc(sibName||"")}"></label><p class="notice">You'll add their photo${g.id==="fridge-gallery"?" and art":""} when you start the order.</p>`:""}</div>`:"";
   return `<legend>${OFFER}</legend>
-   ${gc}${sb}
-   ${row("none","Just one book","",money(g.price))}
+   ${gc}${gcx}${sb}
+   ${row("none","Just one book","",money(p1))}
    ${g.pair.map((p,i)=>(g.gcopy&&i===0)||(g.sib&&g.sibIdx===i)?"":row(String(i),fill(p[0],o),fill(p[1],o),"+"+money(half(g)))).join("")}
-   <p class="pair-total">${two?`<b>${money(pairTotal(g))} for two books.</b> You save ${money(half(g))}, and shipping is included for both.`:`Add a second book for ${money(half(g))} and pay ${money(pairTotal(g))} for both.`}</p>
+   <p class="pair-total">${two?`<b>${money(p1+half(g))} for two books.</b> You save ${money(half(g))}, and shipping is included for both.${pick==="0"&&ship?` With their copy shipped to them, <b>your order is ${money(p1+half(g)+SHIP2)}</b>.`:""}`:`Add a second book for ${money(half(g))} and pay ${money(p1+half(g))} for both.`}</p>${p1>g.price&&two?`<p class="notice">The second book is the classic edition, half off.</p>`:""}
    <p class="notice">Or pair it with <a href="${root}index.html#gifts">any other gift</a>: the lower-priced book is half off.</p>`;
 }
 /* ---------- "Hear my voice" add-on: a code printed inside the cover that plays a recorded message ---------- */
@@ -136,10 +149,10 @@ function qrSvg(seed){ /* a stand-in code for the mockup: the real one is made pe
   const box=(X,Y)=>`<rect x="${X}" y="${Y}" width="7" height="7"/><rect x="${X+1}" y="${Y+1}" width="5" height="5" fill="#fff"/><rect x="${X+2}" y="${Y+2}" width="3" height="3"/>`;
   return `<svg viewBox="-2 -2 ${n+4} ${n+4}" role="img" aria-label="Sample voice code"><rect x="-2" y="-2" width="${n+4}" height="${n+4}" fill="#fff"/><g fill="#1c2340">${box(0,0)}${box(n-7,0)}${box(0,n-7)}${c.join("")}</g></svg>`;
 }
-function voice(g,getPick){
+function voice(g,getBase){
   const el=document.getElementById("voice");let on=false,who="child",url="",rec=null,chunks=[];
   const WHO=[["child","The child, in their own voice"],["grandparent","A grandparent"],["you","You"]];
-  const base=()=>getPick()==="none"?g.price:pairTotal(g);
+  const base=getBase;
   const totalHtml=()=>on?`<b>Your order: ${money(base()+VOICE)}</b>, with the voice message. Shipping included.`:"";
   function render(){
     el.innerHTML=`<label class="gcopy voice-top${on?" on":""}"><input type="checkbox" id="voice-on"${on?" checked":""}><span class="voice-ic" aria-hidden="true">${qrSvg(3)}</span><span><b>Hear my voice</b><small>A code printed inside the cover. Scan it with any phone to hear a recorded message. No app.</small></span><em>+${money(VOICE)}</em></label>
@@ -218,7 +231,8 @@ function gift(){
   const main=document.getElementById("app");
   main.innerHTML=`<div class="wrap">
   <section class="p-hero"><div class="stack-lg"><div class="stack"><span class="eyebrow">${esc(g.forLine)}</span><h1>${esc(g.name)}</h1><p class="lede">${esc(g.tagline)}</p></div>
-   <div><div class="price-big">$${g.price}</div><p class="notice">${esc(g.priceNote)}</p></div>
+   <div><div class="price-big" id="price-big">$${g.price}</div><p class="notice" id="price-note">${esc(g.priceNote)}</p></div>
+   ${heirOk(g)?`<fieldset class="pair" id="edition"></fieldset>`:""}
    <fieldset class="pair" id="pair"></fieldset>${voiceOk(g)?`<div class="voice" id="voice"></div>`:""}
    <dl class="facts">${g.facts.map(f=>`<div><dt>${esc(f[0])}</dt><dd>${esc(f[1])}</dd></div>`).join("")}</dl>
    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#" data-soon>Start this gift</a>${full?`<a class="btn ghost" href="#look">See every page</a>`:""}<a class="btn ghost" href="${root}choose.html">Not sure? Help me choose</a></div></div>
@@ -240,12 +254,18 @@ function gift(){
   const bk=full?fullBook(g,given):book(document.getElementById("book"),g,given);
   if(g.look&&!full)lookInside(g);
   const pairEl=document.getElementById("pair");const tw=parseInt(qs.get("two"),10);let pick=tw>=1&&tw<=g.pair.length?String(tw-1):"none";
-  let sibName="";
-  const vc=voiceOk(g)?voice(g,()=>pick):null;
-  const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick,sibName);if(vc)vc.total();};showPair();
+  let sibName="",ed="classic",ship=false,note="";
+  const p1=()=>ed==="heirloom"?HEIR:g.price;
+  const vc=voiceOk(g)?voice(g,()=>(pick==="none"?p1():p1()+half(g))+(pick==="0"&&ship?SHIP2:0)):null;
+  const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick,sibName,p1(),ship,note);if(vc)vc.total();};showPair();
+  const edEl=document.getElementById("edition");
+  if(edEl){const showEd=()=>{edEl.innerHTML=editionHtml(g,ed);document.getElementById("price-big").textContent="$"+p1();document.getElementById("price-note").textContent=ed==="heirloom"?"Navy linen hardcover, 8.5 × 11 in, shipping included":g.priceNote;};showEd();
+    edEl.addEventListener("change",e=>{if(e.target.name==="ed"){ed=e.target.value;showEd();showPair();}});}
   pairEl.addEventListener("change",e=>{if(e.target.name==="two"){pick=e.target.value;showPair();}if(e.target.id==="gcopy"){pick=e.target.checked?"0":"none";showPair();}
+    if(e.target.id==="gship"){ship=e.target.checked;showPair();if(ship)document.getElementById("gnote").focus();}
     if(e.target.id==="sibcopy"){pick=e.target.checked?(g.sibIdx!=null?String(g.sibIdx):"sib"):"none";showPair();if(e.target.checked)document.getElementById("sib-name").focus();}});
-  pairEl.addEventListener("input",e=>{if(e.target.id==="sib-name")sibName=e.target.value;});
+  pairEl.addEventListener("input",e=>{if(e.target.id==="sib-name")sibName=e.target.value;
+    if(e.target.id==="gnote"){note=e.target.value;document.getElementById("gnote-n").textContent=`Printed on a card inside their box. ${200-note.length} characters left.`;}});
   const when=document.getElementById("when");const showWhen=()=>when.innerHTML=timingHtml(g,need);showWhen();
   document.getElementById("app").addEventListener("input",e=>{if(!e.target.closest("#mine,#mine-book"))return;
     if(e.target.id==="need"){need=parse(e.target.value);showWhen();return;}

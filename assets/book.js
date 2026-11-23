@@ -57,6 +57,11 @@ const T={
   /* Fridge Gallery: one framed piece with its title, month and the artist's words; and a back-of-book index. */
   piece(p,o,ctx){return `<figure class="hb-piece${p.full?" full":""}"><div class="hb-frame"><img src="${ctx.base}${p.src}.webp" alt="${esc(fill(p.title,o))}, a child's artwork" loading="lazy" decoding="async"></div><figcaption><b>${fill(p.title,o)}</b><span>${fill(p.when,o)}</span><em>${fill(p.said,o)}</em></figcaption></figure>`;},
   index(p,o){return `<div class="hb-index"><h4>${fill(p.title,o)}</h4><ol>${p.items.map(x=>`<li>${fill(x,o)}</li>`).join("")}</ol></div>`;},
+  /* From All of Us: signed notes as little cards, a section opener, a "what we'll miss" tally and a page of names. */
+  notes(p,o){return `<div class="hb-notes n${p.items.length}">${p.items.map((x,i)=>`<div class="hb-card c${i}"><p>${fill(x[0],o)}</p><span>${fill(x[1],o)}</span></div>`).join("")}</div>`;},
+  section(p,o){return `<div class="hb-center hb-section"><h4>${fill(p.title,o)}</h4><p class="hb-sub">${fill(p.sub,o)}</p></div>`;},
+  tally(p,o){const max=Math.max(...p.rows.map(r=>r[1]));return `<div class="hb-tally"><h4>${fill(p.title,o)}</h4><p class="hb-sub">${fill(p.sub,o)}</p><ul>${p.rows.map(r=>`<li><span>${fill(r[0],o)}</span><i style="width:${Math.round(r[1]/max*100)}%"></i><b>${r[1]}</b></li>`).join("")}</ul></div>`;},
+  sigs(p,o){return `<div class="hb-sigs"><h4>${fill(p.title,o)}</h4><ul>${p.names.map((n,i)=>`<li class="s${i%5}">${fill(n,o)}</li>`).join("")}</ul></div>`;},
   end(p,o){return `<div class="hb-center hb-end">${p.lines.map(l=>`<p>${fill(l,o)}</p>`).join("")}<p class="hb-mark">Hero House Books</p></div>`;}
 };
 function pageHtml(p,o,ctx,side){return `<div class="hb-pg ${side} t-${p.t}">${(T[p.t]||T.note)(p,o,ctx)}</div>`;}

@@ -62,6 +62,9 @@ const T={
   section(p,o){return `<div class="hb-center hb-section"><h4>${fill(p.title,o)}</h4><p class="hb-sub">${fill(p.sub,o)}</p></div>`;},
   tally(p,o){const max=Math.max(...p.rows.map(r=>r[1]));return `<div class="hb-tally"><h4>${fill(p.title,o)}</h4><p class="hb-sub">${fill(p.sub,o)}</p><ul>${p.rows.map(r=>`<li><span>${fill(r[0],o)}</span><i style="width:${Math.round(r[1]/max*100)}%"></i><b>${r[1]}</b></li>`).join("")}</ul></div>`;},
   sigs(p,o){return `<div class="hb-sigs"><h4>${fill(p.title,o)}</h4><ul>${p.names.map((n,i)=>`<li class="s${i%5}">${fill(n,o)}</li>`).join("")}</ul></div>`;},
+  /* Family Epic: a comic page of 1 to 4 panels (caption box, speech bubbles, sound effect) and a cast page. */
+  panels(p,o,ctx){return `<div class="hb-panels n${p.items.length}">${p.items.map(x=>`<div class="hb-panel${x.wide?" wide":""}${x.tall?" tall":""}"><img src="${ctx.base}${x.src}.webp" alt="" loading="lazy" decoding="async">${x.cap?`<p class="hb-cap">${fill(x.cap,o)}</p>`:""}${(x.say||[]).map((s,i)=>`<p class="hb-bub b${i}"><b>${fill(s[0],o)}</b>${fill(s[1],o)}</p>`).join("")}${x.sfx?`<span class="hb-sfx">${fill(x.sfx,o)}</span>`:""}</div>`).join("")}</div>`;},
+  cast(p,o){return `<div class="hb-cast"><h4>${fill(p.title,o)}</h4><ul>${p.items.map(x=>`<li><span class="hb-face" aria-hidden="true"></span><div><b>${fill(x[0],o)}</b><em>${fill(x[1],o)}</em><small>${fill(x[2],o)}</small></div></li>`).join("")}</ul></div>`;},
   end(p,o){return `<div class="hb-center hb-end">${p.lines.map(l=>`<p>${fill(l,o)}</p>`).join("")}<p class="hb-mark">Hero House Books</p></div>`;}
 };
 function pageHtml(p,o,ctx,side){return `<div class="hb-pg ${side} t-${p.t}">${(T[p.t]||T.note)(p,o,ctx)}</div>`;}

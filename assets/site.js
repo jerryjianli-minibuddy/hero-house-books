@@ -123,6 +123,10 @@ const SHIP=5.95,FREE_AT=69;
 const shipFee=sub=>sub>=FREE_AT?0:SHIP;
 function shipBarHtml(sub,g){const left=+(FREE_AT-sub).toFixed(2),pct=Math.min(100,sub/FREE_AT*100);
   return `<div class="shipbar${left<=0?" done":""}" role="status"><div class="sb-track" aria-hidden="true"><i style="width:${pct.toFixed(1)}%"></i></div><p>${left<=0?`<b>Free shipping.</b> Your order is ${money(sub)}.`:`<b>You're ${money(left)} away from free shipping.</b> ${g&&half(g)>=left?`Add a second book for ${money(half(g))} and the whole order ships free.`:`Shipping on this order is ${money(SHIP)}.`}`}</p></div>`;}
+/* Add 8 more pages: Lulu charges about $1.72 more for 40 pages than 32 (premium color hardcover, 8.5 x 8.5), so most of the $9 is kept. */
+const MORE=9;
+const MORE_WHAT={"fridge-gallery":"Room for about 8 more pieces of art.","from-all-of-us":"Room for about 16 more notes.","grandpas-stories":"Room for one more story, or more family photos.","family-epic":"Room for more of the adventure, or more of your photos."};
+function moreHtml(g,on){return `<label class="gcopy more-top${on?" on":""}"><input type="checkbox" id="more-on"${on?" checked":""}><span class="more-ic" aria-hidden="true">+8</span><span><b>Add 8 more pages</b><small>${MORE_WHAT[g.id]||"Room for about 8 more drawings or photos."} In this book and any copy of it.</small></span><em>+${money(MORE)}</em></label>`;}
 /* Give $10, get $10: a friend gets $10 off their first book, and the person who shared gets $10 off their next one. */
 const REF=10;
 const refCode=from=>((from||"").normalize("NFD").replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,10)||"FRIEND")+REF;
@@ -133,7 +137,7 @@ function editionHtml(g,ed){
    ${row("classic","Classic hardcover","8.5 × 8.5 in with a printed cover.",money(g.price))}
    ${row("heirloom","Heirloom edition","Navy linen cover with the title and their name in gold foil on the spine, and a dust jacket with their name on the front. Larger 8.5 × 11 in pages.",money(HEIR),`<span class="linen" aria-hidden="true"><i></i></span>`)}`;
 }
-function pairHtml(g,o,pick,sibName,p1,ship,note){
+function pairHtml(g,o,pick,sibName,p1,ship,note,heir){
   const row=(v,title,sub,add)=>`<label class="pair-opt${pick===v?" on":""}"><input type="radio" name="two" value="${v}"${pick===v?" checked":""}><span><b>${title}</b>${sub?`<small>${sub}</small>`:""}</span><em>${add}</em></label>`;
   const two=pick!=="none";
   const gc=g.gcopy?`<label class="gcopy${pick==="0"?" on":""}"><input type="checkbox" id="gcopy"${pick==="0"?" checked":""}>${g.photo?img(g.id,"",null,true):""}<span><b>Copy for ${esc(o.CopyShort||"Grandma & Grandpa")}</b><small>The same book, so they get their own. One tap, half off.</small></span><em>+${money(half(g))}</em></label>`:"";
@@ -145,7 +149,7 @@ function pairHtml(g,o,pick,sibName,p1,ship,note){
    ${gc}${gcx}${sb}
    ${row("none","Just one book","",money(p1))}
    ${g.pair.map((p,i)=>(g.gcopy&&i===0)||(g.sib&&g.sibIdx===i)?"":row(String(i),fill(p[0],o),fill(p[1],o),"+"+money(half(g)))).join("")}
-   <p class="pair-total">${two?`<b>${money(p1+half(g))} for two books.</b> You save ${money(half(g))}, and shipping is free.${pick==="0"&&ship?` With their copy shipped to them, <b>your order is ${money(p1+half(g)+SHIP2)}</b>.`:""}`:`Add a second book for ${money(half(g))} and pay ${money(p1+half(g))} for both.`}</p>${p1>g.price&&two?`<p class="notice">The second book is the classic edition, half off.</p>`:""}
+   <p class="pair-total">${two?`<b>${money(p1+half(g))} for two books.</b> You save ${money(half(g))}, and shipping is free.${pick==="0"&&ship?` With their copy shipped to them, <b>your order is ${money(p1+half(g)+SHIP2)}</b>.`:""}`:`Add a second book for ${money(half(g))} and pay ${money(p1+half(g))} for both.`}</p>${heir&&two?`<p class="notice">The second book is the classic edition, half off.</p>`:""}
    <p class="notice">Or pair it with <a href="${root}index.html#gifts">any other gift</a>: the lower-priced book is half off.</p>`;
 }
 /* ---------- "Hear my voice" add-on: a code printed inside the cover that plays a recorded message ---------- */
@@ -328,7 +332,7 @@ function gift(){
   main.innerHTML=`<div class="wrap">
   <section class="p-hero"><div class="stack-lg"><div class="stack"><span class="eyebrow">${esc(g.forLine)}</span><h1>${esc(g.name)}</h1><p class="lede">${esc(g.tagline)}</p></div>
    <div><div class="price-big" id="price-big">$${g.price}</div><p class="notice" id="price-note">${esc(g.priceNote)}</p></div>
-   ${heirOk(g)?`<fieldset class="pair" id="edition"></fieldset>`:""}
+   ${heirOk(g)?`<fieldset class="pair" id="edition"></fieldset>`:""}<div id="more"></div>
    <fieldset class="pair" id="pair"></fieldset>${voiceOk(g)?`<div class="voice" id="voice"></div>`:""}<div id="shipbar"></div>
    <dl class="facts">${g.facts.map(f=>`<div><dt>${esc(f[0])}</dt><dd>${esc(f[1])}</dd></div>`).join("")}</dl>
    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#" data-soon>Start this gift</a>${full?`<a class="btn ghost" href="#look">See every page</a>`:""}<a class="btn ghost" href="${root}choose.html">Not sure? Help me choose</a></div>
@@ -352,17 +356,19 @@ function gift(){
   const bk=full?fullBook(g,given):book(document.getElementById("book"),g,given);
   if(g.look&&!full)lookInside(g);
   const pairEl=document.getElementById("pair");const tw=parseInt(qs.get("two"),10);let pick=tw>=1&&tw<=g.pair.length?String(tw-1):"none";
-  let sibName="",ed="classic",ship=false,note="";
-  const p1=()=>ed==="heirloom"?HEIR:g.price;
+  let sibName="",ed="classic",ship=false,note="",more=false;
+  const p1=()=>(ed==="heirloom"?HEIR:g.price)+(more?MORE:0);
   const vc=voiceOk(g)?voice(g,()=>(pick==="none"?p1():p1()+half(g))+(pick==="0"&&ship?SHIP2:0)):null;
   const shipEl=document.getElementById("shipbar");
   const showShip=()=>{const sub=(pick==="none"?p1():p1()+half(g))+(vc&&vc.on()?VOICE:0);shipEl.innerHTML=shipBarHtml(sub,pick==="none"?g:null);};
-  const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick,sibName,p1(),ship,note);if(vc)vc.total();showShip();};showPair();
+  const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick,sibName,p1(),ship,note,ed==="heirloom");if(vc)vc.total();showShip();};showPair();
   main.addEventListener("change",e=>{if(e.target.id==="voice-on")showShip();});
   ded(g,given,full?bk:null);
   const edEl=document.getElementById("edition");
-  if(edEl){const showEd=()=>{edEl.innerHTML=editionHtml(g,ed);document.getElementById("price-big").textContent="$"+p1();document.getElementById("price-note").textContent=ed==="heirloom"?"Navy linen hardcover, 8.5 × 11 in, free shipping":g.priceNote;};showEd();
+  if(edEl){const showEd=()=>{edEl.innerHTML=editionHtml(g,ed);document.getElementById("price-big").textContent=money(p1());document.getElementById("price-note").textContent=ed==="heirloom"?"Navy linen hardcover, 8.5 × 11 in, free shipping":g.priceNote;};showEd();
     edEl.addEventListener("change",e=>{if(e.target.name==="ed"){ed=e.target.value;showEd();showPair();}});}
+  const moreEl=document.getElementById("more");const showMore=()=>{moreEl.innerHTML=moreHtml(g,more);document.getElementById("price-big").textContent=money(p1());};showMore();
+  moreEl.addEventListener("change",e=>{if(e.target.id==="more-on"){more=e.target.checked;showMore();showPair();}});
   pairEl.addEventListener("change",e=>{if(e.target.name==="two"){pick=e.target.value;showPair();}if(e.target.id==="gcopy"){pick=e.target.checked?"0":"none";showPair();}
     if(e.target.id==="gship"){ship=e.target.checked;showPair();if(ship)document.getElementById("gnote").focus();}
     if(e.target.id==="sibcopy"){pick=e.target.checked?(g.sibIdx!=null?String(g.sibIdx):"sib"):"none";showPair();if(e.target.checked)document.getElementById("sib-name").focus();}});
@@ -523,14 +529,16 @@ function thanks(){
   if(document.body.dataset.page!=="thanks")return;
   const qs=new URLSearchParams(location.search);
   const g=G.find(x=>x.id===qs.get("gift"))||G[0];const given={};g.fields.forEach(f=>{if(qs.has(f.k))given[f.k]=qs.get(f.k);});
-  const to=REVEAL_TO[g.id](vars(g,given)),a=timing(g,null).std,fee=shipFee(g.price);
-  let from="";
+  const to=REVEAL_TO[g.id](vars(g,given)),a=timing(g,null).std;
+  let from="",heir=false,copy=false;
+  const total=()=>(heir?HEIR:g.price)+(copy?half(g):0);
   const msg=code=>`I just made a book for ${to} with Hero House Books and I can't wait to give it. Here's $${REF} off if you want to make one: herohousebooks.com/r/${code.toLowerCase()}`;
   document.getElementById("app").innerHTML=`<div class="wrap">
+  <section class="pp" id="pp" aria-labelledby="pp-h"><div class="pp-head"><span class="eyebrow">Right after payment, before the receipt</span><h2 id="pp-h">Your order is paid. One more thing?</h2><p class="notice">One tap adds it to the same order, on the same card. Nothing to type again.</p></div><div class="pp-offers" id="pp-offers"></div><p class="notice">A sample of the step that shows right after checkout. Nothing is charged.</p></section>
   <section class="hero rv-hero"><div class="stack"><span class="eyebrow">Sample order confirmation</span><h1>Thank you. We've started on your book.</h1>
    <p class="lede">Next, we email you the link for the questions. You'll see every page before we print, and you can change anything once for free.</p></div></section>
   <section class="ty-grid">
-   <div class="panel stack"><h3>Your order</h3><dl class="facts ty-facts"><div><dt>Gift</dt><dd>${esc(g.name)}</dd></div><div><dt>For</dt><dd>${esc(to)}</dd></div><div><dt>Arrives about</dt><dd>${fmt(a)}</dd></div><div><dt>Total</dt><dd>${money(g.price+fee)}${fee?` with ${money(SHIP)} shipping`:", free shipping"}</dd></div></dl>
+   <div class="panel stack"><h3>Your order</h3><dl class="facts ty-facts"><div><dt>Gift</dt><dd>${esc(g.name)}</dd></div><div><dt>For</dt><dd>${esc(to)}</dd></div><div><dt>Arrives about</dt><dd>${fmt(a)}</dd></div><div><dt>Total</dt><dd id="ty-total"></dd></div></dl>
     <p class="notice">While it's being made: <a href="${revealUrl(g,given)}">print your free "on its way" card</a> to give on the day.</p></div>
    <div class="panel stack ref" id="ref"><span class="eyebrow">Give $${REF}, get $${REF}</span><h2>Know someone with a birthday coming up?</h2>
     <p>Share your code. They get $${REF} off their first book. When they order, you get $${REF} off your next one, like the copy for Grandma.</p>
@@ -544,6 +552,12 @@ function thanks(){
    <li><b>They save $${REF}</b><span>On their first book, any gift. It works with the second book half off.</span></li>
    <li><b>You save $${REF}</b><span>The day their order goes in, $${REF} off your next book lands in your email. No limit.</span></li></ol></section></div>`;
   const show=()=>{const c=refCode(from);document.getElementById("ref-code").innerHTML=refHtml(c);document.getElementById("ref-msg").value=msg(c);};show();
+  const offer=(id,on,title,sub,add,pic)=>`<div class="pp-offer${on?" on":""}">${pic}<div><b>${title}</b><small>${sub}</small></div>${on?`<span class="pp-done">Added</span>`:`<button type="button" class="btn" data-pp="${id}">Add it, ${add}</button>`}</div>`;
+  const showPP=()=>{const t=total(),f=shipFee(t);
+    document.getElementById("pp-offers").innerHTML=(heirOk(g)?offer("heir",heir,"Make it an Heirloom","Navy linen cover, their name in gold foil on the spine, larger 8.5 × 11 in pages.","+"+money(HEIR-g.price),`<span class="linen" aria-hidden="true"><i></i></span>`):"")+
+      offer("copy",copy,`A second copy for ${esc(vars(g,given).CopyShort||"Grandma & Grandpa")}`,"The same book, half off. Two books ship free.","+"+money(half(g)),g.photo?img(g.id,"",null,true):"");
+    document.getElementById("ty-total").textContent=money(t+f)+(f?` with ${money(SHIP)} shipping`:", free shipping");};showPP();
+  document.getElementById("pp-offers").addEventListener("click",e=>{const b=e.target.closest("[data-pp]");if(!b)return;if(b.dataset.pp==="heir")heir=true;else copy=true;showPP();});
   document.getElementById("ref-name").addEventListener("input",e=>{from=e.target.value;show();});
   const note=document.getElementById("ref-note");
   document.getElementById("ref-copy").onclick=()=>{const t=document.getElementById("ref-msg").value;

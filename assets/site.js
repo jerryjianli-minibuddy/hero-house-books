@@ -47,8 +47,8 @@ function timing(g,need){
 }
 function timingHtml(g,need){
   const t=timing(g,need);
-  if(!need)return `<p class="timing ok">Arrives about <b>${fmt(t.std)}</b> if you start today, shipping included. Rush: about ${fmt(t.rush)} for $${C.RUSH_PRICE} more.</p>`;
-  if(t.stdOk)return `<p class="timing ok"><b>In time for ${fmt(need)}</b> with regular shipping, included in the price. Start by ${fmt(t.startBy)} at the latest.</p>`;
+  if(!need)return `<p class="timing ok">Arrives about <b>${fmt(t.std)}</b> if you start today. Rush: about ${fmt(t.rush)} for $${C.RUSH_PRICE} more.</p>`;
+  if(t.stdOk)return `<p class="timing ok"><b>In time for ${fmt(need)}</b> with regular shipping. Start by ${fmt(t.startBy)} at the latest.</p>`;
   if(t.rushOk)return `<p class="timing warn"><b>Only with rush shipping</b> ($${C.RUSH_PRICE} more): arrives about ${fmt(t.rush)}, before ${fmt(need)}. Start today.</p>`;
   return `<p class="timing no"><b>Too late for ${fmt(need)}.</b> The earliest it can arrive is about ${fmt(t.rush)} with rush shipping. Our free printable <a href="${root}reveal.html?gift=${g.id}">"on its way" card</a> covers the day.</p>`;
 }
@@ -66,13 +66,13 @@ function chrome(){
   head.innerHTML=`<div class="testbar">Test site. Every person, quote, drawing and photo here is made up, and nothing is for sale yet.</div>
   <div class="offerbar"><b>${OFFER}.</b> One for Mom, one for Grandma. No code needed.</div>
   <header class="site-head"><div class="wrap"><a class="brand" href="${root}index.html">${logo}Hero House Books</a>
-  <nav class="nav" aria-label="Main"><a href="${root}choose.html"><b>Help me choose</b></a><a href="${root}valentines.html">Valentine's</a><a href="${root}index.html#gifts">All gifts</a><a href="${root}index.html#how">How it works</a><a href="${root}gallery/maya.html">Sample gallery</a></nav></div></header>`;
+  <nav class="nav" aria-label="Main"><a href="${root}choose.html"><b>Help me choose</b></a><a href="${root}valentines.html">Valentine's</a><a href="${root}mothers-day.html">Mother's Day</a><a href="${root}index.html#gifts">All gifts</a><a href="${root}index.html#how">How it works</a><a href="${root}gallery/maya.html">Sample gallery</a></nav></div></header>`;
   document.body.prepend(...head.childNodes);
   const foot=document.createElement("footer");foot.className="site-foot";
   foot.innerHTML=`<div class="wrap"><span>Hero House Books. Real words, real drawings, printed in the USA.</span><span>A test site: no orders, no uploads, nothing saved.</span></div>`;
   document.body.append(foot);
   const d=document.createElement("dialog");d.id="soon";
-  d.innerHTML=`<div class="dlg"><h3>Not taking orders yet</h3><p>This is a test site for trying out ideas. Nothing you click here is saved or charged.</p><p class="notice">After a real order you'd get a free printable "on its way" card and the full preview pages to show on the day. <a href="${root}reveal.html${document.body.dataset.gift?"?gift="+document.body.dataset.gift:""}">See the card</a></p><form method="dialog"><button class="btn">Got it</button></form></div>`;
+  d.innerHTML=`<div class="dlg"><h3>Not taking orders yet</h3><p>This is a test site for trying out ideas. Nothing you click here is saved or charged.</p><p class="notice">After a real order you'd see <a href="${root}thanks.html${document.body.dataset.gift?"?gift="+document.body.dataset.gift:""}">this thank-you page</a>, with a free printable "on its way" card and a $10 code to share.</p><form method="dialog"><button class="btn">Got it</button></form></div>`;
   document.body.append(d);
   document.addEventListener("click",e=>{const t=e.target.closest("[data-soon]");if(t){e.preventDefault();d.showModal();}});
 }
@@ -118,6 +118,15 @@ const HEIR=69;
 const heirOk=g=>g.price===49;
 /* Grandparents' copy shipped to their own address: a second Lulu shipment, Mail from $5.69 */
 const SHIP2=5.95;
+/* Free shipping from $69: two $49 books ($73.50), Fridge Gallery and the Heirloom edition ship free. One $49 book pays $5.95. */
+const SHIP=5.95,FREE_AT=69;
+const shipFee=sub=>sub>=FREE_AT?0:SHIP;
+function shipBarHtml(sub,g){const left=+(FREE_AT-sub).toFixed(2),pct=Math.min(100,sub/FREE_AT*100);
+  return `<div class="shipbar${left<=0?" done":""}" role="status"><div class="sb-track" aria-hidden="true"><i style="width:${pct.toFixed(1)}%"></i></div><p>${left<=0?`<b>Free shipping.</b> Your order is ${money(sub)}.`:`<b>You're ${money(left)} away from free shipping.</b> ${g&&half(g)>=left?`Add a second book for ${money(half(g))} and the whole order ships free.`:`Shipping on this order is ${money(SHIP)}.`}`}</p></div>`;}
+/* Give $10, get $10: a friend gets $10 off their first book, and the person who shared gets $10 off their next one. */
+const REF=10;
+const refCode=from=>((from||"").normalize("NFD").replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,10)||"FRIEND")+REF;
+function refHtml(code){return `<div class="ref-code"><span>Your code</span><b>${esc(code)}</b><small>herohousebooks.com/r/${esc(code.toLowerCase())}</small></div>`;}
 function editionHtml(g,ed){
   const row=(v,title,sub,add,pic)=>`<label class="pair-opt${ed===v?" on":""}"><input type="radio" name="ed" value="${v}"${ed===v?" checked":""}>${pic||""}<span><b>${title}</b><small>${sub}</small></span><em>${add}</em></label>`;
   return `<legend>Choose the edition</legend>
@@ -136,7 +145,7 @@ function pairHtml(g,o,pick,sibName,p1,ship,note){
    ${gc}${gcx}${sb}
    ${row("none","Just one book","",money(p1))}
    ${g.pair.map((p,i)=>(g.gcopy&&i===0)||(g.sib&&g.sibIdx===i)?"":row(String(i),fill(p[0],o),fill(p[1],o),"+"+money(half(g)))).join("")}
-   <p class="pair-total">${two?`<b>${money(p1+half(g))} for two books.</b> You save ${money(half(g))}, and shipping is included for both.${pick==="0"&&ship?` With their copy shipped to them, <b>your order is ${money(p1+half(g)+SHIP2)}</b>.`:""}`:`Add a second book for ${money(half(g))} and pay ${money(p1+half(g))} for both.`}</p>${p1>g.price&&two?`<p class="notice">The second book is the classic edition, half off.</p>`:""}
+   <p class="pair-total">${two?`<b>${money(p1+half(g))} for two books.</b> You save ${money(half(g))}, and shipping is free.${pick==="0"&&ship?` With their copy shipped to them, <b>your order is ${money(p1+half(g)+SHIP2)}</b>.`:""}`:`Add a second book for ${money(half(g))} and pay ${money(p1+half(g))} for both.`}</p>${p1>g.price&&two?`<p class="notice">The second book is the classic edition, half off.</p>`:""}
    <p class="notice">Or pair it with <a href="${root}index.html#gifts">any other gift</a>: the lower-priced book is half off.</p>`;
 }
 /* ---------- "Hear my voice" add-on: a code printed inside the cover that plays a recorded message ---------- */
@@ -153,7 +162,7 @@ function voice(g,getBase){
   const el=document.getElementById("voice");let on=false,who="child",url="",rec=null,chunks=[];
   const WHO=[["child","The child, in their own voice"],["grandparent","A grandparent"],["you","You"]];
   const base=getBase;
-  const totalHtml=()=>on?`<b>Your order: ${money(base()+VOICE)}</b>, with the voice message. Shipping included.`:"";
+  const totalHtml=()=>on?`<b>Your order: ${money(base()+VOICE)}</b>, with the voice message. ${shipFee(base()+VOICE)?`Plus ${money(SHIP)} shipping.`:"Shipping is free."}`:"";
   function render(){
     el.innerHTML=`<label class="gcopy voice-top${on?" on":""}"><input type="checkbox" id="voice-on"${on?" checked":""}><span class="voice-ic" aria-hidden="true">${qrSvg(3)}</span><span><b>Hear my voice</b><small>A code printed inside the cover. Scan it with any phone to hear a recorded message. No app.</small></span><em>+${money(VOICE)}</em></label>
     ${on?`<div class="voice-body">
@@ -183,7 +192,7 @@ function voice(g,getBase){
     }catch(err){rec=null;render();note().textContent="The microphone isn't available here. Pick a sound file instead.";}
   });
   render();
-  return {total(){const t=document.getElementById("voice-total");if(t)t.innerHTML=totalHtml();}};
+  return {total(){const t=document.getElementById("voice-total");if(t)t.innerHTML=totalHtml();},on:()=>on};
 }
 
 /* ---------- Valentine's page ---------- */
@@ -204,10 +213,10 @@ function valentines(){
    <figure class="p-photo" style="margin:0">${img("two-sides","A couple on the sofa with tea, looking through a book with a photo of the two of them on a date")}</figure></section>
   <section class="stack-lg" id="vday-gifts"><div class="stack"><h2>Two Valentines</h2><p class="notice">Both arrive by Saturday, Feb 13 with regular shipping if you start by the date on each.</p></div>
    <div class="cards vday-grid">${gs.map((g,i)=>`<a class="card" href="${giftUrl(g,null,day)}"><div class="art">${img(g.id,g.photo,"",true)}</div><div class="body"><span class="for">${i?"For your partner":"From the kids, for Mom or Dad"}</span><h3>${esc(g.name)}</h3><p>${esc(i?"You each answer the same 15 questions on your own. The book puts your answers side by side.":"15 minutes at the kitchen table: your kids' real answers and drawings about Mom or Dad.")}</p><span class="price">$${g.price} <small>Start by ${fmt(t[i].startBy)}</small></span></div></a>`).join("")}</div>
-   <div class="cta-band"><div class="stack"><h2>One of each: ${money(pairTotal(gs[0]))}</h2><p>The kids' book for Mom or Dad, and Two Sides of Us for the two of you. The second book is half off, shipping included.</p></div><a class="btn" href="${giftUrl(gs[0],null,day)}">Start with the kids' book</a></div></section>
+   <div class="cta-band"><div class="stack"><h2>One of each: ${money(pairTotal(gs[0]))}</h2><p>The kids' book for Mom or Dad, and Two Sides of Us for the two of you. The second book is half off, and the pair ships free.</p></div><a class="btn" href="${giftUrl(gs[0],null,day)}">Start with the kids' book</a></div></section>
   <section class="stack-lg"><h2>Add their voice for $9</h2><div class="vday-voice"><figure class="voice-qr">${qrSvg(11)}</figure><p>A code printed inside the cover. Scan it with any phone and hear your child say "Happy Valentine's Day, Mom", or the two of you reading your answers out loud. Add it on the gift's page.</p></div></section>
   <section class="stack"><h2>Dates that matter</h2><ul class="vday-dates">
-   ${gs.map((g,i)=>`<li><b>${fmt(t[i].startBy)}</b> Last day to start ${esc(g.name)} with regular shipping, included in the price.</li>`).join("")}
+   ${gs.map((g,i)=>`<li><b>${fmt(t[i].startBy)}</b> Last day to start ${esc(g.name)} with regular shipping.</li>`).join("")}
    <li><b>${fmt(lastRush)}</b> Last day with rush shipping, $${C.RUSH_PRICE} more.</li>
    <li><b>Sat, Feb 13</b> Your book arrives.</li></ul>
    <p class="notice">Every book needs a few days for your answers, a few for us to make it, then printing and the mail. That's why the start dates come early.</p></section></div>`;
@@ -215,7 +224,7 @@ function valentines(){
   function tick(){
     const now=new Date(),reg=last-now,rush=lastRush-now;
     if(reg>0){const d=Math.floor(reg/DAY),h=Math.floor(reg%DAY/36e5),m=Math.floor(reg%36e5/6e4);
-      cd.innerHTML=`<span class="cd-n"><b>${d}</b>days</span><span class="cd-n"><b>${h}</b>hours</span><span class="cd-n"><b>${m}</b>min</span><span class="cd-l">left to order for Valentine's Day with free shipping. Last day: ${fmt(last)}.</span>`;}
+      cd.innerHTML=`<span class="cd-n"><b>${d}</b>days</span><span class="cd-n"><b>${h}</b>hours</span><span class="cd-n"><b>${m}</b>min</span><span class="cd-l">left to order for Valentine's Day with regular shipping. Last day: ${fmt(last)}.</span>`;}
     else if(rush>0)cd.innerHTML=`<span class="cd-l"><b>Rush only now.</b> Start by ${fmt(lastRush)} and add rush shipping, $${C.RUSH_PRICE}, to have it by Feb 13.</span>`;
     else cd.innerHTML=`<span class="cd-l"><b>Too late for delivery by Valentine's Day.</b> Order now and we'll email a <a href="${root}reveal.html?gift=two-sides">printable "your book is on its way" card</a> for the 14th.</span>`;
   }
@@ -224,19 +233,19 @@ function valentines(){
 /* ---------- "On its way" reveal card: free with every order, so nobody is empty-handed while the book prints ---------- */
 const REVEAL_TO={"in-my-words":o=>o.Rel,"fridge-gallery":()=>"Grandma","two-sides":o=>o.B,"grandpas-stories":o=>o.Elder,"the-year-you-were":o=>o.Kid,"from-all-of-us":o=>o.Honoree,"family-epic":o=>"the "+o.Family};
 const revealUrl=(g,given)=>{const q=giftUrl(g,given,null).split("?")[1];return `${root}reveal.html?gift=${g.id}${q?"&"+q:""}`;};
-function revealCard(g,to,from,msg,arrive){
+function revealCard(g,to,from,msg,arrive,gift10){
   return `<div class="rv-card" id="rv-card">
    <div class="rv-panel rv-front"><div class="rv-pic">${img(g.id,g.photo)}</div><div class="rv-words"><p class="rv-kick">Something is on its way</p><h2 class="rv-to">For ${esc(to||"you")}</h2></div></div>
    <div class="rv-panel rv-inside"><p class="rv-msg">${esc(msg||"We made you something, and it's on its way.")}</p>
     <p>It's a book called <b>${esc(g.name)}</b>, printed just for you. It arrives about <b>${fmt(arrive)}</b>.</p>
     <div class="rv-peek">${qrSvg(5)}<span>Can't wait? Scan to flip through every page now.</span></div>
-    <p class="rv-from">${from?"Love, "+esc(from):""}</p><p class="rv-mark">Hero House Books</p></div></div>`;
+    <p class="rv-from">${from?"Love, "+esc(from):""}</p>${gift10?`<p class="rv-ten">Want to make one for someone you love? $${REF} off your first book with code <b>${esc(refCode(from))}</b>.</p>`:""}<p class="rv-mark">Hero House Books</p></div></div>`;
 }
 function reveal(){
   if(document.body.dataset.page!=="reveal")return;
   const qs=new URLSearchParams(location.search);
   let g=G.find(x=>x.id===qs.get("gift"))||G[0];const given={};g.fields.forEach(f=>{if(qs.has(f.k))given[f.k]=qs.get(f.k);});
-  let to=REVEAL_TO[g.id](vars(g,given)),from="",msg="";
+  let to=REVEAL_TO[g.id](vars(g,given)),from="",msg="",ten=true;
   const app=document.getElementById("app");
   app.innerHTML=`<div class="wrap">
   <section class="hero rv-hero"><div class="stack"><span class="eyebrow">Free with every order</span><h1>Your book is on its way. Here's what to hand over on the day.</h1>
@@ -246,6 +255,7 @@ function reveal(){
     <label class="fld"><span>Who it's for</span><input type="text" id="rv-to" maxlength="40" autocomplete="off" value="${esc(to)}"></label>
     <label class="fld"><span>From</span><input type="text" id="rv-from" maxlength="40" autocomplete="off" placeholder="Your names"></label>
     <label class="fld"><span>A line from you</span><input type="text" id="rv-msg" maxlength="90" autocomplete="off" placeholder="We made you something, and it's on its way."></label>
+    <label class="chk"><input type="checkbox" id="rv-ten" checked> <span>Add a $${REF} code they can use for a book of their own. When they use it, you get $${REF} off your next one.</span></label>
     <p class="notice">Nothing you type here is saved. After a real order, the card comes by email, already filled in, and its code opens your book's preview pages. The code here is a sample.</p>
     <div class="upl"><button type="button" class="btn" id="rv-print">Print the card</button><a class="btn ghost" id="rv-look" href="#">Open the preview pages</a></div>
     <p class="notice">Prints on one sheet. Fold it in half with the picture on the outside.</p></form>
@@ -254,9 +264,10 @@ function reveal(){
    <li><b>Hand over the card</b><span>The picture is on the front, your note on the back.</span></li>
    <li><b>Show them the pages</b><span>Open the preview on your phone or a TV. It's the real book, every page, with their names.</span></li>
    <li><b>The book arrives</b><span>We email you the tracking number the day it ships.</span></li></ol></section></div>`;
-  const show=()=>{const a=timing(g,null).std;document.getElementById("rv-stage").innerHTML=revealCard(g,to,from,msg,a);document.getElementById("rv-look").href=giftUrl(g,given,null)+"#look";};show();
+  const show=()=>{const a=timing(g,null).std;document.getElementById("rv-stage").innerHTML=revealCard(g,to,from,msg,a,ten);document.getElementById("rv-look").href=giftUrl(g,given,null)+"#look";};show();
   document.getElementById("rv-form").addEventListener("input",e=>{const id=e.target.id;
-    if(id==="rv-to")to=e.target.value;if(id==="rv-from")from=e.target.value;if(id==="rv-msg")msg=e.target.value;show();});
+    if(id==="rv-to")to=e.target.value;if(id==="rv-from")from=e.target.value;if(id==="rv-msg")msg=e.target.value;if(id==="rv-ten")ten=e.target.checked;show();});
+  document.getElementById("rv-ten").addEventListener("change",e=>{ten=e.target.checked;show();});
   document.getElementById("rv-gift").addEventListener("change",e=>{g=G.find(x=>x.id===e.target.value);for(const k in given)delete given[k];to=REVEAL_TO[g.id](vars(g,given));document.getElementById("rv-to").value=to;show();});
   document.getElementById("rv-print").addEventListener("click",()=>window.print());
 }
@@ -289,6 +300,23 @@ function seriesHtml(o){
    <div class="stack"><h3>Same cover, new color each year</h3><div class="sc-covers">${covers}</div></div>
    <p class="notice">No subscription. We email you a month before each birthday with that year's questions, and you decide. Start at any age, and make the earlier years from your photos and what you remember.</p>`;
 }
+/* ---------- Handwritten first page: the giver writes a note on paper, photographs it, and it's printed on page 1 ---------- */
+function dedHtml(){return `<div class="panel stack ded" id="ded"><h3>Add a handwritten first page</h3><p class="notice">Write a few lines on any paper and take a photo. We print it on the first page in your own handwriting. Free with every book.</p>
+  <div class="ded-page" id="ded-page"></div>
+  <div class="upl"><label class="btn ghost">Add a photo of your note<input type="file" id="ded-file" accept="image/jpeg,image/png,image/webp,image/heic"></label><button type="button" class="btn ghost" id="ded-reset" hidden>Show the sample</button></div>
+  <p class="notice" id="ded-note" aria-live="polite">Your photo stays on this device. Nothing is uploaded.</p></div>`;}
+let dedUrl=null;
+function dedSample(g,given){const el=document.getElementById("ded-page");if(!el||dedUrl)return;const to=REVEAL_TO[g.id](vars(g,given));
+  el.innerHTML=`<div class="ded-hand"><p>Dear ${esc(to)},</p><p>We made this so you'd always have it. Every word in here is real, and so is every bit of love.</p><p class="ded-sign">Always,<br>all of us</p></div><span class="ded-tag">Sample</span>`;}
+function ded(g,given,bk){
+  const el=document.getElementById("ded-page"),file=document.getElementById("ded-file"),rs=document.getElementById("ded-reset"),note=document.getElementById("ded-note");
+  dedSample(g,given);
+  file.onchange=e=>{const f=e.target.files[0];if(!f||!/^image\//.test(f.type))return;if(dedUrl)URL.revokeObjectURL(dedUrl);dedUrl=URL.createObjectURL(f);
+    el.innerHTML=`<img class="ded-img" src="${dedUrl}" alt="Your handwritten note on the first page">`;rs.hidden=false;
+    if(bk)bk.dedication(f);
+    note.textContent=`This is how it prints on page 1${bk?", and it's on page 1 of the book below too":""}. In a real book we lift the writing off the paper and keep every stroke. We never retype it.`;e.target.value="";};
+  rs.onclick=()=>{if(dedUrl)URL.revokeObjectURL(dedUrl);dedUrl=null;dedSample(g,given);rs.hidden=true;if(bk)bk.dedication(null);note.textContent="Your photo stays on this device. Nothing is uploaded.";};
+}
 function gift(){
   const id=document.body.dataset.gift;if(!id)return;const g=G.find(x=>x.id===id);if(!g)return;
   document.title=`${g.name} | Hero House Books`;
@@ -301,7 +329,7 @@ function gift(){
   <section class="p-hero"><div class="stack-lg"><div class="stack"><span class="eyebrow">${esc(g.forLine)}</span><h1>${esc(g.name)}</h1><p class="lede">${esc(g.tagline)}</p></div>
    <div><div class="price-big" id="price-big">$${g.price}</div><p class="notice" id="price-note">${esc(g.priceNote)}</p></div>
    ${heirOk(g)?`<fieldset class="pair" id="edition"></fieldset>`:""}
-   <fieldset class="pair" id="pair"></fieldset>${voiceOk(g)?`<div class="voice" id="voice"></div>`:""}
+   <fieldset class="pair" id="pair"></fieldset>${voiceOk(g)?`<div class="voice" id="voice"></div>`:""}<div id="shipbar"></div>
    <dl class="facts">${g.facts.map(f=>`<div><dt>${esc(f[0])}</dt><dd>${esc(f[1])}</dd></div>`).join("")}</dl>
    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#" data-soon>Start this gift</a>${full?`<a class="btn ghost" href="#look">See every page</a>`:""}<a class="btn ghost" href="${root}choose.html">Not sure? Help me choose</a></div>
    <p class="notice rv-line">Every order comes with a free printable "on its way" card and the full preview pages to show on the day. <a id="rv-link" href="${revealUrl(g,given)}">See the card</a></p></div>
@@ -309,7 +337,7 @@ function gift(){
     <form class="panel" id="mine" onsubmit="return false">${full?`<h3>When do you need it?</h3><p class="notice">We'll tell you the last day to start.</p>`:`<h3>Make the sample yours</h3><p class="notice">Type real names to see how your book would read. Nothing is saved.</p>
      <div class="fields">${g.fields.map((f,i)=>fieldHtml(f,given[f.k],"f"+i)).join("")}</div>`}
      <label class="fld"><span>Need it by</span><input type="date" id="need" min="${iso(today())}" value="${need?iso(need):""}"></label>
-     <div id="when"></div></form></div></section>
+     <div id="when"></div></form>${dedHtml()}</div></section>${g.id==="in-my-words"?`<p class="md-line"><b>Mother's Day edition:</b> All About Mom, with questions all about her and a spring cover. <a href="${root}mothers-day.html">See it</a></p>`:""}
   ${g.series?`<section class="stack-lg series" id="series"></section>`:""}
   ${full?fullBookHtml(g,given):""}
   ${g.look&&!full?`<section class="stack-lg look" id="look"><div class="stack"><h2>Look inside</h2><p class="notice">Real page spreads from a sample book. Printed as an 8.5 × 8.5 in hardcover. The family and drawings here are made up.</p></div>
@@ -327,9 +355,13 @@ function gift(){
   let sibName="",ed="classic",ship=false,note="";
   const p1=()=>ed==="heirloom"?HEIR:g.price;
   const vc=voiceOk(g)?voice(g,()=>(pick==="none"?p1():p1()+half(g))+(pick==="0"&&ship?SHIP2:0)):null;
-  const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick,sibName,p1(),ship,note);if(vc)vc.total();};showPair();
+  const shipEl=document.getElementById("shipbar");
+  const showShip=()=>{const sub=(pick==="none"?p1():p1()+half(g))+(vc&&vc.on()?VOICE:0);shipEl.innerHTML=shipBarHtml(sub,pick==="none"?g:null);};
+  const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick,sibName,p1(),ship,note);if(vc)vc.total();showShip();};showPair();
+  main.addEventListener("change",e=>{if(e.target.id==="voice-on")showShip();});
+  ded(g,given,full?bk:null);
   const edEl=document.getElementById("edition");
-  if(edEl){const showEd=()=>{edEl.innerHTML=editionHtml(g,ed);document.getElementById("price-big").textContent="$"+p1();document.getElementById("price-note").textContent=ed==="heirloom"?"Navy linen hardcover, 8.5 × 11 in, shipping included":g.priceNote;};showEd();
+  if(edEl){const showEd=()=>{edEl.innerHTML=editionHtml(g,ed);document.getElementById("price-big").textContent="$"+p1();document.getElementById("price-note").textContent=ed==="heirloom"?"Navy linen hardcover, 8.5 × 11 in, free shipping":g.priceNote;};showEd();
     edEl.addEventListener("change",e=>{if(e.target.name==="ed"){ed=e.target.value;showEd();showPair();}});}
   pairEl.addEventListener("change",e=>{if(e.target.name==="two"){pick=e.target.value;showPair();}if(e.target.id==="gcopy"){pick=e.target.checked?"0":"none";showPair();}
     if(e.target.id==="gship"){ship=e.target.checked;showPair();if(ship)document.getElementById("gnote").focus();}
@@ -340,7 +372,7 @@ function gift(){
   const when=document.getElementById("when");const showWhen=()=>when.innerHTML=timingHtml(g,need);showWhen();
   document.getElementById("app").addEventListener("input",e=>{if(!e.target.closest("#mine,#mine-book"))return;
     if(e.target.id==="need"){need=parse(e.target.value);showWhen();return;}
-    const k=e.target.dataset.k;if(k){given[k]=e.target.value;bk.update(given);showPair();showSeries();document.getElementById("rv-link").href=revealUrl(g,given);}
+    const k=e.target.dataset.k;if(k){given[k]=e.target.value;bk.update(given);showPair();showSeries();document.getElementById("rv-link").href=revealUrl(g,given);dedSample(g,given);}
   });
 }
 
@@ -376,7 +408,7 @@ function fullBook(g,given){
     const pg=pages().slice(0,n).map(x=>x.page);note.textContent=`Your ${n===1?"photo is":n+" photos are"} on page${n===1?"":"s"} ${pg.join(", ").replace(/, (\d+)$/," and $1")}, with sample doodles on top. In a real book, the doodles are drawn to fit each photo.`;reset.hidden=false;e.target.value="";};
   document.getElementById("up-draw").onchange=e=>{const f=e.target.files[0];if(!f||!/^image\//.test(f.type))return;bk.drawing(f);note.textContent=Object.assign({},UPLOAD,g.upload).coverDone;reset.hidden=false;e.target.value="";};
   reset.onclick=()=>{bk.reset();note.textContent="";reset.hidden=true;};
-  return {update(){bk.update();renderMini();}};
+  return {update(){bk.update();renderMini();},dedication:f=>bk.dedication(f)};
 }
 
 /* ---------- look inside ---------- */
@@ -451,7 +483,7 @@ function chooser(){
       body=`<h2>When do you need it?</h2><p class="notice">Books take about 3 weeks: a few days for you to gather things, a few for us to design, then printing and mail.</p>
       <div class="fields"><label class="fld"><span>Need it by</span><input data-a="need" type="date" min="${iso(today())}" value="${pre}"></label></div>
       <button type="button" class="linkish" data-norush>No date, no rush</button>`;}
-    if(k==="budget")body=`<h2>What would you like to spend?</h2><p class="notice">Prices are for one book, shipping included. A second book is always half off, and group gifts can be split.</p>${opts("budget",C.budgets)}`;
+    if(k==="budget")body=`<h2>What would you like to spend?</h2><p class="notice">Prices are for one book. A second book is always half off, orders of $69 or more ship free, and group gifts can be split.</p>${opts("budget",C.budgets)}`;
     if(k==="result")return result();
     host.innerHTML=`<div class="progress" aria-hidden="true"><span style="width:${Math.round(step/total*100)}%"></span></div><p class="notice">Question ${step+1} of ${total}</p>
       <div class="q">${body}</div>
@@ -486,5 +518,86 @@ function chooser(){
   const pre=new URLSearchParams(location.search).get("occ");if(pre&&C.occasions.some(o=>o[0]===pre)){ans.occ=pre;step=1;}
   render();
 }
-chrome();home();valentines();reveal();gift();chooser();
+/* ---------- Sample order confirmation, with "Give $10, get $10" ---------- */
+function thanks(){
+  if(document.body.dataset.page!=="thanks")return;
+  const qs=new URLSearchParams(location.search);
+  const g=G.find(x=>x.id===qs.get("gift"))||G[0];const given={};g.fields.forEach(f=>{if(qs.has(f.k))given[f.k]=qs.get(f.k);});
+  const to=REVEAL_TO[g.id](vars(g,given)),a=timing(g,null).std,fee=shipFee(g.price);
+  let from="";
+  const msg=code=>`I just made a book for ${to} with Hero House Books and I can't wait to give it. Here's $${REF} off if you want to make one: herohousebooks.com/r/${code.toLowerCase()}`;
+  document.getElementById("app").innerHTML=`<div class="wrap">
+  <section class="hero rv-hero"><div class="stack"><span class="eyebrow">Sample order confirmation</span><h1>Thank you. We've started on your book.</h1>
+   <p class="lede">Next, we email you the link for the questions. You'll see every page before we print, and you can change anything once for free.</p></div></section>
+  <section class="ty-grid">
+   <div class="panel stack"><h3>Your order</h3><dl class="facts ty-facts"><div><dt>Gift</dt><dd>${esc(g.name)}</dd></div><div><dt>For</dt><dd>${esc(to)}</dd></div><div><dt>Arrives about</dt><dd>${fmt(a)}</dd></div><div><dt>Total</dt><dd>${money(g.price+fee)}${fee?` with ${money(SHIP)} shipping`:", free shipping"}</dd></div></dl>
+    <p class="notice">While it's being made: <a href="${revealUrl(g,given)}">print your free "on its way" card</a> to give on the day.</p></div>
+   <div class="panel stack ref" id="ref"><span class="eyebrow">Give $${REF}, get $${REF}</span><h2>Know someone with a birthday coming up?</h2>
+    <p>Share your code. They get $${REF} off their first book. When they order, you get $${REF} off your next one, like the copy for Grandma.</p>
+    <label class="fld"><span>Your first name, for your code</span><input type="text" id="ref-name" maxlength="20" autocomplete="off" placeholder="Jamie"></label>
+    <div id="ref-code"></div>
+    <label class="fld"><span>A message you can send</span><textarea id="ref-msg" rows="3" readonly></textarea></label>
+    <div class="upl"><button type="button" class="btn" id="ref-copy">Copy the message</button><button type="button" class="btn ghost" id="ref-share" hidden>Share</button></div>
+    <p class="notice" id="ref-note" aria-live="polite">A sample. On the real site the code is made for your order. Nothing here is saved or sent.</p></div></section>
+  <section class="stack-lg"><h2>How the $${REF} works</h2><ol class="how">
+   <li><b>Share your code</b><span>Text it, post it, or let the "on its way" card carry it. The card can print it on the inside.</span></li>
+   <li><b>They save $${REF}</b><span>On their first book, any gift. It works with the second book half off.</span></li>
+   <li><b>You save $${REF}</b><span>The day their order goes in, $${REF} off your next book lands in your email. No limit.</span></li></ol></section></div>`;
+  const show=()=>{const c=refCode(from);document.getElementById("ref-code").innerHTML=refHtml(c);document.getElementById("ref-msg").value=msg(c);};show();
+  document.getElementById("ref-name").addEventListener("input",e=>{from=e.target.value;show();});
+  const note=document.getElementById("ref-note");
+  document.getElementById("ref-copy").onclick=()=>{const t=document.getElementById("ref-msg").value;
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>note.textContent="Copied. Paste it into a text or a post.",()=>{document.getElementById("ref-msg").select();note.textContent="Select the message and copy it.";});};
+  const sh=document.getElementById("ref-share");if(navigator.share){sh.hidden=false;sh.onclick=()=>navigator.share({text:document.getElementById("ref-msg").value}).catch(()=>{});}
+}
+
+/* ---------- All About Mom: the Mother's Day edition of In My Words ---------- */
+const MOM_Q=[["What is {Rel} really good at?","“Finding my shoes. And braids. And knowing I'm sad before I say it.”"],["What does {Rel} say the most?","“Did you brush your teeth?” And “I love you more.”"],
+ ["If {Rel} were an animal, what would she be?","“A mama bear. But a soft one.”"],["What is {Rel}'s favorite food?","“Coffee. Is coffee a food? Then pancakes.”"],
+ ["How old is {Rel}?","“Twenty-five. Or forty. One of those.”"],["What makes {Rel} laugh?","“When Dad sings in the car. Not the good kind of singing.”"],
+ ["What would you give {Rel} if you could give her anything?","“A whole day where nobody needs anything.”"],["How much do you love {Rel}?","“More than all the tulips in the world. And the dirt.”"]];
+const MOM_MORE=["What is {Rel}'s job?","What does {Rel} do when you're asleep?","Where is {Rel}'s favorite place?","What is {Rel} scared of?","What's the best thing {Rel} ever made?","What do you and {Rel} do on rainy days?","What would {Rel} be in a superhero movie?","What do you want to tell {Rel} right now?"];
+function momCover(o){return `<svg class="md-cover" viewBox="0 0 400 400" role="img" aria-label="A spring book cover titled All About ${esc(o.Rel)}, by ${esc(o.Kid)}, age ${esc(o.Age)}, with crayon tulips along the bottom">
+ <rect width="400" height="400" fill="#fdf1f4"/><circle cx="330" cy="70" r="34" fill="#ffd447"/>
+ <g stroke="#f2a900" stroke-width="5" stroke-linecap="round">${[0,1,2,3,4,5,6,7].map(i=>{const a=Math.PI/4*i;return `<path d="M${(330+Math.cos(a)*44).toFixed(0)} ${(70+Math.sin(a)*44).toFixed(0)}L${(330+Math.cos(a)*58).toFixed(0)} ${(70+Math.sin(a)*58).toFixed(0)}"/>`;}).join("")}</g>
+ <path d="M0 330Q100 300 200 322T400 318V400H0Z" fill="#9fd89a"/>
+ ${[[40,"#e5432d"],[92,"#e8589e"],[150,"#f07b1d"],[250,"#e8589e"],[305,"#e5432d"],[360,"#a066d6"]].map(([x,c],i)=>`<g transform="translate(${x} ${300+(i%2)*14})"><path d="M0 0V64" stroke="#2fa84f" stroke-width="5"/><path d="M0 40Q-18 30 -20 14Q-4 22 0 40" fill="#2fa84f"/><path d="M-14 -22Q-16 4 0 6Q16 4 14 -22L7 -12L0 -26L-7 -12Z" fill="${c}"/></g>`).join("")}
+ <g fill="#e8589e"><path d="M70 92c-10-12 6-20 10-8c4-12 20-4 10 8l-10 10z"/><path d="M300 210c-7-9 4-14 7-6c3-8 14-3 7 6l-7 7z"/></g>
+ <text x="200" y="150" text-anchor="middle" font-family="Bricolage Grotesque,sans-serif" font-weight="700" font-size="46" fill="#1c2340">All About</text>
+ <text x="200" y="208" text-anchor="middle" font-family="Bricolage Grotesque,sans-serif" font-weight="700" font-size="62" fill="#e5432d">${esc(o.Rel)}</text>
+ <text x="200" y="252" text-anchor="middle" font-family="Caveat,cursive" font-size="28" fill="#1c2340">by ${esc(o.Kid)}, age ${esc(o.Age)}</text></svg>`;}
+function mothers(){
+  if(document.body.dataset.page!=="mothers")return;
+  const g=G.find(x=>x.id==="in-my-words"),day=nthSunday(2027,4,2),need=new Date(+day-DAY),t=timing(g,need);
+  const given={Rel:"Mom",Kid:"Ava",Age:"6"};
+  const bookObj={title:"All About {Rel}",spreads:[[],[{t:"qa",q:MOM_Q[0][0],a:MOM_Q[0][1]},{t:"qa",q:MOM_Q[1][0],a:MOM_Q[1][1]}],[{t:"qa",big:true,q:MOM_Q[2][0],a:MOM_Q[2][1]},{t:"qa",big:true,q:MOM_Q[3][0],a:MOM_Q[3][1]}],
+    [{t:"qa",big:true,q:MOM_Q[4][0],a:MOM_Q[4][1]},{t:"qa",q:MOM_Q[5][0],a:MOM_Q[5][1]}],[{t:"qa",q:MOM_Q[6][0],a:MOM_Q[6][1]},{t:"qa",big:true,q:MOM_Q[7][0],a:MOM_Q[7][1]}]]};
+  const ctx={book:bookObj,base:"",photos:[]};
+  const rushBy=new Date(+subBiz(need,g.time.make+C.PRINT+C.RUSH)-g.time.collect*DAY);
+  document.getElementById("app").innerHTML=`<div class="wrap">
+  <section class="hero md-hero"><div class="stack-lg"><div class="stack"><span class="eyebrow">Mother's Day, Sunday, May 9</span><h1>All About Mom</h1>
+   <p class="lede">The Mother's Day edition of In My Words. Your kids answer twenty questions about her, and every answer goes in the book exactly as they said it, next to their own drawings. With a spring cover.</p></div>
+   <div><div class="price-big">$${g.price}</div><p class="notice">Two books are ${money(pairTotal(g))} and ship free: one for Mom, one for Grandma.</p></div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" id="md-start" href="#">Start All About Mom</a><a class="btn ghost" href="#md-q">See the questions</a></div></div>
+   <figure class="md-fig" id="md-fig"></figure></section>
+  <section class="stack-lg"><form class="panel md-try" id="md-try" onsubmit="return false"><h3>Try it with your names</h3><div class="fields">
+    <label class="fld"><span>The book is about</span><select data-k="Rel"><option>Mom</option><option>Grandma</option></select></label>
+    <label class="fld"><span>Child's name</span><input type="text" data-k="Kid" maxlength="40" autocomplete="off" value="Ava"></label>
+    <label class="fld"><span>Child's age</span><input type="number" data-k="Age" min="2" max="14" value="6"></label></div></form></section>
+  <section class="stack-lg" id="md-q"><div class="stack"><h2>Questions all about her</h2><p class="notice">Real pages from a sample. Ava and her answers are made up.</p></div>
+   <div class="md-spreads" id="md-spreads"></div>
+   <div class="stack"><h3>More of the questions</h3><ul class="md-more" id="md-more"></ul></div></section>
+  <section class="stack"><h2>Dates that matter</h2><ul class="vday-dates">
+   <li><b>${fmt(t.startBy)}</b> Last day to start with regular shipping.</li>
+   <li><b>${fmt(rushBy)}</b> Last day with rush shipping, $${C.RUSH_PRICE} more.</li>
+   <li><b>Sat, May 8</b> Your book arrives.</li></ul>
+   <p class="notice">Too late? Every order comes with a free printable <a href="${root}reveal.html?gift=in-my-words&amp;Rel=Mom">"on its way" card</a> for the day.</p></section></div>`;
+  const show=()=>{const o=vars(g,given);document.getElementById("md-fig").innerHTML=momCover(o);
+    document.getElementById("md-spreads").innerHTML=[1,2,3,4].map(i=>`<div class="hb-book hb-crayon md-book">${HHBook.spreadHtml(bookObj,i,o,ctx)}</div>`).join("");
+    document.getElementById("md-more").innerHTML=MOM_MORE.map(q=>`<li>${fill(q,o)}</li>`).join("");
+    document.getElementById("md-start").href=giftUrl(g,given,need);};show();
+  document.getElementById("md-try").addEventListener("input",e=>{const k=e.target.dataset.k;if(k){given[k]=e.target.value;show();}});
+}
+
+chrome();home();valentines();mothers();thanks();reveal();gift();chooser();
 })();

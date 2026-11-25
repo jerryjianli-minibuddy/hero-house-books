@@ -37,7 +37,7 @@ const T={
   cover(p,o,ctx){const d=ctx.drawing?ctx.drawing:ctx.base+p.art+".webp";
     return `<div class="hb-cover"><h3 class="hb-booktitle">${fill(ctx.book.title,o)}</h3><div class="hb-window"><img src="${esc(d)}" alt="${ctx.drawing?"Your picture on the cover":esc(fill(p.alt||"A child's crayon drawing of Dad with the child on his shoulders",o))}"></div><p class="hb-by">${fill(p.by,o)}</p></div>`;},
   back(p,o){return `<div class="hb-back"><p class="hb-pull">${fill(p.quote,o)}</p><p class="hb-pullwho">${fill(p.who,o)}</p><p class="hb-mark">Hero House Books</p></div>`;},
-  title(p,o,ctx){return `<div class="hb-center"><h3 class="hb-booktitle">${fill(ctx.book.title,o)}</h3><p class="hb-sub">${fill(p.sub,o)}</p></div>`;},
+  title(p,o,ctx){return `<div class="hb-center${ctx.ded?" has-ded":""}"><h3 class="hb-booktitle">${fill(ctx.book.title,o)}</h3><p class="hb-sub">${fill(p.sub,o)}</p>${ctx.ded?`<figure class="hb-ded"><img src="${esc(ctx.ded)}" alt="Your handwritten note"></figure>`:""}</div>`;},
   note(p,o){return `<div class="hb-center hb-note">${p.lines.map(l=>`<p>${fill(l,o)}</p>`).join("")}</div>`;},
   qa(p,o){return `<div class="hb-qa${p.big?" big":""}"><p class="hb-q">${fill(p.q,o)}</p><p class="hb-a">${fill(p.a,o)}</p>${p.two?`<p class="hb-q">${fill(p.two.q,o)}</p><p class="hb-a">${fill(p.two.a,o)}</p>`:""}</div>`;},
   art(p,o,ctx){return `<figure class="hb-art${p.tilt?" tilt-"+p.tilt:""}"><img src="${ctx.base}${p.src}.webp" alt="${esc(fill(p.alt,o))}" loading="lazy" decoding="async"></figure>`;},
@@ -74,7 +74,7 @@ const label=i=>i===0?"Cover":`Pages ${i*2-1} and ${i*2}`;
 /* ---------- viewer ---------- */
 function mount(el,opt){
   const book=opt.book,n=book.spreads.length;
-  const ctx={book,base:opt.base,photos:[],drawing:null};
+  const ctx={book,base:opt.base,photos:[],drawing:null,ded:null};
   const styles=book.styles||STYLES;let i=0,o=opt.vars(),style=styles[0][0];
   el.classList.add("hb");
   el.innerHTML=`<div class="hb-stage" tabindex="0" aria-roledescription="book" aria-label="Sample book, use the arrow keys to turn pages"><div class="hb-book hb-${style}" aria-live="polite"></div>
@@ -98,6 +98,7 @@ function mount(el,opt){
     style(s){style=s;show();},
     photos(files){ctx.photos.forEach(u=>u&&URL.revokeObjectURL(u));ctx.photos=[];[...files].slice(0,slots.length).forEach((f,k)=>ctx.photos[k]=URL.createObjectURL(f));go(firstSpread(0));return ctx.photos.length;},
     drawing(file){if(ctx.drawing)URL.revokeObjectURL(ctx.drawing);ctx.drawing=file?URL.createObjectURL(file):null;go(0);},
+    dedication(file){if(ctx.ded)URL.revokeObjectURL(ctx.ded);ctx.ded=file?URL.createObjectURL(file):null;go(1);},
     reset(){ctx.photos.forEach(u=>u&&URL.revokeObjectURL(u));ctx.photos=[];if(ctx.drawing)URL.revokeObjectURL(ctx.drawing);ctx.drawing=null;show();}
   };
 }

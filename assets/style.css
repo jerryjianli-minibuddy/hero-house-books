@@ -479,3 +479,42 @@ dialog::backdrop{background:rgba(10,14,35,.55)}
 .hb-cast b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:4.4cqw}
 .hb-cast em{display:block;font-style:normal;font-size:3.2cqw;letter-spacing:.08em;text-transform:uppercase;color:#e5432d;font-weight:600}
 .hb-cast small{display:block;font-size:3.4cqw;line-height:1.25;opacity:.8}
+
+/* ---------- Free shipping progress bar ---------- */
+.shipbar{border:1px solid rgba(28,35,64,.12);border-radius:14px;padding:12px 14px;background:#fffdf7}
+.shipbar p{margin:8px 0 0;font-size:14.5px}
+.sb-track{height:10px;border-radius:999px;background:#ece6da;overflow:hidden}
+.sb-track i{display:block;height:100%;border-radius:999px;background:var(--accent);transition:width .3s}
+.shipbar.done .sb-track i{background:#2fa84f}
+/* ---------- Handwritten first page ---------- */
+.ded-page{position:relative;aspect-ratio:1/1;max-width:340px;width:100%;margin:0 auto;background:#fffdf7;box-shadow:0 1px 2px rgba(0,0,0,.08),0 8px 24px rgba(28,35,64,.1);display:flex;align-items:center;justify-content:center;padding:12%;box-sizing:border-box;overflow:hidden;container-type:inline-size}
+.ded-hand{font-family:var(--hand);color:#1e2a5a;font-size:7.4cqw;line-height:1.2;transform:rotate(-1.5deg)}
+.ded-hand p{margin:0 0 .5em}.ded-sign{text-align:right}
+.ded-tag{position:absolute;top:10px;right:10px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6b6f86}
+.ded-img,.hb-ded img{max-width:100%;max-height:100%;object-fit:contain;filter:grayscale(1) contrast(1.7) brightness(1.12);mix-blend-mode:multiply}
+.hb-center.has-ded{justify-content:flex-start;padding-top:9%}
+.hb-center.has-ded .hb-booktitle{font-size:6cqw}
+.hb-ded{margin:4cqw 0 0;height:58%;display:flex;align-items:center;justify-content:center}
+/* ---------- Reveal card $10 line ---------- */
+.rv-ten{font-size:12.5px;border-top:1px dashed rgba(28,35,64,.3);padding-top:8px;margin-top:6px}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:14.5px}.chk input{margin-top:5px}
+/* ---------- Thank-you page and Give $10, get $10 ---------- */
+.ty-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:20px;align-items:start}
+.ty-facts{grid-template-columns:1fr 1fr}
+.ref{background:#fff6dc;border-color:#f2d37a}
+.ref h2{font-size:26px}
+.ref-code{display:flex;flex-direction:column;align-items:flex-start;gap:2px;background:#fffdf7;border:2px dashed #1c2340;border-radius:12px;padding:12px 16px}
+.ref-code span{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#6b6f86}
+.ref-code b{font-family:var(--display);font-size:28px;letter-spacing:.04em}
+.ref-code small{color:#6b6f86}
+.ref textarea{font:inherit;font-size:14.5px;width:100%;box-sizing:border-box;border-radius:10px;border:1px solid rgba(28,35,64,.2);padding:8px 10px;background:#fffdf7;resize:vertical}
+@media (max-width:760px){.ty-grid{grid-template-columns:1fr}.ty-facts{grid-template-columns:1fr}}
+/* ---------- All About Mom ---------- */
+.md-hero{display:grid;grid-template-columns:1.1fr 1fr;gap:32px;align-items:center}
+.md-fig{margin:0}.md-cover{width:100%;height:auto;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,.08),0 18px 40px rgba(28,35,64,.16)}
+.md-spreads{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.md-book{border-radius:6px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.06),0 8px 24px rgba(28,35,64,.1)}
+.md-more{columns:2;gap:24px;margin:0;padding-left:20px}
+.md-line{margin:-6px 0 18px;padding:10px 14px;background:#fdf1f4;border-radius:12px;font-size:15px}
+.md-band{background:#fdf1f4}
+@media (max-width:760px){.md-hero,.md-spreads{grid-template-columns:1fr}.md-more{columns:1}}

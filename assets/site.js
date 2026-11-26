@@ -127,6 +127,20 @@ function shipBarHtml(sub,g){const left=+(FREE_AT-sub).toFixed(2),pct=Math.min(10
 const MORE=9;
 const MORE_WHAT={"fridge-gallery":"Room for about 8 more pieces of art.","from-all-of-us":"Room for about 16 more notes.","grandpas-stories":"Room for one more story, or more family photos.","family-epic":"Room for more of the adventure, or more of your photos."};
 function moreHtml(g,on){return `<label class="gcopy more-top${on?" on":""}"><input type="checkbox" id="more-on"${on?" checked":""}><span class="more-ic" aria-hidden="true">+8</span><span><b>Add 8 more pages</b><small>${MORE_WHAT[g.id]||"Room for about 8 more drawings or photos."} In this book and any copy of it.</small></span><em>+${money(MORE)}</em></label>`;}
+/* Matching wall print: 11 x 14 in matte print of the cover. Printful (read Nov 26): $9.83 a print, US shipping from $4.99, always ships on its own. At $15 it about breaks even; it is there to lift the order toward free shipping. */
+const WALL=15;
+function wallPic(g){const bk=window.HHBooks&&HHBooks[g.id],cv=bk&&bk.spreads.flat().find(x=>x&&x.t==="cover"&&x.art);return cv?`<img src="${root}assets/books/${g.id}/${cv.art}.webp" alt="" loading="lazy">`:pic(g);}
+function wallHtml(g,on){return `<label class="gcopy wall-top${on?" on":""}"><input type="checkbox" id="wall-on"${on?" checked":""}><span class="wp-frame" aria-hidden="true">${wallPic(g)}</span><span><b>Add a matching wall print</b><small>The cover, 11 × 14 in on thick matte paper, for their wall. Ships rolled in a tube, on its own. Frame not included.</small></span><em>+${money(WALL)}</em></label>`;}
+/* Email me my preview: saves the preview link by email now, and one reminder 2 days later if they haven't ordered (Shopify Email: 10,000 free emails a month, automations included). */
+function saveHtml(){return `<form class="panel stack save-prev" id="savep" novalidate><h3>Not ready to order?</h3><p class="notice">We'll email you this preview with your names in it, so you can come back to it. One reminder in 2 days, then nothing more. Unsubscribe anytime.</p>
+  <div class="save-row"><label class="fld"><span>Your email</span><input type="email" id="save-email" autocomplete="email" placeholder="you@example.com"></label><button type="submit" class="btn">Email me my preview</button></div>
+  <p class="notice" id="save-msg" aria-live="polite"></p><div id="save-mails"></div></form>`;}
+function saveMails(g,o,email,url){const nm=esc(g.name),when=new Date(Date.now()+2*864e5).toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric"});
+  const mail=(tag,subj,body)=>`<div class="mail"><span class="mail-tag">${tag}</span><b class="mail-subj">${subj}</b><div class="mail-body">${body}</div></div>`;
+  return `<p class="notice"><b>A sample of the two emails ${esc(email)} would get.</b> Nothing was sent.</p><div class="mails">
+   ${mail("Right now","Your preview is saved: "+nm,`<p>Here's the book you started, with your names already in it. Every page is just as you left it.</p><p><a class="btn" href="${url}">Open my preview</a></p><p class="mail-small">Need it by a date? The page tells you the last day to start.</p>`)}
+   ${mail(when+", only if you haven't ordered","Still thinking about "+nm+"?",`<p>Your preview is still here, names and all. Most people finish in about 15 minutes, and the second book is always half off.</p><p><a class="btn" href="${url}">Pick up where I left off</a></p><p class="mail-small">This is the only reminder we'll send.</p>`)}
+  </div>`;}
 /* Give $10, get $10: a friend gets $10 off their first book, and the person who shared gets $10 off their next one. */
 const REF=10;
 const refCode=from=>((from||"").normalize("NFD").replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,10)||"FRIEND")+REF;
@@ -332,16 +346,16 @@ function gift(){
   main.innerHTML=`<div class="wrap">
   <section class="p-hero"><div class="stack-lg"><div class="stack"><span class="eyebrow">${esc(g.forLine)}</span><h1>${esc(g.name)}</h1><p class="lede">${esc(g.tagline)}</p></div>
    <div><div class="price-big" id="price-big">$${g.price}</div><p class="notice" id="price-note">${esc(g.priceNote)}</p></div>
-   ${heirOk(g)?`<fieldset class="pair" id="edition"></fieldset>`:""}<div id="more"></div>
+   ${heirOk(g)?`<fieldset class="pair" id="edition"></fieldset>`:""}<div id="more"></div><div id="wall"></div>
    <fieldset class="pair" id="pair"></fieldset>${voiceOk(g)?`<div class="voice" id="voice"></div>`:""}<div id="shipbar"></div>
    <dl class="facts">${g.facts.map(f=>`<div><dt>${esc(f[0])}</dt><dd>${esc(f[1])}</dd></div>`).join("")}</dl>
-   <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#" data-soon>Start this gift</a>${full?`<a class="btn ghost" href="#look">See every page</a>`:""}<a class="btn ghost" href="${root}choose.html">Not sure? Help me choose</a></div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#" data-soon>Start this gift</a>${full?`<a class="btn ghost" href="#look">See every page</a>`:""}<a class="btn ghost" href="${root}choose.html">Not sure? Help me choose</a><a class="btn ghost" href="#savep">Email me my preview</a></div>
    <p class="notice rv-line">Every order comes with a free printable "on its way" card and the full preview pages to show on the day. <a id="rv-link" href="${revealUrl(g,given)}">See the card</a></p></div>
    <div class="stack-lg">${g.photo?`<figure class="p-photo">${img(g.id,g.photo)}</figure>`:""}${full?"":`<div class="book" id="book" tabindex="0" aria-label="Sample book"></div>`}
     <form class="panel" id="mine" onsubmit="return false">${full?`<h3>When do you need it?</h3><p class="notice">We'll tell you the last day to start.</p>`:`<h3>Make the sample yours</h3><p class="notice">Type real names to see how your book would read. Nothing is saved.</p>
      <div class="fields">${g.fields.map((f,i)=>fieldHtml(f,given[f.k],"f"+i)).join("")}</div>`}
      <label class="fld"><span>Need it by</span><input type="date" id="need" min="${iso(today())}" value="${need?iso(need):""}"></label>
-     <div id="when"></div></form>${dedHtml()}</div></section>${g.id==="in-my-words"?`<p class="md-line"><b>Mother's Day edition:</b> All About Mom, with questions all about her and a spring cover. <a href="${root}mothers-day.html">See it</a></p>`:""}
+     <div id="when"></div></form>${dedHtml()}${saveHtml()}</div></section>${g.id==="in-my-words"?`<p class="md-line"><b>Mother's Day edition:</b> All About Mom, with questions all about her and a spring cover. <a href="${root}mothers-day.html">See it</a></p>`:""}
   ${g.series?`<section class="stack-lg series" id="series"></section>`:""}
   ${full?fullBookHtml(g,given):""}
   ${g.look&&!full?`<section class="stack-lg look" id="look"><div class="stack"><h2>Look inside</h2><p class="notice">Real page spreads from a sample book. Printed as an 8.5 × 8.5 in hardcover. The family and drawings here are made up.</p></div>
@@ -356,11 +370,12 @@ function gift(){
   const bk=full?fullBook(g,given):book(document.getElementById("book"),g,given);
   if(g.look&&!full)lookInside(g);
   const pairEl=document.getElementById("pair");const tw=parseInt(qs.get("two"),10);let pick=tw>=1&&tw<=g.pair.length?String(tw-1):"none";
-  let sibName="",ed="classic",ship=false,note="",more=false;
+  let sibName="",ed="classic",ship=false,note="",more=false,wall=false;
+  const wp=()=>wall?WALL:0;
   const p1=()=>(ed==="heirloom"?HEIR:g.price)+(more?MORE:0);
-  const vc=voiceOk(g)?voice(g,()=>(pick==="none"?p1():p1()+half(g))+(pick==="0"&&ship?SHIP2:0)):null;
+  const vc=voiceOk(g)?voice(g,()=>(pick==="none"?p1():p1()+half(g))+(pick==="0"&&ship?SHIP2:0)+wp()):null;
   const shipEl=document.getElementById("shipbar");
-  const showShip=()=>{const sub=(pick==="none"?p1():p1()+half(g))+(vc&&vc.on()?VOICE:0);shipEl.innerHTML=shipBarHtml(sub,pick==="none"?g:null);};
+  const showShip=()=>{const sub=(pick==="none"?p1():p1()+half(g))+(vc&&vc.on()?VOICE:0)+wp();shipEl.innerHTML=shipBarHtml(sub,pick==="none"?g:null);};
   const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick,sibName,p1(),ship,note,ed==="heirloom");if(vc)vc.total();showShip();};showPair();
   main.addEventListener("change",e=>{if(e.target.id==="voice-on")showShip();});
   ded(g,given,full?bk:null);
@@ -369,6 +384,11 @@ function gift(){
     edEl.addEventListener("change",e=>{if(e.target.name==="ed"){ed=e.target.value;showEd();showPair();}});}
   const moreEl=document.getElementById("more");const showMore=()=>{moreEl.innerHTML=moreHtml(g,more);document.getElementById("price-big").textContent=money(p1());};showMore();
   moreEl.addEventListener("change",e=>{if(e.target.id==="more-on"){more=e.target.checked;showMore();showPair();}});
+  const wallEl=document.getElementById("wall");const showWall=()=>{wallEl.innerHTML=wallHtml(g,wall);};showWall();
+  wallEl.addEventListener("change",e=>{if(e.target.id==="wall-on"){wall=e.target.checked;showWall();showPair();}});
+  const sv=document.getElementById("savep");sv.addEventListener("submit",e=>{e.preventDefault();const em=document.getElementById("save-email").value.trim(),msg=document.getElementById("save-msg");
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){msg.textContent="Please type an email address like you@example.com.";document.getElementById("save-mails").innerHTML="";return;}
+    msg.textContent="";document.getElementById("save-mails").innerHTML=saveMails(g,vars(g,given),em,giftUrl(g,given,need));});
   pairEl.addEventListener("change",e=>{if(e.target.name==="two"){pick=e.target.value;showPair();}if(e.target.id==="gcopy"){pick=e.target.checked?"0":"none";showPair();}
     if(e.target.id==="gship"){ship=e.target.checked;showPair();if(ship)document.getElementById("gnote").focus();}
     if(e.target.id==="sibcopy"){pick=e.target.checked?(g.sibIdx!=null?String(g.sibIdx):"sib"):"none";showPair();if(e.target.checked)document.getElementById("sib-name").focus();}});

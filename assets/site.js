@@ -131,6 +131,17 @@ function moreHtml(g,on){return `<label class="gcopy more-top${on?" on":""}"><inp
 const WALL=15;
 function wallPic(g){const bk=window.HHBooks&&HHBooks[g.id],cv=bk&&bk.spreads.flat().find(x=>x&&x.t==="cover"&&x.art);return cv?`<img src="${root}assets/books/${g.id}/${cv.art}.webp" alt="" loading="lazy">`:pic(g);}
 function wallHtml(g,on){return `<label class="gcopy wall-top${on?" on":""}"><input type="checkbox" id="wall-on"${on?" checked":""}><span class="wp-frame" aria-hidden="true">${wallPic(g)}</span><span><b>Add a matching wall print</b><small>The cover, 11 × 14 in on thick matte paper, for their wall. Ships rolled in a tube, on its own. Frame not included.</small></span><em>+${money(WALL)}</em></label>`;}
+/* Bilingual edition: every page in English with Spanish or Chinese beside it, in this book and any copy. Same page count and Lulu price when the text fits; the long-text books may need 8 more pages (about $1.72). */
+const BI=10;
+const LANGS=[["es","Español","Spanish"],["zh-Hans","简体中文","Chinese (simplified)"],["zh-Hant","繁體中文","Chinese (traditional)"]];
+const BI_SAMPLE={en:"He sits on the floor by my bed until I'm asleep. He thinks I don't know he's there, but I know.",
+  es:"Se sienta en el suelo junto a mi cama hasta que me duermo. Cree que no sé que está ahí, pero yo lo sé.",
+  "zh-Hans":"他坐在我床边的地上，一直等到我睡着。他以为我不知道他在那儿，可是我知道。",
+  "zh-Hant":"他坐在我床邊的地上，一直等到我睡著。他以為我不知道他在那兒，可是我知道。"};
+const langName=c=>(LANGS.find(l=>l[0]===c)||LANGS[0])[2];
+function biHtml(g,on,lang){return `<div class="gcopy bi-top${on?" on":""}"><label class="sib-top"><input type="checkbox" id="bi-on"${on?" checked":""}><span class="more-ic bi-ic" aria-hidden="true">Aa<br>文</span><span><b>Make it bilingual</b><small>Every page in English with Spanish or Chinese beside it, in this book and any copy. Made for grandparents who read another language first.</small></span><em>+${money(BI)}</em></label>
+  ${on?`<div class="bi-more"><div class="seg" role="group" aria-label="Second language">${LANGS.map(l=>`<button type="button" data-lang="${l[0]}" aria-pressed="${l[0]===lang}" lang="${l[0]}">${l[1]}</button>`).join("")}</div>
+   <figure class="bi-page"><p>${esc(BI_SAMPLE.en)}</p><p lang="${lang}">${esc(BI_SAMPLE[lang])}</p><figcaption>A sample page with real words from a made-up book. Your family's words are translated by a person who speaks ${esc(langName(lang))}, and you see every page before we print.</figcaption></figure></div>`:""}</div>`;}
 /* Email me my preview: saves the preview link by email now, and one reminder 2 days later if they haven't ordered (Shopify Email: 10,000 free emails a month, automations included). */
 function saveHtml(){return `<form class="panel stack save-prev" id="savep" novalidate><h3>Not ready to order?</h3><p class="notice">We'll email you this preview with your names in it, so you can come back to it. One reminder in 2 days, then nothing more. Unsubscribe anytime.</p>
   <div class="save-row"><label class="fld"><span>Your email</span><input type="email" id="save-email" autocomplete="email" placeholder="you@example.com"></label><button type="submit" class="btn">Email me my preview</button></div>
@@ -346,7 +357,7 @@ function gift(){
   main.innerHTML=`<div class="wrap">
   <section class="p-hero"><div class="stack-lg"><div class="stack"><span class="eyebrow">${esc(g.forLine)}</span><h1>${esc(g.name)}</h1><p class="lede">${esc(g.tagline)}</p></div>
    <div><div class="price-big" id="price-big">$${g.price}</div><p class="notice" id="price-note">${esc(g.priceNote)}</p></div>
-   ${heirOk(g)?`<fieldset class="pair" id="edition"></fieldset>`:""}<div id="more"></div><div id="wall"></div>
+   ${heirOk(g)?`<fieldset class="pair" id="edition"></fieldset>`:""}<div id="more"></div><div id="bi"></div><div id="wall"></div>
    <fieldset class="pair" id="pair"></fieldset>${voiceOk(g)?`<div class="voice" id="voice"></div>`:""}<div id="shipbar"></div>
    <dl class="facts">${g.facts.map(f=>`<div><dt>${esc(f[0])}</dt><dd>${esc(f[1])}</dd></div>`).join("")}</dl>
    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#" data-soon>Start this gift</a>${full?`<a class="btn ghost" href="#look">See every page</a>`:""}<a class="btn ghost" href="${root}choose.html">Not sure? Help me choose</a><a class="btn ghost" href="#savep">Email me my preview</a></div>
@@ -370,13 +381,13 @@ function gift(){
   const bk=full?fullBook(g,given):book(document.getElementById("book"),g,given);
   if(g.look&&!full)lookInside(g);
   const pairEl=document.getElementById("pair");const tw=parseInt(qs.get("two"),10);let pick=tw>=1&&tw<=g.pair.length?String(tw-1):"none";
-  let sibName="",ed="classic",ship=false,note="",more=false,wall=false;
-  const wp=()=>wall?WALL:0;
+  let sibName="",ed="classic",ship=false,note="",more=false,wall=false,bi=false,lang="es";
+  const wp=()=>(wall?WALL:0)+(bi?BI:0);
   const p1=()=>(ed==="heirloom"?HEIR:g.price)+(more?MORE:0);
   const vc=voiceOk(g)?voice(g,()=>(pick==="none"?p1():p1()+half(g))+(pick==="0"&&ship?SHIP2:0)+wp()):null;
   const shipEl=document.getElementById("shipbar");
   const showShip=()=>{const sub=(pick==="none"?p1():p1()+half(g))+(vc&&vc.on()?VOICE:0)+wp();shipEl.innerHTML=shipBarHtml(sub,pick==="none"?g:null);};
-  const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick,sibName,p1(),ship,note,ed==="heirloom");if(vc)vc.total();showShip();};showPair();
+  const showPair=()=>{pairEl.innerHTML=pairHtml(g,vars(g,given),pick,sibName,p1(),ship,note,ed==="heirloom");const gs=bi&&pairEl.querySelector("label.gcopy small");if(gs)gs.textContent=`The same book in English and ${langName(lang)}, so they read it in their own language. One tap, half off.`;if(vc)vc.total();showShip();};showPair();
   main.addEventListener("change",e=>{if(e.target.id==="voice-on")showShip();});
   ded(g,given,full?bk:null);
   const edEl=document.getElementById("edition");
@@ -384,6 +395,9 @@ function gift(){
     edEl.addEventListener("change",e=>{if(e.target.name==="ed"){ed=e.target.value;showEd();showPair();}});}
   const moreEl=document.getElementById("more");const showMore=()=>{moreEl.innerHTML=moreHtml(g,more);document.getElementById("price-big").textContent=money(p1());};showMore();
   moreEl.addEventListener("change",e=>{if(e.target.id==="more-on"){more=e.target.checked;showMore();showPair();}});
+  const biEl=document.getElementById("bi");const showBi=()=>{biEl.innerHTML=biHtml(g,bi,lang);};showBi();
+  biEl.addEventListener("change",e=>{if(e.target.id==="bi-on"){bi=e.target.checked;showBi();showPair();}});
+  biEl.addEventListener("click",e=>{const b=e.target.closest("[data-lang]");if(b){lang=b.dataset.lang;showBi();showPair();}});
   const wallEl=document.getElementById("wall");const showWall=()=>{wallEl.innerHTML=wallHtml(g,wall);};showWall();
   wallEl.addEventListener("change",e=>{if(e.target.id==="wall-on"){wall=e.target.checked;showWall();showPair();}});
   const sv=document.getElementById("savep");sv.addEventListener("submit",e=>{e.preventDefault();const em=document.getElementById("save-email").value.trim(),msg=document.getElementById("save-msg");
@@ -550,7 +564,7 @@ function thanks(){
   const qs=new URLSearchParams(location.search);
   const g=G.find(x=>x.id===qs.get("gift"))||G[0];const given={};g.fields.forEach(f=>{if(qs.has(f.k))given[f.k]=qs.get(f.k);});
   const to=REVEAL_TO[g.id](vars(g,given)),a=timing(g,null).std;
-  let from="",heir=false,copy=false;
+  let from="",heir=false,copy=false;const kidName=vars(g,given).Kid||"your child";
   const total=()=>(heir?HEIR:g.price)+(copy?half(g):0);
   const msg=code=>`I just made a book for ${to} with Hero House Books and I can't wait to give it. Here's $${REF} off if you want to make one: herohousebooks.com/r/${code.toLowerCase()}`;
   document.getElementById("app").innerHTML=`<div class="wrap">
@@ -567,10 +581,15 @@ function thanks(){
     <label class="fld"><span>A message you can send</span><textarea id="ref-msg" rows="3" readonly></textarea></label>
     <div class="upl"><button type="button" class="btn" id="ref-copy">Copy the message</button><button type="button" class="btn ghost" id="ref-share" hidden>Share</button></div>
     <p class="notice" id="ref-note" aria-live="polite">A sample. On the real site the code is made for your order. Nothing here is saved or sent.</p></div></section>
+  <section class="panel stack bday" id="bday"><span class="eyebrow">One quick question</span><h2>When's ${esc(kidName)}'s birthday?</h2>
+   <p>We'll email you once a year, 3 weeks before it, so the next book in the series arrives in time. That's all we send. Unsubscribe anytime.</p>
+   <div class="save-row"><label class="fld"><span>Birthday</span><input type="date" id="bday-date" max="${iso(today())}"></label><button type="button" class="btn" id="bday-save">Remind me</button></div>
+   <p class="notice" id="bday-msg" aria-live="polite">Optional. A sample. On the real site this is saved with your order. Nothing here is saved or sent.</p><div id="bday-mail"></div></section>
   <section class="stack-lg"><h2>How the $${REF} works</h2><ol class="how">
    <li><b>Share your code</b><span>Text it, post it, or let the "on its way" card carry it. The card can print it on the inside.</span></li>
    <li><b>They save $${REF}</b><span>On their first book, any gift. It works with the second book half off.</span></li>
-   <li><b>You save $${REF}</b><span>The day their order goes in, $${REF} off your next book lands in your email. No limit.</span></li></ol></section></div>`;
+   <li><b>You save $${REF}</b><span>The day their order goes in, $${REF} off your next book lands in your email. No limit.</span></li></ol></section>
+</div>`;
   const show=()=>{const c=refCode(from);document.getElementById("ref-code").innerHTML=refHtml(c);document.getElementById("ref-msg").value=msg(c);};show();
   const offer=(id,on,title,sub,add,pic)=>`<div class="pp-offer${on?" on":""}">${pic}<div><b>${title}</b><small>${sub}</small></div>${on?`<span class="pp-done">Added</span>`:`<button type="button" class="btn" data-pp="${id}">Add it, ${add}</button>`}</div>`;
   const showPP=()=>{const t=total(),f=shipFee(t);
@@ -582,6 +601,15 @@ function thanks(){
   const note=document.getElementById("ref-note");
   document.getElementById("ref-copy").onclick=()=>{const t=document.getElementById("ref-msg").value;
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>note.textContent="Copied. Paste it into a text or a post.",()=>{document.getElementById("ref-msg").select();note.textContent="Select the message and copy it.";});};
+  document.getElementById("bday-save").onclick=()=>{const v=document.getElementById("bday-date").value,out=document.getElementById("bday-mail"),msg=document.getElementById("bday-msg");
+    const d=parse(v);if(!d){msg.textContent="Pick the date first.";out.innerHTML="";return;}
+    const t=today();let next=new Date(t.getFullYear(),d.getMonth(),d.getDate(),12);if(next<t)next=new Date(t.getFullYear()+1,d.getMonth(),d.getDate(),12);
+    const turns=next.getFullYear()-d.getFullYear();
+    if(turns>18){msg.textContent=`${kidName} is past the series, which runs from birth to 18. Nothing to remind you about.`;out.innerHTML="";return;}
+    let send=new Date(next);send.setDate(send.getDate()-21);const soon=send<t;if(soon)send=t;
+    const title=`The Year You Were ${cap(WORDS[turns])}`;
+    msg.textContent=soon?`That's less than 3 weeks away, so this year's email would go out today. Rush delivery is $15.`:`Saved for the sample. The email goes out ${fmt(send)}, 3 weeks before ${kidName} turns ${turns}.`;
+    out.innerHTML=`<div class="mail"><span class="mail-tag">${fmt(send)}</span><b class="mail-subj">${kidName} turns ${turns} on ${fmt(next)}. Make ${esc(title)}?</b><div class="mail-body"><p>${g.id==="the-year-you-were"?"Last year's book is on the shelf. This year's goes right next to it, with a new cover color and the next piece of the picture on the spine.":"One book for each birthday, from the first to the eighteenth: what they loved, said and did that year, in their own words."}</p><p><a class="btn" href="${giftUrl(G.find(x=>x.id==="the-year-you-were")||g,{Kid:kidName==="your child"?"":kidName,Age:String(turns)},null)}">Make ${esc(title)}</a></p><p class="mail-small">Start by ${fmt(new Date(next.getTime()-21*864e5))} for it to arrive in time. One email a year, unsubscribe anytime.</p></div></div>`;};
   const sh=document.getElementById("ref-share");if(navigator.share){sh.hidden=false;sh.onclick=()=>navigator.share({text:document.getElementById("ref-msg").value}).catch(()=>{});}
 }
 

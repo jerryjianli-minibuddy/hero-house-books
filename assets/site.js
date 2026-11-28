@@ -34,32 +34,10 @@ function art(key,arg){if(!key)return"";const m=/^cake(\d+)$/.exec(key);if(m)retu
 /* ---------- dates ---------- */
 const DAY=864e5;
 const today=()=>{const d=new Date();d.setHours(12,0,0,0);return d;};
-function addBiz(d,n){d=new Date(d);while(n>0){d=new Date(+d+DAY);const w=d.getDay();if(w&&w<6)n--;}return d;}
-function subBiz(d,n){d=new Date(d);while(n>0){d=new Date(+d-DAY);const w=d.getDay();if(w&&w<6)n--;}return d;}
 const fmt=d=>d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
 const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 const parse=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||"");return m?new Date(+m[1],+m[2]-1,+m[3],12):null;};
-function timing(g,need){
-  const t0=today(),ready=new Date(+t0+g.time.collect*DAY),made=addBiz(ready,g.time.make+C.PRINT);
-  const r={std:addBiz(made,C.SHIP),rush:addBiz(made,C.RUSH)};
-  if(need){r.need=need;r.stdOk=r.std<=need;r.rushOk=r.rush<=need;
-    r.startBy=new Date(+subBiz(need,g.time.make+C.PRINT+C.SHIP)-g.time.collect*DAY);}
-  return r;
-}
-function timingHtml(g,need){
-  const t=timing(g,need);
-  if(!need)return `<p class="timing ok">Arrives about <b>${fmt(t.std)}</b> if you start today. Rush: about ${fmt(t.rush)} for $${C.RUSH_PRICE} more.</p>`;
-  if(t.stdOk)return `<p class="timing ok"><b>In time for ${fmt(need)}</b> with regular shipping. Start by ${fmt(t.startBy)} at the latest.</p>`;
-  if(t.rushOk)return `<p class="timing warn"><b>Only with rush shipping</b> ($${C.RUSH_PRICE} more): arrives about ${fmt(t.rush)}, before ${fmt(need)}. Start today.</p>`;
-  return `<p class="timing no"><b>Too late for ${fmt(need)}.</b> The earliest it can arrive is about ${fmt(t.rush)} with rush shipping. Our free printable <a href="${root}reveal.html?gift=${g.id}">"on its way" card</a> covers the day.</p>`;
-}
-function nthSunday(y,m,n){const d=new Date(y,m,1,12);const first=(7-d.getDay())%7;return new Date(y,m,1+first+7*(n-1),12);}
-function nextDate(occ){
-  const t=today(),y=t.getFullYear();
-  const mk={mothers:yy=>nthSunday(yy,4,2),fathers:yy=>nthSunday(yy,5,3),valentines:yy=>new Date(yy,1,14,12),holidays:yy=>new Date(yy,11,24,12),schoolyear:yy=>new Date(yy,5,10,12),
-    grandparent:yy=>{const lab=new Date(yy,8,1,12);lab.setDate(1+((8-lab.getDay())%7));return new Date(+lab+6*DAY);}}[occ];
-  if(!mk)return null;let d=mk(y);if(d<=t)d=mk(y+1);return d;
-}
+/* No delivery or arrive-by dates anywhere on the site (Jian, Nov 27): no estimates, no start-by dates, no countdowns. */
 
 /* ---------- page chrome ---------- */
 function chrome(){
@@ -150,7 +128,7 @@ function saveHtml(){return `<form class="panel stack save-prev" id="savep" noval
 function saveMails(g,o,email,url){const nm=esc(g.name),when=new Date(Date.now()+2*864e5).toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric"});
   const mail=(tag,subj,body)=>`<div class="mail"><span class="mail-tag">${tag}</span><b class="mail-subj">${subj}</b><div class="mail-body">${body}</div></div>`;
   return `<p class="notice"><b>A sample of the two emails ${esc(email)} would get.</b> Nothing was sent.</p><div class="mails">
-   ${mail("Right now","Your preview is saved: "+nm,`<p>Here's the book you started, with your names already in it. Every page is just as you left it.</p><p><a class="btn" href="${url}">Open my preview</a></p><p class="mail-small">Need it by a date? The page tells you the last day to start.</p>`)}
+   ${mail("Right now","Your preview is saved: "+nm,`<p>Here's the book you started, with your names already in it. Every page is just as you left it.</p><p><a class="btn" href="${url}">Open my preview</a></p>`)}
    ${mail(when+", only if you haven't ordered","Still thinking about "+nm+"?",`<p>Your preview is still here, names and all. Most people finish in about 15 minutes, and the second book is always half off.</p><p><a class="btn" href="${url}">Pick up where I left off</a></p><p class="mail-small">This is the only reminder we'll send.</p>`)}
   </div>`;}
 /* Give $10, get $10: a friend gets $10 off their first book, and the person who shared gets $10 off their next one. */
@@ -228,37 +206,18 @@ function voice(g,getBase){
 /* ---------- Valentine's page ---------- */
 function valentines(){
   if(document.body.dataset.page!=="valentines")return;
-  const day=new Date(2027,1,13,12); /* arrive by Saturday, Feb 13 */
   const gs=["in-my-words","two-sides"].map(id=>G.find(x=>x.id===id));
-  const t=gs.map(g=>timing(g,day));
-  const last=new Date(Math.max(...t.map(x=>+x.startBy)));last.setHours(23,59,59,0);
-  const rushBy=g=>new Date(+subBiz(day,g.time.make+C.PRINT+C.RUSH)-g.time.collect*DAY);
-  const lastRush=new Date(Math.max(...gs.map(g=>+rushBy(g))));lastRush.setHours(23,59,59,0);
   document.getElementById("app").innerHTML=`<div class="wrap">
   <section class="hero vday-hero"><div class="stack-lg"><div class="stack"><span class="eyebrow">Valentine's Day, Sunday, February 14</span>
    <h1>A Valentine they'll keep for twenty years.</h1>
    <p class="lede">Not a card that's gone by March. A hardcover of your kids' real words about Mom or Dad, or both sides of how you two met.</p></div>
-   <div class="countdown" id="cd" aria-live="polite"></div>
    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#vday-gifts">Pick a Valentine</a><a class="btn ghost" href="choose.html?occ=valentines">Help me choose</a></div></div>
    <figure class="p-photo" style="margin:0">${img("two-sides","A couple on the sofa with tea, looking through a book with a photo of the two of them on a date")}</figure></section>
-  <section class="stack-lg" id="vday-gifts"><div class="stack"><h2>Two Valentines</h2><p class="notice">Both arrive by Saturday, Feb 13 with regular shipping if you start by the date on each.</p></div>
-   <div class="cards vday-grid">${gs.map((g,i)=>`<a class="card" href="${giftUrl(g,null,day)}"><div class="art">${img(g.id,g.photo,"",true)}</div><div class="body"><span class="for">${i?"For your partner":"From the kids, for Mom or Dad"}</span><h3>${esc(g.name)}</h3><p>${esc(i?"You each answer the same 15 questions on your own. The book puts your answers side by side.":"15 minutes at the kitchen table: your kids' real answers and drawings about Mom or Dad.")}</p><span class="price">$${g.price} <small>Start by ${fmt(t[i].startBy)}</small></span></div></a>`).join("")}</div>
-   <div class="cta-band"><div class="stack"><h2>One of each: ${money(pairTotal(gs[0]))}</h2><p>The kids' book for Mom or Dad, and Two Sides of Us for the two of you. The second book is half off, and the pair ships free.</p></div><a class="btn" href="${giftUrl(gs[0],null,day)}">Start with the kids' book</a></div></section>
+  <section class="stack-lg" id="vday-gifts"><div class="stack"><h2>Two Valentines</h2><p class="notice">The kids' words about Mom or Dad, or both sides of how you two met.</p></div>
+   <div class="cards vday-grid">${gs.map((g,i)=>`<a class="card" href="${giftUrl(g,null,null)}"><div class="art">${img(g.id,g.photo,"",true)}</div><div class="body"><span class="for">${i?"For your partner":"From the kids, for Mom or Dad"}</span><h3>${esc(g.name)}</h3><p>${esc(i?"You each answer the same 15 questions on your own. The book puts your answers side by side.":"15 minutes at the kitchen table: your kids' real answers and drawings about Mom or Dad.")}</p><span class="price">$${g.price} <small>2nd book half off</small></span></div></a>`).join("")}</div>
+   <div class="cta-band"><div class="stack"><h2>One of each: ${money(pairTotal(gs[0]))}</h2><p>The kids' book for Mom or Dad, and Two Sides of Us for the two of you. The second book is half off, and the pair ships free.</p></div><a class="btn" href="${giftUrl(gs[0],null,null)}">Start with the kids' book</a></div></section>
   <section class="stack-lg"><h2>Add their voice for $9</h2><div class="vday-voice"><figure class="voice-qr">${qrSvg(11)}</figure><p>A code printed inside the cover. Scan it with any phone and hear your child say "Happy Valentine's Day, Mom", or the two of you reading your answers out loud. Add it on the gift's page.</p></div></section>
-  <section class="stack"><h2>Dates that matter</h2><ul class="vday-dates">
-   ${gs.map((g,i)=>`<li><b>${fmt(t[i].startBy)}</b> Last day to start ${esc(g.name)} with regular shipping.</li>`).join("")}
-   <li><b>${fmt(lastRush)}</b> Last day with rush shipping, $${C.RUSH_PRICE} more.</li>
-   <li><b>Sat, Feb 13</b> Your book arrives.</li></ul>
-   <p class="notice">Every book needs a few days for your answers, a few for us to make it, then printing and the mail. That's why the start dates come early.</p></section></div>`;
-  const cd=document.getElementById("cd");
-  function tick(){
-    const now=new Date(),reg=last-now,rush=lastRush-now;
-    if(reg>0){const d=Math.floor(reg/DAY),h=Math.floor(reg%DAY/36e5),m=Math.floor(reg%36e5/6e4);
-      cd.innerHTML=`<span class="cd-n"><b>${d}</b>days</span><span class="cd-n"><b>${h}</b>hours</span><span class="cd-n"><b>${m}</b>min</span><span class="cd-l">left to order for Valentine's Day with regular shipping. Last day: ${fmt(last)}.</span>`;}
-    else if(rush>0)cd.innerHTML=`<span class="cd-l"><b>Rush only now.</b> Start by ${fmt(lastRush)} and add rush shipping, $${C.RUSH_PRICE}, to have it by Feb 13.</span>`;
-    else cd.innerHTML=`<span class="cd-l"><b>Too late for delivery by Valentine's Day.</b> Order now and we'll email a <a href="${root}reveal.html?gift=two-sides">printable "your book is on its way" card</a> for the 14th.</span>`;
-  }
-  tick();setInterval(tick,30000);
+  <section class="stack"><h2>Start early</h2><p>Every book needs a few days for your answers, a few for us to make it, then printing and the mail. The sooner you start, the less you'll worry.</p></section></div>`;
 }
 /* ---------- "On its way" reveal card: free with every order, so nobody is empty-handed while the book prints ---------- */
 const REVEAL_TO={"in-my-words":o=>o.Rel,"fridge-gallery":()=>"Grandma","two-sides":o=>o.B,"grandpas-stories":o=>o.Elder,"the-year-you-were":o=>o.Kid,"big-sibling":o=>o.Kid,"from-all-of-us":o=>o.Honoree,"family-epic":o=>"the "+o.Family};
@@ -267,7 +226,7 @@ function revealCard(g,to,from,msg,arrive,gift10){
   return `<div class="rv-card" id="rv-card">
    <div class="rv-panel rv-front"><div class="rv-pic">${g.photo?img(g.id,g.photo):fillSvg(art(g.card))}</div><div class="rv-words"><p class="rv-kick">Something is on its way</p><h2 class="rv-to">For ${esc(to||"you")}</h2></div></div>
    <div class="rv-panel rv-inside"><p class="rv-msg">${esc(msg||"We made you something, and it's on its way.")}</p>
-    <p>It's a book called <b>${esc(g.name)}</b>, printed just for you. It arrives about <b>${fmt(arrive)}</b>.</p>
+    <p>It's a book called <b>${esc(g.name)}</b>, printed just for you.</p>
     <div class="rv-peek">${qrSvg(5)}<span>Can't wait? Scan to flip through every page now.</span></div>
     <p class="rv-from">${from?"Love, "+esc(from):""}</p>${gift10?`<p class="rv-ten">Want to make one for someone you love? $${REF} off your first book with code <b>${esc(refCode(from))}</b>.</p>`:""}<p class="rv-mark">Hero House Books</p></div></div>`;
 }
@@ -279,7 +238,7 @@ function reveal(){
   const app=document.getElementById("app");
   app.innerHTML=`<div class="wrap">
   <section class="hero rv-hero"><div class="stack"><span class="eyebrow">Free with every order</span><h1>Your book is on its way. Here's what to hand over on the day.</h1>
-   <p class="lede">Printing and shipping take about three weeks. So every order comes with a printable card to give on the day, and the full preview pages to show them. Nobody waits empty-handed.</p></div></section>
+   <p class="lede">Printing and shipping take a little while. So every order comes with a printable card to give on the day, and the full preview pages to show them. Nobody waits empty-handed.</p></div></section>
   <section class="rv-grid"><form class="panel" id="rv-form" onsubmit="return false"><h3>Make your card</h3>
     <label class="fld"><span>The gift</span><select id="rv-gift">${G.map(x=>`<option value="${x.id}"${x===g?" selected":""}>${esc(x.name)}</option>`).join("")}</select></label>
     <label class="fld"><span>Who it's for</span><input type="text" id="rv-to" maxlength="40" autocomplete="off" value="${esc(to)}"></label>
@@ -294,7 +253,7 @@ function reveal(){
    <li><b>Hand over the card</b><span>The picture is on the front, your note on the back.</span></li>
    <li><b>Show them the pages</b><span>Open the preview on your phone or a TV. It's the real book, every page, with their names.</span></li>
    <li><b>The book arrives</b><span>We email you the tracking number the day it ships.</span></li></ol></section></div>`;
-  const show=()=>{const a=timing(g,null).std;document.getElementById("rv-stage").innerHTML=revealCard(g,to,from,msg,a,ten);document.getElementById("rv-look").href=giftUrl(g,given,null)+"#look";};show();
+  const show=()=>{document.getElementById("rv-stage").innerHTML=revealCard(g,to,from,msg,null,ten);document.getElementById("rv-look").href=giftUrl(g,given,null)+"#look";};show();
   document.getElementById("rv-form").addEventListener("input",e=>{const id=e.target.id;
     if(id==="rv-to")to=e.target.value;if(id==="rv-from")from=e.target.value;if(id==="rv-msg")msg=e.target.value;if(id==="rv-ten")ten=e.target.checked;show();});
   document.getElementById("rv-ten").addEventListener("change",e=>{ten=e.target.checked;show();});
@@ -351,7 +310,7 @@ function gift(){
   const id=document.body.dataset.gift;if(!id)return;const g=G.find(x=>x.id===id);if(!g)return;
   document.title=`${g.name} | Hero House Books`;
   const qs=new URLSearchParams(location.search),given={};g.fields.forEach(f=>{if(qs.has(f.k))given[f.k]=qs.get(f.k);});
-  let need=parse(qs.get("need"));
+  const need=null;
   const others=G.filter(x=>x.id!==id).slice(0,3);
   const full=!!(g.book&&window.HHBook&&window.HHBooks&&HHBooks[g.id]);
   const main=document.getElementById("app");
@@ -364,10 +323,8 @@ function gift(){
    <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#" data-soon>Start this gift</a>${full?`<a class="btn ghost" href="#look">See every page</a>`:""}<a class="btn ghost" href="${root}choose.html">Not sure? Help me choose</a><a class="btn ghost" href="#savep">Email me my preview</a></div>
    <p class="notice rv-line">Every order comes with a free printable "on its way" card and the full preview pages to show on the day. <a id="rv-link" href="${revealUrl(g,given)}">See the card</a></p></div>
    <div class="stack-lg">${g.photo?`<figure class="p-photo">${img(g.id,g.photo)}</figure>`:""}${full?"":`<div class="book" id="book" tabindex="0" aria-label="Sample book"></div>`}
-    <form class="panel" id="mine" onsubmit="return false">${full?`<h3>When do you need it?</h3><p class="notice">We'll tell you the last day to start.</p>`:`<h3>Make the sample yours</h3><p class="notice">Type real names to see how your book would read. Nothing is saved.</p>
-     <div class="fields">${g.fields.map((f,i)=>fieldHtml(f,given[f.k],"f"+i)).join("")}</div>`}
-     <label class="fld"><span>Need it by</span><input type="date" id="need" min="${iso(today())}" value="${need?iso(need):""}"></label>
-     <div id="when"></div></form>${dedHtml()}${saveHtml()}</div></section>${g.id==="in-my-words"?`<p class="md-line"><b>Mother's Day edition:</b> All About Mom, with questions all about her and a spring cover. <a href="${root}mothers-day.html">See it</a>, or <a href="${root}secret-helper.html">make it in secret</a> so every email goes to you.</p>`:""}
+    ${full?"":`<form class="panel" id="mine" onsubmit="return false"><h3>Make the sample yours</h3><p class="notice">Type real names to see how your book would read. Nothing is saved.</p>
+     <div class="fields">${g.fields.map((f,i)=>fieldHtml(f,given[f.k],"f"+i)).join("")}</div></form>`}${dedHtml()}${saveHtml()}</div></section>${g.id==="in-my-words"?`<p class="md-line"><b>Mother's Day edition:</b> All About Mom, with questions all about her and a spring cover. <a href="${root}mothers-day.html">See it</a>, or <a href="${root}secret-helper.html">make it in secret</a> so every email goes to you.</p>`:""}
   ${g.series?`<section class="stack-lg series" id="series"></section>`:""}
   ${full?fullBookHtml(g,given):""}
   ${g.look&&!full?`<section class="stack-lg look" id="look"><div class="stack"><h2>Look inside</h2><p class="notice">Real page spreads from a sample book. Printed as an 8.5 × 8.5 in hardcover. The family and drawings here are made up.</p></div>
@@ -410,9 +367,7 @@ function gift(){
   pairEl.addEventListener("input",e=>{if(e.target.id==="sib-name")sibName=e.target.value;
     if(e.target.id==="gnote"){note=e.target.value;document.getElementById("gnote-n").textContent=`Printed on a card inside their box. ${200-note.length} characters left.`;}});
   const serEl=document.getElementById("series");const showSeries=()=>{if(serEl)serEl.innerHTML=seriesHtml(vars(g,given));};showSeries();
-  const when=document.getElementById("when");const showWhen=()=>when.innerHTML=timingHtml(g,need);showWhen();
   document.getElementById("app").addEventListener("input",e=>{if(!e.target.closest("#mine,#mine-book"))return;
-    if(e.target.id==="need"){need=parse(e.target.value);showWhen();return;}
     const k=e.target.dataset.k;if(k){given[k]=e.target.value;bk.update(given);showPair();showSeries();document.getElementById("rv-link").href=revealUrl(g,given);dedSample(g,given);}
   });
 }
@@ -468,7 +423,7 @@ function lookInside(g){
 function chooser(){
   const host=document.getElementById("chooser");if(!host)return;
   const ans={};let step=0;
-  const STEPS=["occ","to","from","names","when","budget","result"];
+  const STEPS=["occ","to","from","names","budget","result"];
   const role={mom:"Mom",dad:"Dad",grandma:"Grandma",grandpa:"Grandpa"};
   const OCC={birthday:"a birthday",anniversary:"an anniversary",mothers:"Mother's Day",fathers:"Father's Day",valentines:"Valentine's Day",holidays:"the holidays",grandparent:"Grandparents Day",schoolyear:"the end of the school year",graduation:"a graduation",retirement:"a retirement or farewell",teacher:"thanking a teacher or coach",baby:"a new baby",just:"any day"};
   const TO={mom:"Mom",dad:"Dad",grandma:"Grandma",grandpa:"Grandpa",partner:"your partner",parents:"your parents",child:"a child",family:"the whole family",coworker:"a coworker",teacher:"a teacher or coach",friend:"a friend"};
@@ -500,7 +455,6 @@ function chooser(){
     Object.keys(v).forEach(k=>{if(v[k]===undefined||String(v[k]).trim()==="")delete v[k];});return v;
   }
   function rank(){
-    const need=parse(ans.need);
     return G.map(g=>{let s=0;const why=[],warn=[];
       if(ans.occ){if(g.fit.occ.includes(ans.occ)){s+=3;why.push(`Made for ${OCC[ans.occ]}`);}else s-=2;}
       if(ans.to){if(g.fit.to.includes(ans.to)){s+=4;why.push(`Right for ${TO[ans.to]}${ans.from?`, from ${FROM[ans.from]}`:""}`);}else s-=4;}
@@ -508,7 +462,6 @@ function chooser(){
       const a=ans.to==="child"?ans.age:kidGiving()?ans.kidAge:"";
       if(g.fit.ages&&a!==""&&a!==undefined){const n=+a;if(n<g.fit.ages[0]||n>g.fit.ages[1]){s-=3;warn.push(`Best for ages ${g.fit.ages[0]} to ${g.fit.ages[1]}`);}else{s+=1;why.push(`Works well at age ${n}`);}}
       if(ans.budget&&ans.budget!=="any"){if(g.price>+ans.budget){s-=3;warn.push(`Over your budget at $${g.price}`);}else{s+=1;why.push(pairTotal(g)<=+ans.budget?`Fits your budget at $${g.price}, or ${money(pairTotal(g))} for two`:`Fits your budget at $${g.price}`);}}
-      if(need){const t=timing(g,need);if(!t.rushOk){s-=6;warn.push("Can't arrive in time");}else if(!t.stdOk){s-=1;warn.push("Needs rush shipping");}}
       return {g,s,why,warn};}).sort((x,y)=>y.s-x.s);
   }
   const opts=(key,list,sub)=>`<div class="opts" role="radiogroup">${list.map(([k,l])=>`<button type="button" role="radio" aria-checked="${ans[key]===k}" data-set="${key}" data-v="${k}">${esc(l)}</button>`).join("")}</div>${sub||""}`;
@@ -520,25 +473,20 @@ function chooser(){
     if(k==="from")body=`<h2>Who is it from?</h2>${opts("from",C.givers)}`;
     if(k==="names")body=`<h2>Tell us a little about them</h2><p class="notice">Only used to show you a sample with their names. Nothing is saved. Skip anything you like.</p>
       <div class="fields">${namesFields().map(([fk,fl,ty])=>`<label class="fld"><span>${esc(fl)}</span><input data-a="${fk}" type="${ty}" ${ty==="number"?'inputmode="numeric" min="0" max="99"':'maxlength="40" autocomplete="off"'} value="${esc(ans[fk]||"")}"></label>`).join("")}</div>`;
-    if(k==="when"){const pre=ans.need||(nextDate(ans.occ)?iso(nextDate(ans.occ)):"");ans.need=pre;
-      body=`<h2>When do you need it?</h2><p class="notice">Books take about 3 weeks: a few days for you to gather things, a few for us to design, then printing and mail.</p>
-      <div class="fields"><label class="fld"><span>Need it by</span><input data-a="need" type="date" min="${iso(today())}" value="${pre}"></label></div>
-      <button type="button" class="linkish" data-norush>No date, no rush</button>`;}
     if(k==="budget")body=`<h2>What would you like to spend?</h2><p class="notice">Prices are for one book. A second book is always half off, orders of $69 or more ship free, and group gifts can be split.</p>${opts("budget",C.budgets)}`;
     if(k==="result")return result();
     host.innerHTML=`<div class="progress" aria-hidden="true"><span style="width:${Math.round(step/total*100)}%"></span></div><p class="notice">Question ${step+1} of ${total}</p>
       <div class="q">${body}</div>
-      <div class="pager"><button type="button" data-nav="-1" ${step===0?"disabled":""}>Back</button><button type="button" data-nav="1">${k==="names"||k==="when"?"Next":"Skip"}</button></div>`;
+      <div class="pager"><button type="button" data-nav="-1" ${step===0?"disabled":""}>Back</button><button type="button" data-nav="1">${k==="names"?"Next":"Skip"}</button></div>`;
     const first=host.querySelector(".q button,.q input");if(first&&step>0)first.focus({preventScroll:true});
   }
   const pairFor=g=>g.id==="in-my-words"&&kidGiving()&&/^(mom|dad|grandma|grandpa)$/.test(ans.to||"")?1:0;
   function result(){
-    const r=rank(),best=r[0],alts=r.slice(1,3),need=parse(ans.need),v=mapTo(best.g);
+    const r=rank(),best=r[0],alts=r.slice(1,3),need=null,v=mapTo(best.g);
     host.innerHTML=`<div class="progress"><span style="width:100%"></span></div>
     <div class="result">
      <div class="stack-lg"><div class="stack"><span class="eyebrow">Our pick for you</span><h2>${esc(best.g.name)} <span class="muted">$${best.g.price}</span></h2><p class="lede">${esc(best.g.tagline)}</p></div>
       <ul class="ticks">${best.why.map(w=>`<li>${esc(w)}</li>`).join("")}${best.warn.map(w=>`<li class="w">${esc(w)}</li>`).join("")}</ul>
-      ${timingHtml(best.g,need)}
       <p><b>What we'll need from you:</b> ${esc(best.g.time.needs)}.</p>
       ${(()=>{const pp=best.g.pair[pairFor(best.g)],o=vars(best.g,v);return `<div class="pair-tip"><b>Make it two for ${money(pairTotal(best.g))}.</b> ${fill(pp[0],o)} is ${money(half(best.g))} more. ${fill(pp[1],o)}</div>`;})()}
       <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="${giftUrl(best.g,v,need)}">See this gift with your names</a><a class="btn ghost" href="${(u=>u+(u.includes("?")?"&":"?")+"two="+(pairFor(best.g)+1)+"#pair")(giftUrl(best.g,v,need))}">Make it two</a><a class="btn ghost" href="#" data-soon>Start this gift</a></div></div>
@@ -551,7 +499,6 @@ function chooser(){
   host.addEventListener("click",e=>{
     const s=e.target.closest("[data-set]");if(s){ans[s.dataset.set]=s.dataset.v;step++;render();return;}
     const n=e.target.closest("[data-nav]");if(n){step=Math.max(0,step+ +n.dataset.nav);render();return;}
-    if(e.target.closest("[data-norush]")){ans.need="";step++;render();return;}
     if(e.target.closest("[data-restart]")){Object.keys(ans).forEach(k=>delete ans[k]);step=0;render();}
   });
   host.addEventListener("input",e=>{const a=e.target.dataset.a;if(a)ans[a]=e.target.value;});
@@ -564,7 +511,7 @@ function thanks(){
   if(document.body.dataset.page!=="thanks")return;
   const qs=new URLSearchParams(location.search);
   const g=G.find(x=>x.id===qs.get("gift"))||G[0];const given={};g.fields.forEach(f=>{if(qs.has(f.k))given[f.k]=qs.get(f.k);});
-  const to=REVEAL_TO[g.id](vars(g,given)),a=timing(g,null).std;
+  const to=REVEAL_TO[g.id](vars(g,given));
   let from="",heir=false,copy=false;const kidName=vars(g,given).Kid||"your child";
   const total=()=>(heir?HEIR:g.price)+(copy?half(g):0);
   const msg=code=>`I just made a book for ${to} with Hero House Books and I can't wait to give it. Here's $${REF} off if you want to make one: herohousebooks.com/r/${code.toLowerCase()}`;
@@ -573,7 +520,7 @@ function thanks(){
   <section class="hero rv-hero"><div class="stack"><span class="eyebrow">Sample order confirmation</span><h1>Thank you. We've started on your book.</h1>
    <p class="lede">Next, we email you the link for the questions. You'll see every page before we print, and you can change anything once for free.</p></div></section>
   <section class="ty-grid">
-   <div class="panel stack"><h3>Your order</h3><dl class="facts ty-facts"><div><dt>Gift</dt><dd>${esc(g.name)}</dd></div><div><dt>For</dt><dd>${esc(to)}</dd></div><div><dt>Arrives about</dt><dd>${fmt(a)}</dd></div><div><dt>Total</dt><dd id="ty-total"></dd></div></dl>
+   <div class="panel stack"><h3>Your order</h3><dl class="facts ty-facts"><div><dt>Gift</dt><dd>${esc(g.name)}</dd></div><div><dt>For</dt><dd>${esc(to)}</dd></div><div><dt>Next</dt><dd>Your questions link, by email</dd></div><div><dt>Total</dt><dd id="ty-total"></dd></div></dl>
     <p class="notice">While it's being made: <a href="${revealUrl(g,given)}">print your free "on its way" card</a> to give on the day.</p></div>
    <div class="panel stack ref" id="ref"><span class="eyebrow">Give $${REF}, get $${REF}</span><h2>Know someone with a birthday coming up?</h2>
     <p>Share your code. They get $${REF} off their first book. When they order, you get $${REF} off your next one, like the copy for Grandma.</p>
@@ -583,7 +530,7 @@ function thanks(){
     <div class="upl"><button type="button" class="btn" id="ref-copy">Copy the message</button><button type="button" class="btn ghost" id="ref-share" hidden>Share</button></div>
     <p class="notice" id="ref-note" aria-live="polite">A sample. On the real site the code is made for your order. Nothing here is saved or sent.</p></div></section>
   <section class="panel stack bday" id="bday"><span class="eyebrow">One quick question</span><h2>When's ${esc(kidName)}'s birthday?</h2>
-   <p>We'll email you once a year, 3 weeks before it, so the next book in the series arrives in time. That's all we send. Unsubscribe anytime.</p>
+   <p>We'll email you once a year, 3 weeks before it, with the next book in the series. That's all we send. Unsubscribe anytime.</p>
    <div class="save-row"><label class="fld"><span>Birthday</span><input type="date" id="bday-date" max="${iso(today())}"></label><button type="button" class="btn" id="bday-save">Remind me</button></div>
    <p class="notice" id="bday-msg" aria-live="polite">Optional. A sample. On the real site this is saved with your order. Nothing here is saved or sent.</p><div id="bday-mail"></div></section>
   <section class="stack-lg"><h2>How the $${REF} works</h2><ol class="how">
@@ -609,8 +556,8 @@ function thanks(){
     if(turns>18){msg.textContent=`${kidName} is past the series, which runs from birth to 18. Nothing to remind you about.`;out.innerHTML="";return;}
     let send=new Date(next);send.setDate(send.getDate()-21);const soon=send<t;if(soon)send=t;
     const title=`The Year You Were ${cap(WORDS[turns])}`;
-    msg.textContent=soon?`That's less than 3 weeks away, so this year's email would go out today. Rush delivery is $15.`:`Saved for the sample. The email goes out ${fmt(send)}, 3 weeks before ${kidName} turns ${turns}.`;
-    out.innerHTML=`<div class="mail"><span class="mail-tag">${fmt(send)}</span><b class="mail-subj">${kidName} turns ${turns} on ${fmt(next)}. Make ${esc(title)}?</b><div class="mail-body"><p>${g.id==="the-year-you-were"?"Last year's book is on the shelf. This year's goes right next to it, with a new cover color and the next piece of the picture on the spine.":"One book for each birthday, from the first to the eighteenth: what they loved, said and did that year, in their own words."}</p><p><a class="btn" href="${giftUrl(G.find(x=>x.id==="the-year-you-were")||g,{Kid:kidName==="your child"?"":kidName,Age:String(turns)},null)}">Make ${esc(title)}</a></p><p class="mail-small">Start by ${fmt(new Date(next.getTime()-21*864e5))} for it to arrive in time. One email a year, unsubscribe anytime.</p></div></div>`;};
+    msg.textContent=soon?`That's less than 3 weeks away, so this year's email would go out today.`:`Saved for the sample. The email goes out ${fmt(send)}, 3 weeks before ${kidName} turns ${turns}.`;
+    out.innerHTML=`<div class="mail"><span class="mail-tag">${fmt(send)}</span><b class="mail-subj">${kidName} turns ${turns} on ${fmt(next)}. Make ${esc(title)}?</b><div class="mail-body"><p>${g.id==="the-year-you-were"?"Last year's book is on the shelf. This year's goes right next to it, with a new cover color and the next piece of the picture on the spine.":"One book for each birthday, from the first to the eighteenth: what they loved, said and did that year, in their own words."}</p><p><a class="btn" href="${giftUrl(G.find(x=>x.id==="the-year-you-were")||g,{Kid:kidName==="your child"?"":kidName,Age:String(turns)},null)}">Make ${esc(title)}</a></p><p class="mail-small">One email a year, unsubscribe anytime.</p></div></div>`;};
   const sh=document.getElementById("ref-share");if(navigator.share){sh.hidden=false;sh.onclick=()=>navigator.share({text:document.getElementById("ref-msg").value}).catch(()=>{});}
 }
 
@@ -631,12 +578,11 @@ function momCover(o){return `<svg class="md-cover" viewBox="0 0 400 400" role="i
  <text x="200" y="252" text-anchor="middle" font-family="Caveat,cursive" font-size="28" fill="#1c2340">by ${esc(o.Kid)}, age ${esc(o.Age)}</text></svg>`;}
 function mothers(){
   if(document.body.dataset.page!=="mothers")return;
-  const g=G.find(x=>x.id==="in-my-words"),day=nthSunday(2027,4,2),need=new Date(+day-DAY),t=timing(g,need);
+  const g=G.find(x=>x.id==="in-my-words");
   const given={Rel:"Mom",Kid:"Ava",Age:"6"};
   const bookObj={title:"All About {Rel}",spreads:[[],[{t:"qa",q:MOM_Q[0][0],a:MOM_Q[0][1]},{t:"qa",q:MOM_Q[1][0],a:MOM_Q[1][1]}],[{t:"qa",big:true,q:MOM_Q[2][0],a:MOM_Q[2][1]},{t:"qa",big:true,q:MOM_Q[3][0],a:MOM_Q[3][1]}],
     [{t:"qa",big:true,q:MOM_Q[4][0],a:MOM_Q[4][1]},{t:"qa",q:MOM_Q[5][0],a:MOM_Q[5][1]}],[{t:"qa",q:MOM_Q[6][0],a:MOM_Q[6][1]},{t:"qa",big:true,q:MOM_Q[7][0],a:MOM_Q[7][1]}]]};
   const ctx={book:bookObj,base:"",photos:[]};
-  const rushBy=new Date(+subBiz(need,g.time.make+C.PRINT+C.RUSH)-g.time.collect*DAY);
   document.getElementById("app").innerHTML=`<div class="wrap">
   <section class="hero md-hero"><div class="stack-lg"><div class="stack"><span class="eyebrow">Mother's Day, Sunday, May 9</span><h1>All About Mom</h1>
    <p class="lede">The Mother's Day edition of In My Words. Your kids answer twenty questions about her, and every answer goes in the book exactly as they said it, next to their own drawings. With a spring cover.</p></div>
@@ -651,15 +597,12 @@ function mothers(){
   <section class="stack-lg" id="md-q"><div class="stack"><h2>Questions all about her</h2><p class="notice">Real pages from a sample. Ava and her answers are made up.</p></div>
    <div class="md-spreads" id="md-spreads"></div>
    <div class="stack"><h3>More of the questions</h3><ul class="md-more" id="md-more"></ul></div></section>
-  <section class="stack"><h2>Dates that matter</h2><ul class="vday-dates">
-   <li><b>${fmt(t.startBy)}</b> Last day to start with regular shipping.</li>
-   <li><b>${fmt(rushBy)}</b> Last day with rush shipping, $${C.RUSH_PRICE} more.</li>
-   <li><b>Sat, May 8</b> Your book arrives.</li></ul>
-   <p class="notice">Too late? Every order comes with a free printable <a href="${root}reveal.html?gift=in-my-words&amp;Rel=Mom">"on its way" card</a> for the day.</p></section></div>`;
+  <section class="stack"><h2>Start early</h2><p>The kids need a few days to answer, then we make it, print it and mail it. The sooner you start, the less you'll worry.</p>
+   <p class="notice">Every order comes with a free printable <a href="${root}reveal.html?gift=in-my-words&amp;Rel=Mom">"on its way" card</a> to give on the day.</p></section></div>`;
   const show=()=>{const o=vars(g,given);document.getElementById("md-fig").innerHTML=momCover(o);
     document.getElementById("md-spreads").innerHTML=[1,2,3,4].map(i=>`<div class="hb-book hb-crayon md-book">${HHBook.spreadHtml(bookObj,i,o,ctx)}</div>`).join("");
     document.getElementById("md-more").innerHTML=MOM_MORE.map(q=>`<li>${fill(q,o)}</li>`).join("");
-    document.getElementById("md-start").href=giftUrl(g,given,need);};show();
+    document.getElementById("md-start").href=giftUrl(g,given,null);};show();
   document.getElementById("md-try").addEventListener("input",e=>{const k=e.target.dataset.k;if(k){given[k]=e.target.value;show();}});
 }
 

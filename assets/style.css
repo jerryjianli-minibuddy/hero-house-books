@@ -134,10 +134,6 @@ dialog::backdrop{background:rgba(10,14,35,.55)}
 .fld input:focus,.fld select:focus{outline:none;border-color:var(--accent)}
 .linkish{font:600 14px var(--body);background:none;border:none;color:var(--accent);padding:0;cursor:pointer;text-decoration:underline;align-self:flex-start}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:12px;margin:0}
-.timing{margin:0;padding:10px 14px;border-radius:10px;font-size:14.5px}
-.timing.ok{background:var(--teal-soft)}
-.timing.warn{background:var(--sun-soft)}
-.timing.no{background:color-mix(in srgb,#e5484d 16%,var(--surface))}
 .result{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
 .result > *{min-width:0}
 @media (max-width:860px){.result{grid-template-columns:1fr}}
@@ -362,15 +358,9 @@ dialog::backdrop{background:rgba(10,14,35,.55)}
 .voice select{width:100%}
 /* Valentine's page */
 .vday-hero .eyebrow{color:#c2185b}
-.countdown{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.cd-n{display:flex;flex-direction:column;align-items:center;min-width:64px;padding:8px 10px;border-radius:12px;background:var(--sun-soft);font-size:12px;color:var(--muted)}
-.cd-n b{font-family:var(--display);font-size:28px;line-height:1.1;color:var(--ink)}
-.cd-l{flex-basis:100%;font-size:15px}
 .vday-grid{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
 .vday-voice{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
 .vday-voice p{flex:1;min-width:220px;margin:0}
-.vday-dates{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
-.vday-dates b{display:inline-block;min-width:110px}
 /* grandparents' copy shipped to them, and the Heirloom edition */
 .gship{display:flex;flex-direction:column;gap:8px;margin:-2px 0 0 18px;padding:10px 12px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;background:var(--bg)}
 .gship .sib-top em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}

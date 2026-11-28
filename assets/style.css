@@ -560,3 +560,13 @@ dialog::backdrop{background:rgba(10,14,35,.55)}
 .bi-page figcaption{font-size:13px;color:var(--muted)}
 .bday{margin-top:8px}
 .bday h2{margin:0}
+
+/* Mother's Day secret helper */
+.hp-fig{position:relative}
+.hp-shh{position:absolute;top:14px;left:14px;background:#1c2340;color:#fffdf7;font:700 14px var(--display);padding:6px 12px;border-radius:999px;transform:rotate(-4deg);box-shadow:0 4px 12px rgba(28,35,64,.25)}
+.hp-thumbs{display:flex;flex-wrap:wrap;gap:8px}.hp-thumbs:empty{display:none}
+.hp-thumbs img{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:#fff}
+.hp-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+.hp-mom{margin:0;padding:10px 12px;border-radius:10px;background:var(--teal-soft);font-size:14.5px}
+.hp-two h2{margin:0}
+.hp-banner{margin:0;padding:10px 12px;border-radius:10px;background:var(--teal-soft);border:1.5px dashed var(--accent);font-size:14.5px}

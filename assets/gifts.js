@@ -107,6 +107,28 @@ window.HHGifts=[
  ]}
 },
 {
+ id:"big-sibling", gcopy:true, sibIdx:1, sib:["A book for another big kid","Each big brother or sister gets their own book, with their own photos and jobs."], name:"Big Sister, Big Brother", short:"Mia Is Going to Be a Big Sister",
+ tags:["kids","grandparents"], forLine:"For a child about to become a big sister or brother", card:"bigSib",
+ tagline:"A book that stars your child, not a cartoon family: their photos, their room, the new baby's real name and the jobs only a big sister or brother can do. Read it together before the baby comes.",
+ price:49, priceNote:"Hardcover, 8.5 × 8.5 in, 32 pages, free shipping on two books",
+ pair:[["A copy for {Copy}","The same book, so {Kid} can read it at Grandma and Grandpa's too."],["A book for another big kid","Each big brother or sister gets their own book, with their own photos and jobs."]],
+ facts:[["Who buys it","Parents, and grandparents getting ready too"],["The moment","The months before a new baby, any time of year"],["Best for kids aged","1 to 8"],["Ready in","About 3 weeks"]],
+ fit:{occ:["baby","just"],to:["child"],from:["me","family"],ages:[1,8]},
+ time:{collect:2,make:3,needs:"8 to 12 photos of your child, the baby's name or nickname, and a photo of the baby's room or a sonogram if you like"},
+ fields:[{k:"Kid",label:"Big kid's name",def:"Mia"},{k:"Sib",label:"Becoming a big",type:"select",opts:["Sister","Brother"],def:"Sister"},{k:"Baby",label:"Baby's name or nickname",def:"Theo"},{k:"Age",label:"Big kid's age",type:"number",min:1,max:10,def:3}],
+ why:"A new baby is the biggest change in a small child's life, and most books about it star somebody else's family. This one shows your child in your house, uses the baby's real name and gives them a job. Grandparents usually want a copy to read at their house too.",
+ how:[["Send photos","8 to 12 of your child, and the baby's room or a sonogram if you like. Tell us the baby's name, or a nickname for now."],["Pick their jobs","Choose the big sister or brother jobs that fit your child: singing the song, finding the pacifier, showing the baby how to laugh."],["We make the book","Your photos, with crayon doodles drawn on them, and your family's own words for Mom, Dad or Grandma."],["See it first","You get every page to check and one free round of changes before we print."]],
+ inside:["A cover with your child holding the baby, from your photo","What your house is like now, with them in it","What babies are like: tiny, loud, no teeth","The jobs only a big sister or brother can do","\"Our hearts don't split, they get bigger\"","A page for them to draw the baby's first picture"],
+ faq:[["We haven't picked a name yet.","Use a nickname or just \"the baby\". You can send the real name before we print."],["The baby is already here.","Even better. We use photos of the two of them together."],["We call each other different names.","Tell us. Mama, Papa, two moms, a grandma who lives with you: the book uses your family's words."],["Do you use AI to write it?","No. A person on our team writes it around your child and your family, and you check every page."]],
+ sample:{title:"{Kid} Is Going to Be a Big {Sib}", caption:"Sample book. {Kid}, {Baby} and the family are made up.", spreads:[
+  [{art:"bigSib",arg:"{Sib}"},{html:`<h4>{Kid} Is Going to Be a Big {Sib}</h4><p class="small">Starring {Kid}, age {Age}. Coming soon: {Baby}.</p><p>This is a true story about our family, and it's mostly about {Kid}.</p>`}],
+  [{art:"kidHouse"},{html:`<p class="who">Right now</p><p>{Kid} is the only kid at our house. {Kid} likes the big slide, dinosaurs and pancakes shaped like the letter {Initial}.</p><p>Soon, a very small person is moving in.</p>`}],
+  [{html:`<p class="who">What babies are like</p><p>{Baby} will be tiny. {Baby} won't walk, talk or eat pancakes. {Baby} will cry sometimes, because that's how babies talk.</p><p>{Baby} will already love {Kid}'s voice.</p>`},{art:"kidBaby"}],
+  [{art:"kidSun"},{html:`<p class="who">Jobs only a big {sib} can do</p><p>Sing the song that makes {Baby} stop crying. Find the lost sock. Show {Baby} how to laugh. Hold {Baby} with a grown-up, very gently.</p>`}],
+  [{html:`<p class="who">One more thing, {Kid}</p><p class="said">"Hearts don't split when a baby comes. They get bigger. We loved you first, and that never changes."</p><p class="small">Love, Mom and Dad</p>`},{art:"kidHeart"}]
+ ]}
+},
+{
  id:"from-all-of-us", look:3, photo:"Coworkers gathered around a desk with an open book of handwritten thank-you notes and flowers", name:"From All of Us", short:"Thank You, Denise",
  tags:["coworkers"], forLine:"For a coworker, coach, teacher or graduate, from the whole group", card:"office",
  tagline:"Everyone adds a memory through one link. We turn the notes into a real hardcover for a retirement, a farewell, a graduation or the end of the season.",

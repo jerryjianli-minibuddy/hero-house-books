@@ -25,6 +25,7 @@ function vars(g,given){
     o.Candles=age===0?"No candles yet. One very small hat":(age===1?"One candle":cap(WORDS[age])+" candles")+", a few loose teeth, one new bike";
     o.Grade=age<5?"Pre-K":age===5?"Kindergarten":ord(Math.min(12,age-5))+" grade";}
   if(o.Years!==undefined)o.Years=String(Math.max(1,parseInt(o.Years,10)||1));
+  if(o.Sib!==undefined){o.sib=o.Sib.toLowerCase();o.Initial=(o.Kid||"M").charAt(0).toUpperCase();}
   return o;
 }
 const fill=(s,o)=>String(s).replace(/\{(\w+)\}/g,(m,k)=>k in o?esc(o[k]):m);
@@ -260,11 +261,11 @@ function valentines(){
   tick();setInterval(tick,30000);
 }
 /* ---------- "On its way" reveal card: free with every order, so nobody is empty-handed while the book prints ---------- */
-const REVEAL_TO={"in-my-words":o=>o.Rel,"fridge-gallery":()=>"Grandma","two-sides":o=>o.B,"grandpas-stories":o=>o.Elder,"the-year-you-were":o=>o.Kid,"from-all-of-us":o=>o.Honoree,"family-epic":o=>"the "+o.Family};
+const REVEAL_TO={"in-my-words":o=>o.Rel,"fridge-gallery":()=>"Grandma","two-sides":o=>o.B,"grandpas-stories":o=>o.Elder,"the-year-you-were":o=>o.Kid,"big-sibling":o=>o.Kid,"from-all-of-us":o=>o.Honoree,"family-epic":o=>"the "+o.Family};
 const revealUrl=(g,given)=>{const q=giftUrl(g,given,null).split("?")[1];return `${root}reveal.html?gift=${g.id}${q?"&"+q:""}`;};
 function revealCard(g,to,from,msg,arrive,gift10){
   return `<div class="rv-card" id="rv-card">
-   <div class="rv-panel rv-front"><div class="rv-pic">${img(g.id,g.photo)}</div><div class="rv-words"><p class="rv-kick">Something is on its way</p><h2 class="rv-to">For ${esc(to||"you")}</h2></div></div>
+   <div class="rv-panel rv-front"><div class="rv-pic">${g.photo?img(g.id,g.photo):fillSvg(art(g.card))}</div><div class="rv-words"><p class="rv-kick">Something is on its way</p><h2 class="rv-to">For ${esc(to||"you")}</h2></div></div>
    <div class="rv-panel rv-inside"><p class="rv-msg">${esc(msg||"We made you something, and it's on its way.")}</p>
     <p>It's a book called <b>${esc(g.name)}</b>, printed just for you. It arrives about <b>${fmt(arrive)}</b>.</p>
     <div class="rv-peek">${qrSvg(5)}<span>Can't wait? Scan to flip through every page now.</span></div>
@@ -355,7 +356,7 @@ function gift(){
   const full=!!(g.book&&window.HHBook&&window.HHBooks&&HHBooks[g.id]);
   const main=document.getElementById("app");
   main.innerHTML=`<div class="wrap">
-  <section class="p-hero"><div class="stack-lg"><div class="stack"><span class="eyebrow">${esc(g.forLine)}</span><h1>${esc(g.name)}</h1><p class="lede">${esc(g.tagline)}</p></div>
+  <section class="p-hero"><div class="stack-lg">${qs.get("helper")==="1"?`<p class="hp-banner"><b>Secret helper:</b> every preview and email goes to you, never to ${esc(vars(g,given).Rel||"them")}.</p>`:""}<div class="stack"><span class="eyebrow">${esc(g.forLine)}</span><h1>${esc(g.name)}</h1><p class="lede">${esc(g.tagline)}</p></div>
    <div><div class="price-big" id="price-big">$${g.price}</div><p class="notice" id="price-note">${esc(g.priceNote)}</p></div>
    ${heirOk(g)?`<fieldset class="pair" id="edition"></fieldset>`:""}<div id="more"></div><div id="bi"></div><div id="wall"></div>
    <fieldset class="pair" id="pair"></fieldset>${voiceOk(g)?`<div class="voice" id="voice"></div>`:""}<div id="shipbar"></div>
@@ -366,7 +367,7 @@ function gift(){
     <form class="panel" id="mine" onsubmit="return false">${full?`<h3>When do you need it?</h3><p class="notice">We'll tell you the last day to start.</p>`:`<h3>Make the sample yours</h3><p class="notice">Type real names to see how your book would read. Nothing is saved.</p>
      <div class="fields">${g.fields.map((f,i)=>fieldHtml(f,given[f.k],"f"+i)).join("")}</div>`}
      <label class="fld"><span>Need it by</span><input type="date" id="need" min="${iso(today())}" value="${need?iso(need):""}"></label>
-     <div id="when"></div></form>${dedHtml()}${saveHtml()}</div></section>${g.id==="in-my-words"?`<p class="md-line"><b>Mother's Day edition:</b> All About Mom, with questions all about her and a spring cover. <a href="${root}mothers-day.html">See it</a></p>`:""}
+     <div id="when"></div></form>${dedHtml()}${saveHtml()}</div></section>${g.id==="in-my-words"?`<p class="md-line"><b>Mother's Day edition:</b> All About Mom, with questions all about her and a spring cover. <a href="${root}mothers-day.html">See it</a>, or <a href="${root}secret-helper.html">make it in secret</a> so every email goes to you.</p>`:""}
   ${g.series?`<section class="stack-lg series" id="series"></section>`:""}
   ${full?fullBookHtml(g,given):""}
   ${g.look&&!full?`<section class="stack-lg look" id="look"><div class="stack"><h2>Look inside</h2><p class="notice">Real page spreads from a sample book. Printed as an 8.5 × 8.5 in hardcover. The family and drawings here are made up.</p></div>
@@ -490,7 +491,7 @@ function chooser(){
     const v={},r=role[ans.to],kidName=ans.to==="child"?ans.name:ans.kid,kidAge=ans.to==="child"?ans.age:ans.kidAge;
     switch(g.id){
       case"in-my-words":Object.assign(v,{Rel:r||"Mom",Kid:ans.kid,Age:ans.kidAge});break;
-      case"fridge-gallery":case"the-year-you-were":Object.assign(v,{Kid:kidName,Age:kidAge});break;
+      case"fridge-gallery":case"the-year-you-were":case"big-sibling":Object.assign(v,{Kid:kidName,Age:kidAge});break;
       case"two-sides":Object.assign(v,{A:ans.giver,B:ans.name,Years:ans.years});break;
       case"grandpas-stories":Object.assign(v,{Elder:ans.name||r,Role:(ans.to==="grandma"||ans.to==="mom")?"Grandma":"Grandpa",Grandkid:ans.kid});break;
       case"from-all-of-us":Object.assign(v,{Honoree:ans.name,Years:ans.years,Org:ans.org});break;
@@ -543,7 +544,7 @@ function chooser(){
       <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="${giftUrl(best.g,v,need)}">See this gift with your names</a><a class="btn ghost" href="${(u=>u+(u.includes("?")?"&":"?")+"two="+(pairFor(best.g)+1)+"#pair")(giftUrl(best.g,v,need))}">Make it two</a><a class="btn ghost" href="#" data-soon>Start this gift</a></div></div>
      <div class="book" id="rbook" tabindex="0" aria-label="Sample book with your names"></div></div>
     <section class="stack-lg"><h3>Also good</h3><div class="cards">${alts.map(a=>`<a class="card" href="${giftUrl(a.g,mapTo(a.g),need)}"><div class="art">${pic(a.g)}</div><div class="body"><h3>${esc(a.g.name)}</h3><p>${esc(a.why[0]||a.g.forLine)}${a.warn.length?". "+esc(a.warn[0]):""}</p><span class="price">$${a.g.price} <small>2nd book half off</small></span></div></a>`).join("")}</div>
-     <p><button type="button" class="linkish" data-restart>Start over</button> or <a href="${root}index.html#gifts">see all seven gifts</a></p></section>`;
+     <p><button type="button" class="linkish" data-restart>Start over</button> or <a href="${root}index.html#gifts">see all eight gifts</a></p></section>`;
     book(document.getElementById("rbook"),best.g,v);
     host.scrollIntoView({behavior:"smooth",block:"start"});
   }
@@ -640,7 +641,8 @@ function mothers(){
   <section class="hero md-hero"><div class="stack-lg"><div class="stack"><span class="eyebrow">Mother's Day, Sunday, May 9</span><h1>All About Mom</h1>
    <p class="lede">The Mother's Day edition of In My Words. Your kids answer twenty questions about her, and every answer goes in the book exactly as they said it, next to their own drawings. With a spring cover.</p></div>
    <div><div class="price-big">$${g.price}</div><p class="notice">Two books are ${money(pairTotal(g))} and ship free: one for Mom, one for Grandma.</p></div>
-   <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" id="md-start" href="#">Start All About Mom</a><a class="btn ghost" href="#md-q">See the questions</a></div></div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" id="md-start" href="#">Start All About Mom</a><a class="btn ghost" href="#md-q">See the questions</a></div>
+   <p class="notice">Doing it with the kids for her? <a href="${root}secret-helper.html">Be the secret helper</a>: every email goes to you, never to Mom.</p></div>
    <figure class="md-fig" id="md-fig"></figure></section>
   <section class="stack-lg"><form class="panel md-try" id="md-try" onsubmit="return false"><h3>Try it with your names</h3><div class="fields">
     <label class="fld"><span>The book is about</span><select data-k="Rel"><option>Mom</option><option>Grandma</option></select></label>
@@ -661,5 +663,66 @@ function mothers(){
   document.getElementById("md-try").addEventListener("input",e=>{const k=e.target.dataset.k;if(k){given[k]=e.target.value;show();}});
 }
 
-chrome();home();valentines();mothers();thanks();reveal();gift();chooser();
+/* ---------- Mother's Day secret helper: Dad, Grandma or an aunt makes the book with the kids; every email goes to the helper, never to Mom ---------- */
+/* No delivery or arrive-by date anywhere on this page (Jian, Nov 27). */
+function helper(){
+  if(document.body.dataset.page!=="helper")return;
+  const g=G.find(x=>x.id==="in-my-words");
+  const given={Rel:"Mom",Kid:"Ava",Age:"6"};let helperName="",pics=[],plain=false;
+  const mail=(tag,subj,body)=>`<div class="mail"><span class="mail-tag">${tag}</span><b class="mail-subj">${subj}</b><div class="mail-body">${body}</div></div>`;
+  const url=extra=>{const u=giftUrl(g,given,null);return u+(u.includes("?")?"&":"?")+"helper=1"+(extra||"");};
+  document.getElementById("app").innerHTML=`<div class="wrap">
+  <section class="hero md-hero"><div class="stack-lg"><div class="stack"><span class="eyebrow">Mother's Day, Sunday, May 9</span><h1>Make Mom's book in secret</h1>
+   <p class="lede">For Dad, Grandma or an aunt doing it with the kids. You send their answers and drawings, and every preview, email and reminder goes to you. Mom sees nothing until she opens the book.</p></div>
+   <div><div class="price-big">$${g.price}</div><p class="notice">Two books are ${money(pairTotal(g))} and ship free: one for Mom, one for Grandma.</p></div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="#hp-form">Start in secret</a><a class="btn ghost" href="#hp-safe">How it stays a secret</a></div></div>
+   <figure class="md-fig hp-fig"><div id="hp-cover"></div><span class="hp-shh">Shh! A surprise</span></figure></section>
+  <section class="stack-lg"><form class="panel hp-form" id="hp-form" novalidate><h3>Set it up</h3><p class="notice">Every email goes to the address you type here.</p>
+   <div class="fields">
+    <label class="fld"><span>Your first name</span><input type="text" id="hp-name" maxlength="40" autocomplete="given-name" placeholder="Dad"></label>
+    <label class="fld"><span>Your email</span><input type="email" id="hp-email" autocomplete="email" placeholder="you@example.com"></label>
+    <label class="fld"><span>Mom's email (optional)</span><input type="email" id="hp-mom" autocomplete="off" placeholder="so we never write to it"></label></div>
+   <div class="fields">
+    <label class="fld"><span>The book is about</span><select data-k="Rel"><option>Mom</option><option>Grandma</option></select></label>
+    <label class="fld"><span>Child's name</span><input type="text" data-k="Kid" maxlength="40" autocomplete="off" placeholder="Ava"></label>
+    <label class="fld"><span>Child's age</span><input type="number" data-k="Age" min="2" max="14" placeholder="6"></label></div>
+   <label class="fld"><span>The kids' drawings, 6 to 10 is perfect</span><input type="file" id="hp-files" accept="image/*" multiple></label>
+   <div class="hp-thumbs" id="hp-thumbs" aria-live="polite"></div><p class="notice" id="hp-count">On this test site your pictures stay on your device. Nothing is uploaded.</p>
+   <label class="gcopy"><input type="checkbox" id="hp-plain"><span><b>Mom sometimes sees my email or phone</b><small>Subject lines just say "Your Hero House order", with no names or pictures in the preview text.</small></span></label>
+   <div><button type="submit" class="btn">Send the preview to me</button></div>
+   <p class="notice" id="hp-msg" aria-live="polite"></p><div id="hp-mails"></div></form></section>
+  <section class="stack" id="hp-safe"><h2>How the surprise stays a surprise</h2><ul class="hp-list">
+   <li><b>Every email goes to you.</b> The preview, the one reminder, the receipt and the shipping notice. None of it goes to Mom.</li>
+   <li><b>Her email is blocked.</b> If you give us Mom's address, we never write to it, and we stop you if it's typed as yours.</li>
+   <li><b>Plain subject lines</b> if you share an inbox or she sees your phone.</li>
+   <li><b>Ship it anywhere.</b> Your office, Grandma's house or a neighbor's. You pick the address at checkout.</li>
+   <li><b>Kids record wherever it's easy.</b> At Grandma's, in the car, a few minutes at a time, on any phone.</li></ul></section>
+  <section class="panel hp-two"><div class="stack"><h2>Two for ${money(pairTotal(g))}: one for Mom, one for Grandma</h2>
+   <p id="hp-two-line"></p></div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" id="hp-both" href="#">Start both in secret</a><a class="btn ghost" id="hp-one" href="#">Just Mom's book</a><a class="btn ghost" href="${root}mothers-day.html">See All About Mom</a></div></section></div>`;
+  const show=()=>{const o=vars(g,given);document.getElementById("hp-cover").innerHTML=momCover(o);
+    document.getElementById("hp-two-line").textContent=`${o.Kid} answers questions about ${o.Rel}, then a second set about ${o.Other}. The second book is half off, both ship free, and every email still goes to you.`;
+    document.getElementById("hp-both").href=url("&two=2");document.getElementById("hp-one").href=url("");};show();
+  const form=document.getElementById("hp-form");
+  form.addEventListener("input",e=>{const k=e.target.dataset.k;if(k){given[k]=e.target.value;show();}if(e.target.id==="hp-name")helperName=e.target.value.trim();});
+  form.addEventListener("change",e=>{if(e.target.id==="hp-plain")plain=e.target.checked;
+    if(e.target.id==="hp-files"){pics.forEach(u=>URL.revokeObjectURL(u));const fs=[...e.target.files].filter(f=>/^image\//.test(f.type)).slice(0,12);pics=fs.map(f=>URL.createObjectURL(f));
+      document.getElementById("hp-thumbs").innerHTML=pics.map((u,i)=>`<img src="${u}" alt="Drawing ${i+1}">`).join("");
+      document.getElementById("hp-count").textContent=pics.length?`${pics.length} drawing${pics.length>1?"s":""} added.${e.target.files.length>12?" We kept the first 12.":""} They stay on your device on this test site.`:"On this test site your pictures stay on your device. Nothing is uploaded.";}});
+  form.addEventListener("submit",e=>{e.preventDefault();const o=vars(g,given),msg=document.getElementById("hp-msg"),out=document.getElementById("hp-mails");
+    const em=document.getElementById("hp-email").value.trim(),mom=document.getElementById("hp-mom").value.trim();out.innerHTML="";
+    const ok=s=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
+    if(!ok(em)){msg.textContent="Please type your own email, like you@example.com.";return;}
+    if(mom&&!ok(mom)){msg.textContent=`That doesn't look like an email for ${o.Rel}. Leave it blank if you like.`;return;}
+    if(mom&&mom.toLowerCase()===em.toLowerCase()){msg.textContent=`That's ${o.Rel}'s address. Use your own, so the surprise stays safe.`;return;}
+    msg.textContent="";const n=pics.length,hi=helperName?`Hi ${esc(helperName)},`:"Hi,",to=esc(em),k=esc(o.Kid),r=esc(o.Rel);
+    const S=(p,f)=>plain?p:f;
+    out.innerHTML=`<p class="notice"><b>A sample of the emails ${to} would get.</b> Nothing was sent.</p><div class="mails">
+     ${mail("Right now, to "+to,S("Your Hero House order","Shh: "+k+"'s book about "+r+" is ready to check"),`<p>${hi} ${plain?`your pages are ready to check${n?`, with the ${n} picture${n>1?"s":""} you sent`:""}`:`every page is ready, with ${k}'s answers word for word${n?` and the ${n} drawing${n>1?"s":""} you sent`:""}`}. Check them and ask for one free round of changes.</p><p><a class="btn" href="${url("")}">Check the pages</a></p><p class="mail-small">Only you have this link.</p>`)}
+     ${mail("2 days later, only if you haven't checked it, to "+to,S("Your Hero House order",k+"'s pages are waiting for you"),`<p>A quick nudge, sent only to you. Nothing goes to print until you say it's right.</p><p class="mail-small">This is the only reminder.</p>`)}
+     ${mail("When it ships, to "+to,S("Your Hero House order has shipped","The surprise for "+r+" is on its way to you"),`<p>It's going to the address you picked at checkout, so you can hide it until the day. Want something to hand over early? Print the free <a href="${revealUrl(g,given)}">"on its way" card</a>.</p>`)}
+     </div><p class="hp-mom"><b>Emails to ${mom?esc(mom):r}: none.</b> Not the preview, not the reminder, not the shipping notice.</p>`;});
+}
+
+chrome();home();valentines();mothers();helper();thanks();reveal();gift();chooser();
 })();

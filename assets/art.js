@@ -87,5 +87,18 @@ A.comic=()=>{const panel=(x,y,w,h,inner)=>`<g><rect x="${x}" y="${y}" width="${w
 A.galleryWall=()=>flat(`<rect width="400" height="250" fill="#f3f0fa"/>${[[30,40,100,80],[150,30,110,90],[280,45,90,70],[60,150,90,70],[175,140,100,80],[295,140,80,70]].map((r,i)=>`<rect x="${r[0]}" y="${r[1]}" width="${r[2]}" height="${r[3]}" fill="#fff" stroke="#ddd8ec" stroke-width="3"/><rect x="${r[0]+8}" y="${r[1]+8}" width="${r[2]-16}" height="${r[3]-16}" fill="${["#ffe08a","#bfe3ff","#ffc7d9","#c9f0c2","#e2d4ff","#ffd3a8"][i]}"/>`).join("")}
  <path d="M58 75 q20 -20 40 0 M182 70 l20 -25 l20 25 M300 75 a14 14 0 1 0 1 0 M80 185 h40 M200 175 q25 25 50 0 M318 175 l25 0" stroke="#2b2540" stroke-width="4" fill="none" stroke-linecap="round"/>`,"0 0 400 250");
 
+/* Big Sister, Big Brother: a big kid holding the new baby in the nursery; arg is "Sister" or "Brother" for the banner */
+A.bigSib=(s)=>flat(`<rect width="400" height="400" fill="#fdeef2"/><rect y="300" width="400" height="100" fill="#f3d3a8"/>
+ <rect x="250" y="190" width="120" height="110" rx="6" fill="none" stroke="#c99a6a" stroke-width="8"/>${[268,292,316,340].map(x=>`<rect x="${x}" y="196" width="6" height="104" fill="#c99a6a"/>`).join("")}
+ <circle cx="330" cy="70" r="22" fill="#ffd447"/><g fill="#f6b3c8"><circle cx="60" cy="70" r="5"/><circle cx="100" cy="40" r="4"/><circle cx="210" cy="56" r="5"/></g>
+ ${person(165,340,1.25,{shirt:"#8a4fd1",hair:P.hair1,long:s!=="Brother",skin:P.skin2})}
+ <g transform="translate(166 226) rotate(-18)"><ellipse cx="0" cy="0" rx="44" ry="26" fill="#bfe3f5"/><path d="M-44 0 Q-20 14 10 8" stroke="#8fc6e0" stroke-width="4" fill="none"/>
+ <circle cx="30" cy="-6" r="17" fill="${P.skin1}"/><path d="M24 -8 q3 3 6 0M34 -8 q3 3 6 0" stroke="${P.blk}" stroke-width="2" fill="none"/><path d="M28 0 q4 3 8 0" stroke="${P.blk}" stroke-width="2" fill="none"/>
+ <path d="M18 -18 Q30 -30 44 -16" fill="#f6b3c8"/></g>
+ <path d="M232 128 c-6 -11 -20 -5 -14 6 l14 12 l14 -12 c6 -11 -8 -17 -14 -6z" fill="${P.red}"/>
+ ${s?`<g transform="translate(200 362)"><rect x="-96" y="-20" width="192" height="36" rx="18" fill="#fffdf7" stroke="#8a4fd1" stroke-width="3"/><text x="0" y="6" text-anchor="middle" font-family="Bricolage Grotesque,sans-serif" font-weight="700" font-size="19" fill="#8a4fd1">BIG ${String(s).toUpperCase()}</text></g>`:""}`);
+A.kidBaby=()=>crayon(`<ellipse cx="200" cy="190" rx="70" ry="92" stroke="${P.sky}" fill="${P.sky}" fill-opacity=".3"/><circle cx="200" cy="112" r="40" stroke="${P.skin2}"/>
+ <path d="M180 108 q8 7 16 0M206 108 q8 7 16 0" stroke="${P.blk}"/><path d="M190 128 q10 8 20 0" stroke="${P.red}"/><path d="M196 72 q6 -16 14 -2" stroke="${P.brn}"/>
+ <path d="M300 70 h28 l-28 30 h28M330 40 h20 l-20 22 h20" stroke="${P.blu}"/><path d="M80 250 l10 -20 l10 20 l-22 -12 h24z" stroke="${P.yel}"/>`);
 window.HHArt=A;
 })();
